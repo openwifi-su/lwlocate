@@ -1,0 +1,17 @@
+CC      = gcc
+CFLAGS  = -Wall -g0 -O3 -DENV_QNX -D_REENTRANT -D_DEBUG -L/usr/lib -L/usr/local/lib/ -L/opt/X11R6/lib/ -I/usr/include
+
+LDFLAGS  = -lwlocate -lsocket
+
+PNAME=libtest
+
+OBJ = test.o
+SRC = test.c
+
+all: $(OBJ)
+	$(CC) $(CFLAGS) -o $(PNAME) $(OBJ) $(LDFLAGS)
+	strip $(PNAME)
+
+clean:
+	rm *.o
+	rm $(PNAME)

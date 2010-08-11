@@ -1,0 +1,30 @@
+DBGFLAGS = -O2 -g0
+ifeq ($(DEBUG),1)
+DBGFLAGS = -O0 -g3 -DNOSPLASH
+endif
+
+CCOMPILER=gcc -Wall -fPIC -shared -Wno-unused $(DBGFLAGS) -D_REENTRANT -DENV_QNX -I. -I.. -I/usr/include
+
+SYSLIBRARIES=
+
+LIBS = $(SYSLIBRARIES) -lsocket
+
+EXECUTABLE=libwlocate.so
+
+LINK=gcc -shared
+
+OBJECTS = connect.o wlan.o libwlocate.o
+
+default: $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(LINK) $(SYSLDFLAGS) $(LDFLAGS) -o $(EXECUTABLE) $(OBJECTS) $(LIBS) 
+	cp $(EXECUTABLE) /usr/lib/
+	cp libwlocate.h /usr/local/include
+
+%.o: %.c
+	$(CCOMPILER) -c $< -o $@
+
+clean:
+	rm -f $(OBJECTS) $(EXECUTABLE)
+

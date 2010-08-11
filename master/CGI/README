@@ -1,0 +1,6 @@
+This directory contains a CGI (common gateway interface application) that can be
+used together with a webserver to provide a JSON-based geolocation interface. Such
+interfaces are used e.g. by webbrowsers to offer geolocation services for
+their users and related to the shown content.
+For some webbrowsers the URL can be changed where the geolocation services are
+accessible at, here the address of this CGI application has to be given.

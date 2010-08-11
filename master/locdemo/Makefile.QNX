@@ -1,0 +1,30 @@
+PROGRAM = LocDemo
+
+INCLUDEDIRS = -I/usr/X11R6/include -I.. $(shell wx-config --cflags) $(shell pkg-config gtk+-2.0 --cflags)
+
+LIBDIRS = -L/usr/X11R6/lib -L/usr/lib
+
+LIBS = $(shell wx-config --libs) -lph -lwlocate
+
+DBGFLAGS = -O2 -g0
+ifeq ($(DEBUG),1)
+DBGFLAGS = -O0 -g3 -DNOSPLASH
+endif
+
+CXXSOURCES = LocDemoApp.cpp LocDemoWin.cpp
+
+CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
+CXXFLAGS = -Wall -DESRI_UNIX -DENV_QNX $(INCLUDEDIRS) $(DBGFLAGS)
+CXX = g++
+
+LDFLAGS = $(LIBDIRS) $(LIBS)
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(CXXOBJECTS)
+	$(CXX) -o $@ $(CXXOBJECTS) $(LDFLAGS)
+	strip $(PROGRAM)
+
+clean:
+	$(RM) -f $(CXXOBJECTS) $(PROGRAM)
+

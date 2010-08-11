@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+#	/etc/rc.d/init.d/wlocd
+#
+# Starts the WLAN detection/scanning daemon wlocd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+prog="wlocd"
+
+test -x /usr/bin/$prog || exit 0
+
+RETVAL=0
+
+#
+#	See how we were called.
+#
+
+start() {
+	# Check if universe is already running
+	if [ ! -f /var/lock/subsys/$prog ]; then
+	    echo -n $"Starting $prog: "
+	    daemon $prog &
+	    RETVAL=$?
+	    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$prog
+	    echo
+	else
+	    echo "Failed! /var/lock/subsys/$prog exists!"
+	fi
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+        killproc $prog -INT
+	rm -f /var/lock/subsys/$prog
+	RETVAL=$?
+	[ $RETVAL -eq 0 ]
+	echo
+        return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}	
+
+
+
+case "$1" in
+start)
+	start
+	;;
+stop)
+	stop
+	;;
+restart)
+	restart
+	;;
+
+*)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+exit $RETVAL
+
