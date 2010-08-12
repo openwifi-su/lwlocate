@@ -161,6 +161,9 @@ WLOC_EXT_API int wloc_get_country_from_code(short ccode,char *country)
       case 17:
          strncpy(country,"AN",2);
          return WLOC_OK;
+      case 18:
+         strncpy(country,"AG",2);
+         return WLOC_OK;
       case 19:
          strncpy(country,"AR",2);
          return WLOC_OK;
@@ -262,6 +265,9 @@ WLOC_EXT_API int wloc_get_country_from_code(short ccode,char *country)
          return WLOC_OK;
       case 76:
          strncpy(country,"GL",2);
+         return WLOC_OK;
+      case 77:
+         strncpy(country,"GD",2);
          return WLOC_OK;
       case 78:
          strncpy(country,"GU",2);
