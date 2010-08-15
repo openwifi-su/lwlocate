@@ -28,3 +28,4 @@ ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd
 ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd
 ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd
 ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd
+ldconfig
