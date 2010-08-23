@@ -12,7 +12,9 @@ A WLAN geolocation demonstration application that makes use of libwlocate and th
 /etc/init.d/*
 /usr/*
 %pre
-rm -f /sbin/LocDemo
+if [ -x /sbin/LocDemo ]; then
+   rm -f /sbin/LocDemo
+fi
 if [ -x /etc/init.d/wlocd ]; then
    /etc/init.d/wlocd stop
 fi
