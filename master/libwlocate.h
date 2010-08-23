@@ -79,8 +79,8 @@ struct wloc_res
 
 // public defines and function definitions ====================================================================================
 #define WLOC_OK               0 // result is OK, location could be retrieved
-#define WLOC_CONNECTION_ERROR 1 // could not connect to server and retrieve data
-//#define WLOC_WLAN_ERROR       2 // no longer required, we now have a fallback to IP-based location could not retrieve location, no WLAN networks detected
+#define WLOC_CONNECTION_ERROR 1 // could not send data to/receive data from server
+#define WLOC_SERVER_ERROR     2// could not connect to server to get position data
 #define WLOC_LOCATION_ERROR   3 // could not retrieve location, detected WLAN networks are unknown
 #define WLOC_ERROR          100 // some other error
 
