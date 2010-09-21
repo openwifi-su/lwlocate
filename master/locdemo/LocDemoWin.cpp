@@ -85,6 +85,11 @@ LocDemoWin::LocDemoWin(const wxString& title)
    m_countryField=new wxTextCtrl(rootPanel,wxID_ANY,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
    gSizer->Add(m_countryField,1,wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
 
+   zoomInButton=new wxButton(rootPanel,wxID_ANY,_T("Zoom In"));
+   gSizer->Add(zoomInButton,1,wxEXPAND);
+   zoomOutButton=new wxButton(rootPanel,wxID_ANY,_T("Zoom Out"));
+   gSizer->Add(zoomOutButton,1,wxEXPAND);
+
    infoButton=new wxButton(rootPanel,wxID_ANY,_T("About"));
    gSizer->Add(infoButton,1,wxEXPAND);
    
@@ -153,10 +158,20 @@ void LocDemoWin::OnPaint(wxPaintEvent& WXUNUSED(event))
 
    if ((x!=0) && (y!=0))
    {
+      wxFloat64 zoomFactor;
+
       dc.SetBrush(*wxTRANSPARENT_BRUSH);
       dc.SetPen(borderPen);
-      if (m_quality>0) dc.DrawCircle(x,y,(120-m_quality)*2/(19.0-m_zoom));
-      else dc.DrawCircle(x,y,1300.0/(19.0-m_zoom));
+      if (m_quality>0)
+      {
+         zoomFactor=pow(2.0,(17.0-m_zoom));
+         dc.DrawCircle(x,y,(120-m_quality)/zoomFactor);
+      }
+      else
+      {
+         zoomFactor=pow(2.0,(10.0-m_zoom));
+         dc.DrawCircle(x,y,130/zoomFactor);
+      }
    }
 }
 
@@ -177,7 +192,8 @@ void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
     for (y=-1; y<=1; y++)
    {
       if (locTile[x+1][y+1]) delete locTile[x+1][y+1];
-      
+      locTile[x+1][y+1]=NULL;
+
       if (!wxFile::Exists(wxStandardPaths::Get().GetUserDataDir()+wxFileName::GetPathSeparator()+wxString::Format(_T("tile_%d_%d_%d.png"),m_zoom,m_tileX+x,m_tileY+y)))
       {
       	get=new wxHTTP();
@@ -286,6 +302,18 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
    if (event.GetId()==updateButton->GetId())
    {
       getLocation();
+      Refresh();
+   }
+   else if (event.GetId()==zoomOutButton->GetId())
+   {
+      if (m_zoom>2) m_zoom--;
+      updateTiles(m_lat,m_lon);
+      Refresh();
+   }
+   else if (event.GetId()==zoomInButton->GetId())
+   {
+      if (m_zoom<17) m_zoom++;
+      updateTiles(m_lat,m_lon);
       Refresh();
    }
    else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.4 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
