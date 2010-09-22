@@ -1,0 +1,10 @@
+#!/bin/sh
+
+/etc/init.d/wlocd start 1>/dev/null 2>/dev/null
+ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd
+ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd
+ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd
+ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd
+ln -s /etc/init.d/wlocd /etc/rc2.d/S99wlocd
+ln -s /etc/init.d/wlocd /etc/rc2.d/K01wlocd
+ldconfig

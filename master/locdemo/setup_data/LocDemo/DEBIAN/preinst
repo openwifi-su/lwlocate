@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -x /sbin/LocDemo ]; then
+   rm -f /sbin/LocDemo
+fi
+if [ -x /etc/init.d/wlocd ]; then
+   /etc/init.d/wlocd stop
+fi

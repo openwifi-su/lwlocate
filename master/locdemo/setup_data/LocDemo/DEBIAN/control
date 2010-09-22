@@ -1,0 +1,16 @@
+Package: LocDemo
+Version: 0.5
+Section: internet
+Priority: optional
+Architecture: i386
+Essential: no
+Depends: libwxgtk2.8-0
+Recommends: 
+Suggests:
+Installed-Size: 2520
+Maintainer: virtual_worlds@gmx.de
+Conflicts:
+Replaces:
+Provides: LocDemo
+Description: A WLAN geolocation demonstration application that makes use of libwlocate and the data of project OpenWLANMap.
+
