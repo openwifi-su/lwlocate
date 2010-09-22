@@ -25,9 +25,9 @@ rm /etc/rc5.d/K01wlocd
 rm /etc/rc3.d/S99wlocd
 rm /etc/rc3.d/K01wlocd
 %post
-/etc/init.d/wlocd start 1>/dev/null 2>/dev/null
-ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd
-ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd
-ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd
-ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd
+ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd >/dev/null
+ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd >/dev/null
+ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd >/dev/null
+ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd >/dev/null
 ldconfig
+/etc/init.d/wlocd start 1>/dev/null 2>/dev/null
