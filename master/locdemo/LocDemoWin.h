@@ -32,7 +32,7 @@ private:
     void        updateTiles(wxFloat64 lat,wxFloat64 lon);
     void        getLocation(void);
     
-    wxButton   *updateButton,*infoButton;
+    wxButton   *updateButton,*infoButton,*zoomInButton,*zoomOutButton;
     wxBitmap   *locTile[3][3];
     wxInt32     m_tileX,m_tileY;
     wxTextCtrl *m_latField,*m_lonField,*m_qualityField,*m_countryField;

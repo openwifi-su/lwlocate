@@ -291,7 +291,7 @@ int main(int argc, char* argv[])
       int accuracy;
       char country[3];
 	 
-      if (quality>0) accuracy=(int)((275.0/100.0*(101.0-quality))+25);
+      if (quality>0) accuracy=(int)(1.20*(101.0-quality));
       else accuracy=22500;
       if ((doRequestAddress) && (wloc_get_country_from_code(ccode,country)==WLOC_OK)) sprintf(addrStr,",\"address\":{\"country_code\":\"%s\"}",country);
       else strcpy(addrStr,"");
