@@ -11,7 +11,6 @@ SRC = JSON_parser.c main.c
 all: $(OBJ)
 	$(CC) $(CFLAGS) -o $(PNAME) $(OBJ) $(LDFLAGS)
 	strip $(PNAME)
-	cp $(PNAME) ~/openwlanmap.org/
 
 clean:
 	rm *.o
