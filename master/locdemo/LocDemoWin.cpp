@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <list>
+
 #include "LocDemoWin.h"
 
 #include <wx/sstream.h>
@@ -25,8 +27,13 @@
 #include <wx/sizer.h>
 #include <wx/stdpaths.h>
 #include <wx/filename.h>
+#include <wx/timer.h>
 
 #include "libwlocate.h"
+
+using namespace std;
+
+#define X_OFFSET 162
 
 
 IMPLEMENT_CLASS(LocDemoWin, wxFrame)
@@ -34,6 +41,7 @@ IMPLEMENT_CLASS(LocDemoWin, wxFrame)
 BEGIN_EVENT_TABLE(LocDemoWin, wxFrame)
   EVT_BUTTON(wxID_ANY,LocDemoWin::OnButton)
   EVT_PAINT(LocDemoWin::OnPaint) 
+  EVT_TIMER(1,LocDemoWin::OnTimer)
 END_EVENT_TABLE()
 
 
@@ -53,10 +61,10 @@ LocDemoWin::LocDemoWin(const wxString& title)
    this->SetSizer(fSizer);
    fSizer->AddGrowableCol(0,1);
    fSizer->AddGrowableCol(1,10);
-   wxPanel *rootPanel=new wxPanel(this);
+   wxPanel *rootPanel=new wxPanel(this);//,WXID_ANY,wxDefaultPos,wxSize(X_OFFSET,750));
    fSizer->Add(rootPanel);
 
-   wxGridSizer *gSizer=new wxGridSizer(11,1,2,2);
+   wxGridSizer *gSizer=new wxGridSizer(12,1,2,2);
    rootPanel->SetBackgroundColour(*wxWHITE);
    rootPanel->SetSizer(gSizer);
 
@@ -85,6 +93,9 @@ LocDemoWin::LocDemoWin(const wxString& title)
    m_countryField=new wxTextCtrl(rootPanel,wxID_ANY,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
    gSizer->Add(m_countryField,1,wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
 
+   m_followPathCB=new wxCheckBox(rootPanel,wxID_ANY,_T("Update cyclically"));
+   gSizer->Add(m_followPathCB,1,wxEXPAND);
+
    zoomInButton=new wxButton(rootPanel,wxID_ANY,_T("Zoom In"));
    gSizer->Add(zoomInButton,1,wxEXPAND);
    zoomOutButton=new wxButton(rootPanel,wxID_ANY,_T("Zoom Out"));
@@ -93,7 +104,12 @@ LocDemoWin::LocDemoWin(const wxString& title)
    infoButton=new wxButton(rootPanel,wxID_ANY,_T("About"));
    gSizer->Add(infoButton,1,wxEXPAND);
    
-   getLocation();
+   SetDoubleBuffered(true);
+
+   getLocation(false);
+
+   m_timer = new wxTimer(this,1);
+   m_timer->Start(8000);
 }
 
 
@@ -103,6 +119,17 @@ LocDemoWin::~LocDemoWin()
 
    for (x=-1; x<=1; x++)
     for (y=-1; y<=1; y++) if (locTile[x+1][y+1]) delete locTile[x+1][y+1];
+}
+
+void LocDemoWin::OnTimer(wxTimerEvent& WXUNUSED(event))
+{
+   if (m_followPathCB->GetValue())
+   {
+      m_timer->Stop();
+      getLocation(true);
+      Refresh();
+      m_timer->Start();
+   }
 }
 
 
@@ -133,12 +160,12 @@ double tiley2lat(int y, int z)
 
 void LocDemoWin::OnPaint(wxPaintEvent& WXUNUSED(event))
 {
-   #define X_OFFSET 162
-
-   wxInt32   x,y;
-   double    tileLat1,tileLon1,tileLat2,tileLon2;
-   wxPaintDC dc(this); 
-   wxPen     borderPen(*wxRED,3);
+   wxInt32                x,y;
+   double                 tileLat1,tileLon1,tileLat2,tileLon2;
+   wxPaintDC              dc(this); 
+   wxPen                  borderPen(*wxRED,3);
+   wxPen                  pathPen(*wxBLUE,2);
+   list<double>::iterator itLat,itLon;
 
    for (x=-1; x<=1; x++)
     for (y=-1; y<=1; y++)
@@ -148,10 +175,32 @@ void LocDemoWin::OnPaint(wxPaintEvent& WXUNUSED(event))
          dc.DrawBitmap(*locTile[x+1][y+1],((x+1)*256)+X_OFFSET,(y+1)*256,false);
       }
    }
-   tileLon1=tilex2long(m_tileX,m_zoom);
+
    tileLat1=tiley2lat(m_tileY,m_zoom);
-   tileLon2=tilex2long(m_tileX+1,m_zoom);
    tileLat2=tiley2lat(m_tileY+1,m_zoom);	
+   tileLon1=tilex2long(m_tileX,m_zoom);
+   tileLon2=tilex2long(m_tileX+1,m_zoom);
+
+   dc.SetBrush(*wxTRANSPARENT_BRUSH);
+   if (m_latList.size()>1)
+   {
+      double currY,currX,prevY,prevX;
+
+      dc.SetPen(pathPen);
+      itLat=m_latList.begin(); itLat++;
+      itLon=m_lonList.begin(); itLon++;
+      prevY=256+         (256.0*(*itLat-tileLat1)/(tileLat2-tileLat1));
+      prevX=256+X_OFFSET+(256.0*(*itLon-tileLon1)/(tileLon2-tileLon1));
+      for ( ; itLat!= m_latList.end(); itLat++ )
+      {
+         currY=256+         (256.0*(*itLat-tileLat1)/(tileLat2-tileLat1));
+         currX=256+X_OFFSET+(256.0*(*itLon-tileLon1)/(tileLon2-tileLon1));
+         dc.DrawLine(prevX,prevY,currX,currY);
+         prevY=currY;
+         prevX=currX;
+         itLon++;
+      }
+   }
    
    y=256+         (256.0*(m_lat-tileLat1)/(tileLat2-tileLat1));
    x=256+X_OFFSET+(256.0*(m_lon-tileLon1)/(tileLon2-tileLon1));
@@ -160,7 +209,6 @@ void LocDemoWin::OnPaint(wxPaintEvent& WXUNUSED(event))
    {
       wxFloat64 zoomFactor;
 
-      dc.SetBrush(*wxTRANSPARENT_BRUSH);
       dc.SetPen(borderPen);
       if (m_quality>0)
       {
@@ -241,17 +289,20 @@ void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
 
 
 
-void LocDemoWin::getLocation(void)
+void LocDemoWin::getLocation(bool silent)
 {
-   wxInt32 ret;
-   wxFrame *splash;
+   wxInt32  ret;
+   wxFrame *splash=NULL;
    
-   splash = new wxFrame(NULL,wxID_ANY,_T("Getting Position Data and Map"),wxDefaultPosition,wxSize(500,80),wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxCAPTION);
-   new wxStaticText(splash,wxID_ANY,_T("Operation in progress, please wait..."),wxPoint(20,30));
-   splash->Center();
+   if (!silent)
+   {
+      splash = new wxFrame(NULL,wxID_ANY,_T("Getting Position Data and Map"),wxDefaultPosition,wxSize(500,80),wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxCAPTION);
+      new wxStaticText(splash,wxID_ANY,_T("Operation in progress, please wait..."),wxPoint(20,30));
+      splash->Center();
 #ifndef _DEBUG
    splash->Show(); 
 #endif
+   }
 
    m_lat=0;
    m_lon=0;
@@ -263,11 +314,20 @@ void LocDemoWin::getLocation(void)
       wxMBConvUTF8  conv;
       wchar_t       wc[3];
 
-      m_latField->SetValue(_T(""));     *m_latField<<m_lat;
-      m_lonField->SetValue(_T(""));     *m_lonField<<m_lon;
+      m_latField->SetValue(_T("")); *m_latField<<m_lat; 
+      m_lonField->SetValue(_T("")); *m_lonField<<m_lon; 
+      if (m_quality>0)
+      {
+         m_latList.push_back(m_lat);
+         m_lonList.push_back(m_lon);
+      }
+      
       m_qualityField->SetValue(_T("")); *m_qualityField<<m_quality;
-      if (m_quality==0) m_zoom=10;
-      else m_zoom=17;
+      if (!m_followPathCB->GetValue())
+      {
+         if (m_quality==0) m_zoom=10;
+         else m_zoom=17;
+      }
       if (wloc_get_country_from_code(m_ccode,country)==WLOC_OK)
       {
          conv.MB2WC(wc,country,3);
@@ -276,7 +336,7 @@ void LocDemoWin::getLocation(void)
       else m_countryField->SetValue(_T("?"));
 
       updateTiles(m_lat,m_lon);
-      splash->Close();
+      if (!silent) splash->Close();
       delete splash;
    }
    else
@@ -301,7 +361,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
 {
    if (event.GetId()==updateButton->GetId())
    {
-      getLocation();
+      getLocation(false);
       Refresh();
    }
    else if (event.GetId()==zoomOutButton->GetId())
@@ -316,6 +376,6 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
       updateTiles(m_lat,m_lon);
       Refresh();
    }
-   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.5 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
+   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.6 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
 
