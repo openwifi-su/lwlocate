@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -Wall -g0 -O3 -DENV_QNX -D_REENTRANT -D_DEBUG -L/usr/lib -L/usr/local/lib/ -L/opt/X11R6/lib/ -I/usr/include
+CFLAGS  = -Wall -g0 -O3 -DENV_QNX -D_REENTRANT -DNDEBUG -L/usr/lib -L/usr/local/lib/ -L/opt/X11R6/lib/ -I/usr/include
 
 LDFLAGS  = -lwlocate -lsocket
 

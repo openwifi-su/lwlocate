@@ -6,7 +6,7 @@ LIBDIRS = -L/usr/X11R6/lib -L/usr/lib
 
 LIBS = -lwlocate
 
-DBGFLAGS = -O2 -g0
+DBGFLAGS = -O2 -g0 -DNDEBUG
 ifeq ($(DEBUG),1)
 DBGFLAGS = -O0 -g3 -DNOSPLASH
 endif

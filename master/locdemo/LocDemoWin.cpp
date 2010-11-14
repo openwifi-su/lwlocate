@@ -52,10 +52,10 @@ LocDemoWin::LocDemoWin(const wxString& title)
            :wxFrame(NULL, wxID_ANY, title, wxPoint(20,0), wxSize(930,768),wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxSYSTEM_MENU|wxCAPTION|wxCLOSE_BOX|wxCLIP_CHILDREN)
 {
    wxInt32  x,y;
-   
+
    for (x=-1; x<=1; x++)
     for (y=-1; y<=1; y++) locTile[x+1][y+1]=NULL;
-   
+
    m_zoom=17;
 
    SetBackgroundColour(*wxWHITE);

@@ -25,6 +25,7 @@
 #include "libwlocate.h"
 #include "connect.h"
 #include "wlan.h"
+#include "assert.h"
 
 
 
@@ -63,6 +64,13 @@ int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,
    else *lon=uval/10000000.0;
 
    *quality=result.quality;
+   
+   // this should never happen, the server should send quality values in range 0..99 only
+   assert((*quality>=0) && (*quality<=99));
+   if (*quality<0) *quality==0;
+   else if (*quality>99) *quality=99;
+   // end of this should never happen
+   
    *ccode=ntohs(result.ccode);
    return WLOC_OK;
 }

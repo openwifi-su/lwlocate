@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -Wall -g0 -O3 -DENV_LINUX -D_REENTRANT -D_DEBUG -L/usr/lib -L/usr/local/lib/ -I.
+CFLAGS  = -Wall -g0 -O3 -DENV_LINUX -D_REENTRANT -DNDEBUG -L/usr/lib -L/usr/local/lib/ -I.
 
 LDFLAGS  = -L. -lwlocate -lm
 
