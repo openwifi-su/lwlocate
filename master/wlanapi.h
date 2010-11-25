@@ -34,7 +34,7 @@ typedef enum _WLAN_INTERFACE_STATE {
     wlan_interface_state_authenticating
 } WLAN_INTERFACE_STATE, *PWLAN_INTERFACE_STATE;
 
-
+#define WLAN_MAX_NAME_LENGTH 256
 
 typedef struct _WLAN_INTERFACE_INFO {
     GUID InterfaceGuid;

@@ -87,7 +87,7 @@ static int WinMethod1(struct wloc_req *request)
      	{
      		cnt++;
          memcpy(request->bssids[cnt],pBssList->wlanBssEntries[j].dot11Bssid,6);
-         request->signal[cnt]=pBssList->wlanBssEntries[j].uLinkQuality;
+         request->signal[cnt]=(char)pBssList->wlanBssEntries[j].uLinkQuality;
     		if (cnt>=9) break;
      	}
       if (pBssList != NULL) WlanFreeMemory(pBssList); // ???

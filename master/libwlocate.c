@@ -67,7 +67,7 @@ int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,
    
    // this should never happen, the server should send quality values in range 0..99 only
    assert((*quality>=0) && (*quality<=99));
-   if (*quality<0) *quality==0;
+   if (*quality<0) *quality=0;
    else if (*quality>99) *quality=99;
    // end of this should never happen
    
