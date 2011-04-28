@@ -33,9 +33,9 @@ private:
     void        OnPaint(wxPaintEvent& event);
     void        OnTimer(wxTimerEvent& event);
     void        updateTiles(wxFloat64 lat,wxFloat64 lon);
-    void        getLocation(bool silent);
+    void        getLocation(bool silent,struct wloc_req *requestData);
     
-    wxButton         *updateButton,*infoButton,*zoomInButton,*zoomOutButton;
+    wxButton         *updateButton,*infoButton,*zoomInButton,*zoomOutButton,*traceButton;
     wxBitmap         *locTile[3][3];
     wxInt32           m_tileX,m_tileY;
     wxTextCtrl       *m_latField,*m_lonField,*m_qualityField,*m_countryField;

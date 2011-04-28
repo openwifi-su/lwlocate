@@ -35,6 +35,10 @@ using namespace std;
 
 #define X_OFFSET 162
 
+extern "C"
+{
+   extern int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode);
+}
 
 IMPLEMENT_CLASS(LocDemoWin, wxFrame)
 
@@ -103,12 +107,15 @@ LocDemoWin::LocDemoWin(const wxString& title)
    zoomOutButton=new wxButton(rootPanel,wxID_ANY,_T("Zoom Out"));
    gSizer->Add(zoomOutButton,1,wxEXPAND);
 
+   traceButton=new wxButton(rootPanel,wxID_ANY,_T("Load Tracefile"));
+   gSizer->Add(traceButton,1,wxEXPAND);
+
    infoButton=new wxButton(rootPanel,wxID_ANY,_T("About"));
    gSizer->Add(infoButton,1,wxEXPAND);
-   
+
    SetDoubleBuffered(true);
 
-   getLocation(false);
+   getLocation(false,NULL);
 
    m_timer = new wxTimer(this,1);
    m_timer->Start(8000);
@@ -134,7 +141,7 @@ void LocDemoWin::OnTimer(wxTimerEvent& WXUNUSED(event))
    if (m_followPathCB->GetValue())
    {
       m_timer->Stop();
-      getLocation(true);
+      getLocation(true,NULL);
       Refresh();
       m_timer->Start();
    }
@@ -150,7 +157,7 @@ void LocDemoWin::OnTimer(wxTimerEvent& WXUNUSED(event))
  */
 static int long2tilex(double lon, int z) 
 { 
-	return (int)(floor((lon + 180.0) / 360.0 * pow(2.0, z))); 
+   return (int)(floor((lon + 180.0) / 360.0 * pow(2.0, z))); 
 }
 
 
@@ -279,7 +286,7 @@ void LocDemoWin::OnPaint(wxPaintEvent& WXUNUSED(event))
  */
 void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
 {
-	wxInt32        x,y;
+   wxInt32        x,y;
    wxHTTP        *get;
    wxString       path;
    wxInputStream *httpStream;
@@ -333,8 +340,8 @@ void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
       tmpImage=new wxImage(path,wxBITMAP_TYPE_PNG);
       if ((tmpImage) && (tmpImage->Ok()))
       {
-       	locTile[x+1][y+1]=new wxBitmap(*tmpImage);
-  	      delete tmpImage;
+         locTile[x+1][y+1]=new wxBitmap(*tmpImage);
+         delete tmpImage;
       }         
    }
 }
@@ -347,7 +354,7 @@ void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
  * @param[in] silent if this value is set to true no splash screen is displayed during
  *            position and tile update
  */
-void LocDemoWin::getLocation(bool silent)
+void LocDemoWin::getLocation(bool silent,struct wloc_req *requestData)
 {
    wxInt32  ret;
    wxFrame *splash=NULL;
@@ -365,7 +372,12 @@ void LocDemoWin::getLocation(bool silent)
    m_lat=0;
    m_lon=0;
    m_quality=0;
-   ret=wloc_get_location(&m_lat,&m_lon,&m_quality,&m_ccode);
+   if (!requestData) ret=wloc_get_location(&m_lat,&m_lon,&m_quality,&m_ccode);
+   else
+   {
+      ret=get_position(requestData,&m_lat,&m_lon,&m_quality,&m_ccode);
+      if (ret!=WLOC_OK) printf("Loading trace location failed...");
+   }
    if (ret==WLOC_OK)
    {
       char country[3]={0,0,0};
@@ -423,7 +435,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
 {
    if (event.GetId()==updateButton->GetId())
    {
-      getLocation(false);
+      getLocation(false,NULL);
       Refresh();
    }
    else if (event.GetId()==zoomOutButton->GetId())
@@ -438,6 +450,34 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
       updateTiles(m_lat,m_lon);
       Refresh();
    }
-   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.6 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
+   else if (event.GetId()==traceButton->GetId())
+   {
+      struct wloc_req requestData;
+      FILE           *FHandle;
+      wxInt32         i,ret=1;
+      
+      m_followPathCB->SetValue(false);
+      m_latList.clear();
+      m_lonList.clear();
+      Refresh();
+      FHandle=fopen("libwlocate.trace","rb");
+      if (FHandle)
+      {
+         memset(&requestData,0,sizeof(struct wloc_req));
+         while (ret>0)
+         {
+            for (i=0; i<WLOC_MAX_NETWORKS; i++)
+            {
+               fread(&requestData.bssids[i],1,sizeof(requestData.bssids[i]),FHandle);
+               ret=fread(&requestData.signal[i],1,1,FHandle);
+            }
+            getLocation(false,&requestData);
+         }
+         fclose(FHandle);
+      }
+      else wxMessageBox(_T("Could not find trace file!"),_T("Error"),wxOK|wxICON_ERROR);
+      Refresh();
+   }
+   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.7 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
 
