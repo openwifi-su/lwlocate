@@ -36,15 +36,32 @@
 
 
 
+char notEqual(struct wloc_req *data1,struct wloc_req *data2,int num)
+{
+   int i,j;
+   
+   for (i=0; i<num; i++)
+   {
+      if (data1->signal[i]!=data2->signal[i]) return 1;
+      for (j=0; j<6; j++)
+      {
+         if (data1->bssids[i][j]!=data2->bssids[i][j]) return 1;
+      }
+   }
+   return 0;
+}
+
+
+
 int main(int argc,char *argv[])
 {
-   int             ret,i,cnt;
+   int             ret,i,cnt,prevCnt=0;
    double          lat,lon;
    char            quality;
    short           ccode;
    char            country[3];
    FILE           *FHandle;
-   struct wloc_req request;
+   struct wloc_req request,prevRequest;
    unsigned char   empty_bssid[6]={0,0,0,0,0,0};
    unsigned char   empty_signal=0;
 
@@ -59,30 +76,27 @@ int main(int argc,char *argv[])
       FHandle=fopen("libwlocate.trace","ab");
       if (FHandle)
       {
+         memset(&prevRequest,0,sizeof(struct wloc_req));
          while (true)
          {
-            cnt=wloc_get_wlan_data(&request);
-/*request.bssids[0][0]=rand();
-request.bssids[0][1]=rand();
-request.bssids[0][2]=rand();
-request.bssids[0][3]=rand();
-request.bssids[0][4]=rand();
-request.bssids[0][5]=rand();
-request.signal[0]=90;
-cnt=3;*/
             if (cnt>0)
             {
-               for (i=0; i<cnt; i++)
+               if ((cnt==prevCnt) && (!notEqual(&request,&prevRequest,cnt)))
                {
-                  fwrite(&request.bssids[i],1,sizeof(request.bssids[i]),FHandle);
-                  fwrite(&request.signal[i],1,1,FHandle);
+                  for (i=0; i<cnt; i++)
+                  {
+                     fwrite(&request.bssids[i],1,sizeof(request.bssids[i]),FHandle);
+                     fwrite(&request.signal[i],1,1,FHandle);
+                  }
+                  for (i=cnt; i<WLOC_MAX_NETWORKS; i++)
+                  {
+                     fwrite(&empty_bssid,1,sizeof(request.bssids[i]),FHandle);
+                     fwrite(&empty_signal,1,1,FHandle);
+                  }
+                  fflush(FHandle);               
+                  prevCnt=cnt;
+                  prevRequest=request;
                }
-               for (i=cnt; i<WLOC_MAX_NETWORKS; i++)
-               {
-                  fwrite(&empty_bssid,1,sizeof(request.bssids[i]),FHandle);
-                  fwrite(&empty_signal,1,1,FHandle);
-               }
-               fflush(FHandle);
             }
             sleep(1);
          }

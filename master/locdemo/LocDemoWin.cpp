@@ -61,6 +61,7 @@ LocDemoWin::LocDemoWin(const wxString& title)
     for (y=-1; y<=1; y++) locTile[x+1][y+1]=NULL;
 
    m_zoom=17;
+   m_traceMode=false;
 
    SetBackgroundColour(*wxWHITE);
    wxFlexGridSizer *fSizer=new wxFlexGridSizer(1,2,2,2);
@@ -386,17 +387,22 @@ void LocDemoWin::getLocation(bool silent,struct wloc_req *requestData)
 
       m_latField->SetValue(_T("")); *m_latField<<m_lat; 
       m_lonField->SetValue(_T("")); *m_lonField<<m_lon; 
+      if (m_quality<0) m_quality=1;
       if (m_quality>0)
       {
          m_latList.push_back(m_lat);
          m_lonList.push_back(m_lon);
       }
+      else if (m_traceMode) return; // do not use IP-Data only in case of trace mode
       
       m_qualityField->SetValue(_T("")); *m_qualityField<<m_quality;
       if (!m_followPathCB->GetValue())
       {
-         if (m_quality==0) m_zoom=10;
-         else m_zoom=17;
+         if (m_quality==0) m_zoom=10;         
+         else
+         {
+            if (!m_traceMode) m_zoom=17;
+         }
       }
       if (wloc_get_country_from_code(m_ccode,country)==WLOC_OK)
       {
@@ -409,7 +415,7 @@ void LocDemoWin::getLocation(bool silent,struct wloc_req *requestData)
       if (!silent) splash->Close();
       delete splash;
    }
-   else
+   else if (!requestData)
    {
       m_latField->SetValue(_T("---"));
       m_lonField->SetValue(_T("---"));
@@ -452,10 +458,13 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
    }
    else if (event.GetId()==traceButton->GetId())
    {
-      struct wloc_req requestData;
       FILE           *FHandle;
       wxInt32         i,ret=1;
+      struct wloc_req requestData,prevData;
+      wxPaintEvent    pEvent;
       
+      memset(&requestData,0,sizeof(struct wloc_req));
+      memset(&prevData,0,sizeof(struct wloc_req));
       m_followPathCB->SetValue(false);
       m_latList.clear();
       m_lonList.clear();
@@ -463,6 +472,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
       FHandle=fopen("libwlocate.trace","rb");
       if (FHandle)
       {
+         m_traceMode=true;
          memset(&requestData,0,sizeof(struct wloc_req));
          while (ret>0)
          {
@@ -471,13 +481,34 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
                fread(&requestData.bssids[i],1,sizeof(requestData.bssids[i]),FHandle);
                ret=fread(&requestData.signal[i],1,1,FHandle);
             }
-            getLocation(false,&requestData);
+            if (notEqual(&requestData,&prevData)) getLocation(true,&requestData);
+            prevData=requestData;
+            OnPaint(pEvent);
          }
          fclose(FHandle);
       }
       else wxMessageBox(_T("Could not find trace file!"),_T("Error"),wxOK|wxICON_ERROR);
-      Refresh();
+      m_traceMode=false;
    }
    else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.7 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
+
+
+
+bool LocDemoWin::notEqual(struct wloc_req *data1,struct wloc_req *data2)
+{
+   wxUint32 i,j;
+   
+   for (i=0; i<WLOC_MAX_NETWORKS; i++)
+   {
+      if (data1->signal[i]!=data2->signal[i]) return true;
+      for (j=0; j<6; j++)
+      {
+         if (data1->bssids[i][j]!=data2->bssids[i][j]) return true;
+      }
+   }
+   return false;
+}
+
+
 

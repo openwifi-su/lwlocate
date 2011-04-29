@@ -34,6 +34,8 @@ private:
     void        OnTimer(wxTimerEvent& event);
     void        updateTiles(wxFloat64 lat,wxFloat64 lon);
     void        getLocation(bool silent,struct wloc_req *requestData);
+    bool        notEqual(struct wloc_req *data1,struct wloc_req *prevData);
+
     
     wxButton         *updateButton,*infoButton,*zoomInButton,*zoomOutButton,*traceButton;
     wxBitmap         *locTile[3][3];
@@ -46,6 +48,7 @@ private:
     wxByte            m_zoom;
     wxTimer          *m_timer;
     std::list<double> m_latList,m_lonList;
+    bool              m_traceMode;
     
     DECLARE_CLASS(LocDemoWin)
     DECLARE_EVENT_TABLE()
