@@ -55,7 +55,7 @@ char notEqual(struct wloc_req *data1,struct wloc_req *data2,int num)
 
 int main(int argc,char *argv[])
 {
-   int             ret,i,cnt,prevCnt=0;
+   int             ret,i,cnt=0,prevCnt=0;
    double          lat,lon;
    char            quality;
    short           ccode;
@@ -119,7 +119,11 @@ int main(int argc,char *argv[])
                   prevRequest=request;
                }
             }
+#ifdef ENV_WINDOWS
+            Sleep(1000);
+#else
             sleep(1);
+#endif
          }
          fclose(FHandle);
       }
