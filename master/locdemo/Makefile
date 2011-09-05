@@ -7,8 +7,10 @@ LIBDIRS = -L/usr/X11R6/lib -L/usr/lib
 LIBS = $(shell wx-config --libs) -lwlocate
 
 DBGFLAGS = -O2 -g0 -DNDEBUG
+STRIP=strip
 ifeq ($(DEBUG),1)
 DBGFLAGS = -O0 -g3 -DNOSPLASH
+STRIP=ls -al
 endif
 
 CXXSOURCES = LocDemoApp.cpp LocDemoWin.cpp
@@ -23,7 +25,7 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(CXXOBJECTS)
 	$(CXX) -o $@ $(CXXOBJECTS) $(LDFLAGS)
-	strip $(PROGRAM)
+	$(STRIP) $(PROGRAM)
 
 clean:
 	$(RM) -f $(CXXOBJECTS) $(PROGRAM)
