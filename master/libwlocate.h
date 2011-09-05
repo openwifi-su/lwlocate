@@ -56,8 +56,8 @@ struct wloc_req
 {
 	unsigned char version,length;
 	char          bssids[WLOC_MAX_NETWORKS][6];
-	char          signal[WLOC_MAX_NETWORKS];
-        unsigned long cgiIP;
+   char          signal[WLOC_MAX_NETWORKS];
+   unsigned long cgiIP;
 };
 
 #define WLOC_RESULT_OK    1  // a position could be calculated

@@ -71,7 +71,28 @@ int main(int argc,char *argv[])
    WSAStartup((MAKEWORD(1, 1)), &wsaData);
 #endif
 
-   if ((argc>1) && (strncmp(argv[1],"-t",2)==0)) // write the WLAN data into a trace file instead of retrieving the position immediately
+   if ((argc>1) && (strncmp(argv[1],"-h",2)==0)) // test WLAN geolocation instead of writing the WLAN data into a trace file
+   {
+      printf("lwtrace\n\tscan available WLAN networks, and write them into a file libwlocate.trace for later geolocation\n");
+      printf("lwtrace -t\n\ttest geolocation functionality and evaluate the current position out of available WLAN data immediately\n");
+   }
+   else if ((argc>1) && (strncmp(argv[1],"-t",2)==0)) // test WLAN geolocation instead of writing the WLAN data into a trace file
+   {
+      ret=wloc_get_location(&lat,&lon,&quality,&ccode); // call the library function to get the position...
+      //...check the return value afterwards...
+      if (ret==WLOC_CONNECTION_ERROR) printf("Error: could not communicate with server!\n");
+      else if (ret==WLOC_LOCATION_ERROR) printf("Error: could not calculate your location, the given WLAN networks are unknown!\n");
+      //...and print the position only in case the call was successful
+      else if (ret==WLOC_OK)
+      {
+         printf("Your location: %f (lat) %f (lon)\nQuality: %d %%\n",lat,lon,quality);
+         country[2]=0;
+         if (wloc_get_country_from_code(ccode,country)==WLOC_OK) printf("Country: %d - %s\n",ccode,country);
+         else printf("Country: unknown\n");
+      }
+      else printf("Error: failed due to an unknown error!\n");
+   }
+   else
    {
       FHandle=fopen("libwlocate.trace","ab");
       if (FHandle)
@@ -103,22 +124,6 @@ int main(int argc,char *argv[])
          fclose(FHandle);
       }
       else printf("Error: could not open/append trace file libwlocate.trace!\n");
-   }
-   else
-   {
-      ret=wloc_get_location(&lat,&lon,&quality,&ccode); // call the library function to get the position...
-      //...check the return value afterwards...
-      if (ret==WLOC_CONNECTION_ERROR) printf("Error: could not communicate with server!\n");
-      else if (ret==WLOC_LOCATION_ERROR) printf("Error: could not calculate your location, the given WLAN networks are unknown!\n");
-      //...and print the position only in case the call was successful
-      else if (ret==WLOC_OK)
-      {
-         printf("Your location: %f (lat) %f (lon)\nQuality: %d %%\n",lat,lon,quality);
-         country[2]=0;
-         if (wloc_get_country_from_code(ccode,country)==WLOC_OK) printf("Country: %d - %s\n",ccode,country);
-         else printf("Country: unknown\n");
-      }
-      else printf("Error: failed due to an unknown error!\n");
    }
 #ifdef ENV_WINDOWS
    WSACleanup();

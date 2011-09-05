@@ -463,32 +463,42 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
       struct wloc_req requestData,prevData;
       wxPaintEvent    pEvent;
       
-      memset(&requestData,0,sizeof(struct wloc_req));
-      memset(&prevData,0,sizeof(struct wloc_req));
-      m_followPathCB->SetValue(false);
-      m_latList.clear();
-      m_lonList.clear();
-      Refresh();
-      FHandle=fopen("libwlocate.trace","rb");
-      if (FHandle)
+      wxFileDialog* openFileDialog=new wxFileDialog( this,_T("Load trace file"),wxEmptyString,wxEmptyString,_T("Trace-File |*.trace|All files|*.*"),wxFD_OPEN, wxDefaultPosition);
+      if ( openFileDialog->ShowModal() == wxID_OK )
       {
-         m_traceMode=true;
+         wxString     path;
+         wxMBConvLibc conv;
+         char         cPath[300+1];
+
+         path=openFileDialog->GetDirectory()+wxFileName::GetPathSeparator()+openFileDialog->GetFilename();
+         conv.WC2MB(cPath,path,300);
          memset(&requestData,0,sizeof(struct wloc_req));
-         while (ret>0)
+         memset(&prevData,0,sizeof(struct wloc_req));
+         m_followPathCB->SetValue(false);
+         m_latList.clear();
+         m_lonList.clear();
+         Refresh();
+         FHandle=fopen(cPath,"rb");
+         if (FHandle)
          {
-            for (i=0; i<WLOC_MAX_NETWORKS; i++)
+            m_traceMode=true;
+            memset(&requestData,0,sizeof(struct wloc_req));
+            while (ret>0)
             {
-               fread(&requestData.bssids[i],1,sizeof(requestData.bssids[i]),FHandle);
-               ret=fread(&requestData.signal[i],1,1,FHandle);
+               for (i=0; i<WLOC_MAX_NETWORKS; i++)
+               {
+                  fread(&requestData.bssids[i],1,sizeof(requestData.bssids[i]),FHandle);
+                  ret=fread(&requestData.signal[i],1,1,FHandle);
+               }
+               if (notEqual(&requestData,&prevData)) getLocation(true,&requestData);
+               prevData=requestData;
+               OnPaint(pEvent);
             }
-            if (notEqual(&requestData,&prevData)) getLocation(true,&requestData);
-            prevData=requestData;
-            OnPaint(pEvent);
+            fclose(FHandle);
          }
-         fclose(FHandle);
+         else wxMessageBox(_T("Could not find trace file!"),_T("Error"),wxOK|wxICON_ERROR);
+         m_traceMode=false;
       }
-      else wxMessageBox(_T("Could not find trace file!"),_T("Error"),wxOK|wxICON_ERROR);
-      m_traceMode=false;
    }
    else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.7 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
