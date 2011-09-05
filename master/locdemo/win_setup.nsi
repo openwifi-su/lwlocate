@@ -23,6 +23,7 @@ Section "" ; (default section)
 
 SetOutPath "$INSTDIR"
 File "LocDemo.exe"
+File "..\trace.exe"
 File "icon.ico"
 
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "..\Release\libwlocate.dll" "$SYSDIR\libwlocate.dll" "$SYSDIR"
@@ -52,6 +53,7 @@ Section -startmenu
 
 CreateDirectory "$SMPROGRAMS\LocDemo"
 CreateShortCut "$SMPROGRAMS\LocDemo\LocDemo.lnk" "$INSTDIR\LocDemo.exe" "" "$INSTDIR\icon.ico" 0
+CreateShortCut "$SMPROGRAMS\LocDemo\trace.lnk" "$INSTDIR\trace.exe" "" "" 0
 CreateShortCut "$SMPROGRAMS\LocDemo\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
 
 Sectionend
