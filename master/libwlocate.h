@@ -141,6 +141,8 @@ extern "C"
     *            success    
     */
    WLOC_EXT_API char* wloc_get_countryname_from_code(short ccode);
+
+   WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode);
 #ifdef __cplusplus
 }
 #endif

@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:".\..\..\lib\vc_dll"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 wxbase28u_net.lib wxmsw28u_xrc.lib wxbase28u_xml.lib wxmsw28u_adv.lib wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib netapi32.lib Iphlpapi.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib ../Release/libwlocate.lib /nologo /subsystem:windows /machine:I386 /out:"LocDemo.exe" /libpath:"..\Release\\" /libpath:"C:\wxWidgets-2.8\lib\vc_dll"
+# ADD LINK32 wxbase28u_net.lib wxmsw28u_xrc.lib wxbase28u_xml.lib wxmsw28u_adv.lib wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib netapi32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib ../Release/libwlocate.lib /nologo /subsystem:windows /machine:I386 /out:"LocDemo.exe" /libpath:"..\Release\\" /libpath:"C:\wxWidgets-2.8\lib\vc_dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "locdemo - Win32 DLL Unicode Debug"
