@@ -45,7 +45,6 @@ static int WinMethod1(struct wloc_req *request)
           PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
           PWLAN_INTERFACE_INFO      pIfInfo = NULL;
           PWLAN_BSS_LIST            pBssList=NULL;
-          PWLAN_BSS_ENTRY           pBssEntry=NULL;
 
    if (!wlan_library)
    {
@@ -78,7 +77,7 @@ static int WinMethod1(struct wloc_req *request)
    for (i = 0; i < (int) pIfList->dwNumberOfItems; i++) 
    {
       pIfInfo = (WLAN_INTERFACE_INFO *) &pIfList->InterfaceInfo[i];
-      dwResult=WlanGetNetworkBssList(hClient,&pIfInfo->InterfaceGuid,NULL,0,FALSE,NULL,&pBssList);
+      dwResult=WlanGetNetworkBssList(hClient,&pIfInfo->InterfaceGuid,NULL,DOT11_BSS_TYPE_UNUSED,FALSE,NULL,&pBssList);
       if (dwResult!=ERROR_SUCCESS)
       {
          WlanCloseHandle(hClient,NULL);
@@ -87,9 +86,8 @@ static int WinMethod1(struct wloc_req *request)
      	for (j=0; j<(int)pBssList->dwNumberOfItems; j++)
      	{
      		cnt++;
-         pBssEntry=&pBssList->wlanBssEntries[j];
-         memcpy(request->bssids[cnt],pBssEntry->dot11Bssid,6);
-         request->signal[cnt]=(char)pBssEntry->uLinkQuality;
+         memcpy(request->bssids[cnt],pBssList->wlanBssEntries[j].dot11Bssid,6);
+         request->signal[cnt]=(char)pBssList->wlanBssEntries[j].uLinkQuality;
     		if (cnt>=9) break;
      	}
       if (pBssList != NULL) WlanFreeMemory(pBssList); // ???

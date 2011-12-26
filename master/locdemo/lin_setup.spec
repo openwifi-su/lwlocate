@@ -1,6 +1,6 @@
 Summary: LocDemo libwlocate demo application
 Name: LocDemo
-Version: 0.6
+Version: 0.7
 Release: 1
 License: GPL
 Packager: http://www.openwlanmap.org
@@ -25,9 +25,9 @@ rm /etc/rc5.d/K01wlocd
 rm /etc/rc3.d/S99wlocd
 rm /etc/rc3.d/K01wlocd
 %post
-ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd >/dev/null
-ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd >/dev/null
-ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd >/dev/null
-ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd >/dev/null
+ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd 1>/dev/null 2>/dev/null
+ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd 1>/dev/null 2>/dev/null
+ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd 1>/dev/null 2>/dev/null
+ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd 1>/dev/null 2>/dev/null
 ldconfig
 /etc/init.d/wlocd start 1>/dev/null 2>/dev/null

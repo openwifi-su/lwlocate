@@ -3,10 +3,10 @@ CFLAGS  = -Wall -g0 -O3 -DENV_QNX -D_REENTRANT -DNDEBUG -L/usr/lib -L/usr/local/
 
 LDFLAGS  = -lwlocate -lsocket
 
-PNAME=libtest
+PNAME=lwtrace
 
-OBJ = test.o
-SRC = test.c
+OBJ = trace.o
+SRC = trace.c
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) -o $(PNAME) $(OBJ) $(LDFLAGS)

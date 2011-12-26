@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W4 /GR /O2 /I ".\..\..\lib\vc_dll\mswu" /I ".\..\..\include" /I "." /I ".\..\..\samples" /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /Fd"vc_mswudll\locdemo.pdb" /FD /EHsc /c
-# ADD CPP /nologo /MD /W4 /GR /O2 /I "C:\wxWidgets-2.8.10\lib\vc_dll\mswu" /I ".\..\..\lib\vc_dll\mswu" /I "C:\wxWidgets-2.8.10\include" /I "." /I ".." /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /D "ENV_WINDOWS" /D "ENV_EDITOR" /FR /Fd"vc_mswudll\locdemo.pdb" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /GR /O2 /I "C:\wxWidgets-2.8\lib\vc_dll\mswu" /I ".\..\..\lib\vc_dll\mswu" /I "C:\wxWidgets-2.8\include" /I "." /I ".." /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /D "ENV_WINDOWS" /D "ENV_EDITOR" /FR /Fd"vc_mswudll\locdemo.pdb" /FD /EHsc /c
 # ADD BASE MTL /nologo /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD MTL /nologo /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /i ".\..\..\lib\vc_dll\mswu" /i ".\..\..\include" /i "." /i ".\..\..\samples" /d "__WXMSW__" /d "_UNICODE" /d "WXUSINGDLL" /d "_WINDOWS" /d "NOPCH"
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:".\..\..\lib\vc_dll"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 wxbase28u_net.lib wxmsw28u_xrc.lib wxbase28u_xml.lib wxmsw28u_adv.lib wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib netapi32.lib Iphlpapi.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib ../Release/libwlocate.lib /nologo /subsystem:windows /machine:I386 /out:"LocDemo.exe" /libpath:".\Debug" /libpath:"C:\Programme\Microsoft Platform SDK\Lib" /libpath:".\..\..\lib\vc_dll"
+# ADD LINK32 wxbase28u_net.lib wxmsw28u_xrc.lib wxbase28u_xml.lib wxmsw28u_adv.lib wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib netapi32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib ../Release/libwlocate.lib /nologo /subsystem:windows /machine:I386 /out:"LocDemo.exe" /libpath:"..\Release\\" /libpath:"C:\wxWidgets-2.8\lib\vc_dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "locdemo - Win32 DLL Unicode Debug"
@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W4 /Gm /GR /Zi /Od /I ".\..\..\lib\vc_dll\mswud" /I ".\..\..\include" /I "." /I ".\..\..\samples" /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /Fd"vc_mswuddll\locdemo.pdb" /FD /EHsc /c
-# ADD CPP /nologo /MDd /W4 /Gm /GR /ZI /Od /I ".\..\..\lib\vc_dll\mswud" /I "C:\wxWidgets-2.8.10\include" /I "." /I ".." /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /D "ENV_EDITOR" /D "ENV_WINDOWS" /FR /Fd"vc_mswuddll\locdemo.pdb" /FD /EHsc /c
+# ADD CPP /nologo /MDd /W4 /Gm /GR /ZI /Od /I "C:\wxWidgets-2.8.11\lib\vc_dll\mswud" /I "C:\wxWidgets-2.8.11\include" /I "." /I ".." /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /D "ENV_EDITOR" /D "ENV_WINDOWS" /FR /Fd"vc_mswuddll\locdemo.pdb" /FD /EHsc /c
 # ADD BASE MTL /nologo /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD MTL /nologo /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "WXUSINGDLL" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /i ".\..\..\lib\vc_dll\mswud" /i ".\..\..\include" /i "." /i ".\..\..\samples" /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_UNICODE" /d "WXUSINGDLL" /d "_WINDOWS" /d "NOPCH"
@@ -82,7 +82,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxmsw28ud_core.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:".\..\..\lib\vc_dll"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 wxmsw28ud_xrc.lib wxbase28ud_xml.lib wxmsw28ud_adv.lib wxmsw28ud_core.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib netapi32.lib Iphlpapi.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib ../Debug/libwlocate.lib /nologo /subsystem:windows /debug /machine:I386 /out:"LocDemo.exe" /libpath:".\Debug" /libpath:"C:\Programme\Microsoft Platform SDK\Lib" /libpath:".\..\..\lib\vc_dll"
+# ADD LINK32 wxmsw28ud_xrc.lib wxbase28ud_xml.lib wxmsw28ud_adv.lib wxmsw28ud_core.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib netapi32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib libwlocate.lib wxbase28ud_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"LocDemo.exe" /libpath:"..\Debug\\" /libpath:"C:\wxWidgets-2.8\lib\vc_dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 

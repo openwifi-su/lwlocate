@@ -56,8 +56,8 @@ struct wloc_req
 {
 	unsigned char version,length;
 	char          bssids[WLOC_MAX_NETWORKS][6];
-	char          signal[WLOC_MAX_NETWORKS];
-        unsigned long cgiIP;
+   char          signal[WLOC_MAX_NETWORKS];
+   unsigned long cgiIP;
 };
 
 #define WLOC_RESULT_OK    1  // a position could be calculated
@@ -141,6 +141,8 @@ extern "C"
     *            success    
     */
    WLOC_EXT_API char* wloc_get_countryname_from_code(short ccode);
+
+   WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode);
 #ifdef __cplusplus
 }
 #endif

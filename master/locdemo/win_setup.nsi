@@ -23,22 +23,23 @@ Section "" ; (default section)
 
 SetOutPath "$INSTDIR"
 File "LocDemo.exe"
+File "..\Release\lwtrace.exe"
 File "icon.ico"
 
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "..\Release\libwlocate.dll" "$SYSDIR\libwlocate.dll" "$SYSDIR"
 
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxbase28u_net_vc_custom.dll"     "$SYSDIR\wxbase28u_net_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxbase28u_odbc_vc_custom.dll"    "$SYSDIR\wxbase28u_odbc_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxbase28u_vc_custom.dll"         "$SYSDIR\wxbase28u_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxbase28u_xml_vc_custom.dll"     "$SYSDIR\wxbase28u_xml_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_adv_vc_custom.dll"      "$SYSDIR\wxmsw28u_adv_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_aui_vc_custom.dll"      "$SYSDIR\wxmsw28u_aui_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_core_vc_custom.dll"     "$SYSDIR\wxmsw28u_core_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_gl_vc_custom.dll"       "$SYSDIR\wxmsw28u_gl_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_html_vc_custom.dll"     "$SYSDIR\wxmsw28u_html_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_media_vc_custom.dll"    "$SYSDIR\wxmsw28u_media_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_richtext_vc_custom.dll" "$SYSDIR\wxmsw28u_richtext_vc_custom.dll" "$SYSDIR"
-!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8.10\lib\vc_dll\wxmsw28u_xrc_vc_custom.dll"      "$SYSDIR\wxmsw28u_xrc_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxbase28u_net_vc_custom.dll"     "$SYSDIR\wxbase28u_net_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxbase28u_odbc_vc_custom.dll"    "$SYSDIR\wxbase28u_odbc_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxbase28u_vc_custom.dll"         "$SYSDIR\wxbase28u_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxbase28u_xml_vc_custom.dll"     "$SYSDIR\wxbase28u_xml_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_adv_vc_custom.dll"      "$SYSDIR\wxmsw28u_adv_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_aui_vc_custom.dll"      "$SYSDIR\wxmsw28u_aui_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_core_vc_custom.dll"     "$SYSDIR\wxmsw28u_core_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_gl_vc_custom.dll"       "$SYSDIR\wxmsw28u_gl_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_html_vc_custom.dll"     "$SYSDIR\wxmsw28u_html_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_media_vc_custom.dll"    "$SYSDIR\wxmsw28u_media_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_richtext_vc_custom.dll" "$SYSDIR\wxmsw28u_richtext_vc_custom.dll" "$SYSDIR"
+!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_xrc_vc_custom.dll"      "$SYSDIR\wxmsw28u_xrc_vc_custom.dll" "$SYSDIR"
 
 
 ; write out uninstaller
@@ -52,6 +53,7 @@ Section -startmenu
 
 CreateDirectory "$SMPROGRAMS\LocDemo"
 CreateShortCut "$SMPROGRAMS\LocDemo\LocDemo.lnk" "$INSTDIR\LocDemo.exe" "" "$INSTDIR\icon.ico" 0
+CreateShortCut "$SMPROGRAMS\LocDemo\trace.lnk" "$INSTDIR\trace.exe" "" "" 0
 CreateShortCut "$SMPROGRAMS\LocDemo\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
 
 Sectionend

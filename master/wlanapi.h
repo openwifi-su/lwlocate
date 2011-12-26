@@ -23,115 +23,90 @@
 #define WLANAPI_H
 
 
-typedef enum _WLAN_INTERFACE_STATE 
-{
-   wlan_interface_state_not_ready               = 0,
-   wlan_interface_state_connected               = 1,
-   wlan_interface_state_ad_hoc_network_formed   = 2,
-   wlan_interface_state_disconnecting           = 3,
-   wlan_interface_state_disconnected            = 4,
-   wlan_interface_state_associating             = 5,
-   wlan_interface_state_discovering             = 6,
-   wlan_interface_state_authenticating          = 7 
+typedef enum _WLAN_INTERFACE_STATE {
+    wlan_interface_state_not_ready = 0,
+    wlan_interface_state_connected,
+    wlan_interface_state_ad_hoc_network_formed,
+    wlan_interface_state_disconnecting,
+    wlan_interface_state_disconnected,
+    wlan_interface_state_associating,
+    wlan_interface_state_discovering,
+    wlan_interface_state_authenticating
 } WLAN_INTERFACE_STATE, *PWLAN_INTERFACE_STATE;
 
+#define WLAN_MAX_NAME_LENGTH 256
+
+typedef struct _WLAN_INTERFACE_INFO {
+    GUID InterfaceGuid;
+    WCHAR strInterfaceDescription[WLAN_MAX_NAME_LENGTH];
+    WLAN_INTERFACE_STATE isState;
+} WLAN_INTERFACE_INFO, *PWLAN_INTERFACE_INFO;
 
 
-typedef struct _WLAN_INTERFACE_INFO 
-{
-   GUID                 InterfaceGuid;
-   WCHAR                strInterfaceDescription[256];
-   WLAN_INTERFACE_STATE isState;
-}  WLAN_INTERFACE_INFO, *PWLAN_INTERFACE_INFO;
 
+typedef struct _WLAN_INTERFACE_INFO_LIST {
+    DWORD dwNumberOfItems;
+    DWORD dwIndex;
 
+    WLAN_INTERFACE_INFO InterfaceInfo[1];
 
-typedef struct _WLAN_INTERFACE_INFO_LIST 
-{
-   DWORD               dwNumberOfItems;
-   DWORD               dwIndex;
-   WLAN_INTERFACE_INFO InterfaceInfo[];
 } WLAN_INTERFACE_INFO_LIST, *PWLAN_INTERFACE_INFO_LIST;
-
 
 
 #define DOT11_SSID_MAX_LENGTH      32
 #define DOT11_RATE_SET_MAX_LENGTH 126
-#define WLAN_MAX_PHY_TYPE_NUMBER    8
 
 
-typedef struct _DOT11_SSID 
-{
-   ULONG uSSIDLength;
-   UCHAR ucSSID[DOT11_SSID_MAX_LENGTH];
+typedef struct _DOT11_SSID {
+  ULONG uSSIDLength;
+  UCHAR ucSSID[DOT11_SSID_MAX_LENGTH];
 } DOT11_SSID, *PDOT11_SSID;
 
 
 typedef UCHAR DOT11_MAC_ADDRESS[6];
-typedef DOT11_MAC_ADDRESS* PDOT11_MAC_ADDRESS;
 
 
-
-typedef enum _DOT11_BSS_TYPE 
-{
-   dot11_BSS_type_infrastructure   = 1,
-   dot11_BSS_type_independent      = 2,
-   dot11_BSS_type_any              = 3 
-} DOT11_BSS_TYPE, *PDOT11_BSS_TYPE;
+typedef enum _DOT11_BSS_TYPE {
+  DOT11_BSS_TYPE_UNUSED,
+} DOT11_BSS_TYPE;
 
 
-
-typedef enum _DOT11_PHY_TYPE 
-{
-   dot11_phy_type_unknown      = 0,
-   dot11_phy_type_any          = 0,
-   dot11_phy_type_fhss         = 1,
-   dot11_phy_type_dsss         = 2,
-   dot11_phy_type_irbaseband   = 3,
-   dot11_phy_type_ofdm         = 4,
-   dot11_phy_type_hrdsss       = 5,
-   dot11_phy_type_erp          = 6,
-   dot11_phy_type_ht           = 7,
-   dot11_phy_type_IHV_start    = 0x80000000,
-   dot11_phy_type_IHV_end      = 0xffffffff 
-} DOT11_PHY_TYPE, *PDOT11_PHY_TYPE;
+typedef enum _DOT11_PHY_TYPE {
+  DOT11_PHY_TYPE_UNUSED,
+} DOT11_PHY_TYPE;
 
 
-
-typedef struct _WLAN_RATE_SET 
-{
-   ULONG  uRateSetLength;
-   USHORT usRateSet[DOT11_RATE_SET_MAX_LENGTH];
+typedef struct _WLAN_RATE_SET {
+  ULONG uRateSetLength;
+  USHORT usRateSet[DOT11_RATE_SET_MAX_LENGTH];
 } WLAN_RATE_SET, *PWLAN_RATE_SET;
 
 
-
 typedef struct _WLAN_BSS_ENTRY {
-  DOT11_SSID        dot11Ssid;
-  ULONG             uPhyId;
-  DOT11_MAC_ADDRESS dot11Bssid;
-  DOT11_BSS_TYPE    dot11BssType;
-  DOT11_PHY_TYPE    dot11BssPhyType;
-  LONG              lRssi;
-  ULONG             uLinkQuality;
-  BOOLEAN           bInRegDomain;
-  USHORT            usBeaconPeriod;
-  ULONGLONG         ullTimestamp;
-  ULONGLONG         ullHostTimestamp;
-  USHORT            usCapabilityInformation;
-  ULONG             ulChCenterFrequency;
-  WLAN_RATE_SET     wlanRateSet;
-  ULONG             ulIeOffset;
-  ULONG             ulIeSize;
-} WLAN_BSS_ENTRY, *PWLAN_BSS_ENTRY;
+    DOT11_SSID dot11Ssid;
+    ULONG uPhyId;
+    DOT11_MAC_ADDRESS dot11Bssid;
+    DOT11_BSS_TYPE dot11BssType;
+    DOT11_PHY_TYPE dot11BssPhyType;
+    LONG lRssi;
+    ULONG uLinkQuality;
+    BOOLEAN bInRegDomain;
+    USHORT usBeaconPeriod;
+    ULONGLONG ullTimestamp;
+    ULONGLONG ullHostTimestamp;
+    USHORT usCapabilityInformation;
+    ULONG  ulChCenterFrequency;
+    WLAN_RATE_SET     wlanRateSet; // --> to be verified, according to MSDN this member exists, according to the include of the Platform SDK it doesn't
+    ULONG ulIeOffset;
+    ULONG ulIeSize;
+} WLAN_BSS_ENTRY, * PWLAN_BSS_ENTRY;
 
 
 
-typedef struct _WLAN_BSS_LIST 
-{
-   DWORD          dwTotalSize;
-   DWORD          dwNumberOfItems;
-   WLAN_BSS_ENTRY wlanBssEntries[1];
+typedef struct _WLAN_BSS_LIST {
+    DWORD dwTotalSize;
+    DWORD dwNumberOfItems;
+    WLAN_BSS_ENTRY wlanBssEntries[1];
 } WLAN_BSS_LIST, *PWLAN_BSS_LIST;
 
 
