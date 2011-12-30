@@ -3,9 +3,9 @@ package com.vwp;
 import android.app.*;
 import android.os.*;
 import android.view.*;
+import android.view.View.*;
 import android.widget.*;
-import android.net.wifi.*;
-import java.util.*;
+import android.app.*;
 import java.net.*;
 import java.io.*;
 import android.content.*;
@@ -16,12 +16,14 @@ import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 
 
-class MainCanvas extends View //implements SurfaceHolder.Callback 
+class MainCanvas extends View 
 {
-   private Bitmap locTile[][]=new Bitmap[3][3];
-   private int    m_tileX,m_tileY,m_zoom=17,m_quality;
+   private Bitmap locTile[][];
+   private int    m_tileX,m_tileY,m_quality,xOffs,yOffs;
    private double m_lat,m_lon;
    private Paint  circleColour;
+   
+   public  int    m_zoom=17; 
 
    
    
@@ -33,6 +35,13 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
       circleColour.setARGB(255,255,0,0);
       circleColour.setStyle(Paint.Style.STROKE);
       circleColour.setStrokeWidth(3);
+            
+      Display display =((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
+      xOffs=display.getWidth()/256;
+      xOffs=(int)Math.ceil(xOffs/3.0);
+      yOffs=display.getHeight()/256;
+      yOffs=(int)Math.ceil(yOffs/3.0);
+      locTile=new Bitmap[xOffs*3][yOffs*3];                     
    }
    
    
@@ -104,6 +113,7 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
           HttpClient client = new DefaultHttpClient();
           HttpGet request = new HttpGet();
           request.setURI(new URI(url));
+          request.setHeader("User-Agent","LocDemo WLocate demo application");
           HttpResponse response = client.execute(request);
           in=response.getEntity().getContent();
           len=(int)response.getEntity().getContentLength();
@@ -113,7 +123,7 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
           {
              rLen+=in.read(data,rLen,len-rLen);
           }
-          out=getContext().openFileOutput("tile_"+m_zoom+"_"+(m_tileX+x-1)+"_"+(m_tileY+y-1)+".png",Context.MODE_PRIVATE);
+          out=getContext().openFileOutput("tile_"+m_zoom+"_"+(m_tileX+x-xOffs)+"_"+(m_tileY+y-yOffs)+".png",Context.MODE_PRIVATE);
           out.write(data);
           out.close();
           locTile[x][y]=BitmapFactory.decodeByteArray(data,0,rLen);
@@ -127,6 +137,13 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
       return true;
    }
    
+   
+   public void refreshTiles()
+   {
+      updateTiles(m_lat,m_lon,m_quality);
+      invalidate();
+   }
+   
    /**
     * This method updates the internal locTile array that holds bitmaps of the tiles that have to be
     * displayed currently. To get the tile images it first tries to load a local PNG image. In case
@@ -138,8 +155,9 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
     */
    public void updateTiles(double lat,double lon,int quality)
    {
-      int        x,y;
+      int             x,y,cnt=0;
       FileInputStream in;
+      ProgressDialog  pDlg=new ProgressDialog(getContext());
 
       m_lat=lat;
       m_lon=lon;
@@ -148,22 +166,28 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
       m_tileX=long2tilex(lon,m_zoom);
       m_tileY=lat2tiley(lat,m_zoom);
 
-      for (x=-1; x<=1; x++)
-       for (y=-1; y<=1; y++)
+      pDlg.setMax(xOffs*yOffs*3);
+      pDlg.setTitle("Loading map tiles...");
+      pDlg.show();
+      for (x=-xOffs; x<=xOffs; x++)
+       for (y=-yOffs; y<=yOffs; y++)
       {
-         locTile[x+1][y+1]=null;
+         cnt++;
+         pDlg.setProgress(cnt);
+         locTile[x+xOffs][y+yOffs]=null;
          
          try
          {
             in=getContext().openFileInput("tile_"+m_zoom+"_"+(m_tileX+x)+"_"+(m_tileY+y)+".png");
-            locTile[x+1][y+1]=BitmapFactory.decodeStream(in);
+            locTile[x+xOffs][y+yOffs]=BitmapFactory.decodeStream(in);
             in.close();
          }
          catch (IOException ioe)
          {         
-            loadTile("http://tah.openstreetmap.org/Tiles/tile/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+1,y+1);
+            loadTile("http://tah.openstreetmap.org/Tiles/tile/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+xOffs,y+yOffs);
          }
       }
+      pDlg.dismiss();
    }
    
    
@@ -173,13 +197,13 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
       int    x,y;
       float  cx,cy;
       double tileLat1,tileLon1,tileLat2,tileLon2;
-      
-      for (x=-1; x<=1; x++)
-         for (y=-1; y<=1; y++)
+
+      for (x=-xOffs; x<=xOffs; x++)
+         for (y=-yOffs; y<=yOffs; y++)
       {
-         if (locTile[x+1][y+1]!=null)
+         if (locTile[x+xOffs][y+yOffs]!=null)
          {
-            c.drawBitmap(locTile[x+1][y+1],((x+1)*256),(y+1)*256,null);
+            c.drawBitmap(locTile[x+xOffs][y+yOffs],((x+xOffs)*256),(y+yOffs)*256,null);
          }
       }
       
@@ -213,10 +237,11 @@ class MainCanvas extends View //implements SurfaceHolder.Callback
 
 
 
-public class LocDemo extends Activity 
+public class LocDemo extends Activity implements OnClickListener
 {
    private WLocateReceiver wLocateRec=new WLocateReceiver();
    private MainCanvas      mainCanvas;
+   private Button          zoomInButton,zoomOutButton,refreshButton,infoButton;
 	
     /** Called when the activity is first created. */
     @Override
@@ -224,14 +249,84 @@ public class LocDemo extends Activity
     {
     	
         super.onCreate(savedInstanceState);
-        mainCanvas=new MainCanvas(this);
-        setContentView(mainCanvas);
+        mainCanvas=new MainCanvas(this);        
+//        setContentView(mainCanvas);
 /*        tv = new TextView(this);
         
         setContentView(tv);*/
+
+        FrameLayout mainLayout = new FrameLayout(this);
+
+        LinearLayout navButtons = new LinearLayout (this);
+
+        zoomInButton = new Button(this);
+        zoomInButton.setText("+");
+        zoomInButton.setWidth(60);
+        zoomInButton.setEnabled(false);
+        zoomInButton.setOnClickListener(this);
+        
+        zoomOutButton = new Button(this);
+        zoomOutButton.setText("-");
+        zoomOutButton.setWidth(60);
+        zoomOutButton.setOnClickListener(this);
+
+        refreshButton = new Button(this);
+        refreshButton.setText("Refresh");
+        refreshButton.setOnClickListener(this);
+        
+        infoButton = new Button(this);
+        infoButton.setText("About");
+        infoButton.setOnClickListener(this);
+        
+        navButtons.addView(zoomInButton);       
+        navButtons.addView(zoomOutButton);       
+        navButtons.addView(refreshButton);
+        navButtons.addView(infoButton);
+        mainLayout.addView(mainCanvas);
+        mainLayout.addView(navButtons);
+        setContentView(mainLayout);        
         
         wLocateRec.wloc_request_position(this);
     }
+    
+    
+    public void onClick(View v)
+    {
+       if (v==refreshButton) wLocateRec.wloc_request_position(this);
+       else if (v==infoButton)
+       {
+          AlertDialog ad = new AlertDialog.Builder(this).create();  
+          ad.setCancelable(false);  
+          ad.setMessage("LocDemo Version 0.8 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
+          ad.setButton("OK", new DialogInterface.OnClickListener() {  
+              @Override  
+              public void onClick(DialogInterface dialog, int which) {  
+                  dialog.dismiss();                      
+              }  
+          });  
+          ad.show();           
+       }
+       else
+       {
+          if (v==zoomInButton) mainCanvas.m_zoom++;
+          else if (v==zoomOutButton) mainCanvas.m_zoom--;
+          if (mainCanvas.m_zoom>=17)
+          {
+             mainCanvas.m_zoom=17;
+             zoomInButton.setEnabled(false);
+          }
+          else zoomInButton.setEnabled(true);
+          if (mainCanvas.m_zoom<=3)
+          {
+             mainCanvas.m_zoom=3;
+             zoomOutButton.setEnabled(false);
+          }
+          else zoomOutButton.setEnabled(true);
+          mainCanvas.refreshTiles();
+       }
+    }
+    
+    
 
     class WLocateReceiver extends WLocate
     {
