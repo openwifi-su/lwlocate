@@ -442,28 +442,9 @@ public class WLocate
    
    public void wloc_request_position(Context ctx)
    {
-/*      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-      wifi.startScan();*/
-
-      {
-         wloc_req      request;
-         wloc_position pos;
-         int           ret;
-         
-         request=new wloc_req();
-         request.bssids[0][0]=(byte)0x00;
-         request.bssids[0][1]=(byte)0x01;
-         request.bssids[0][2]=(byte)0xE3;
-         request.bssids[0][3]=(byte)0x49;
-         request.bssids[0][4]=(byte)0xA8;
-         request.bssids[0][5]=(byte)0xC7;
-         
-         pos=new wloc_position();
-         ret=get_position(request,pos);
-         wloc_return_position(ret,pos.lat,pos.lon,pos.quality,pos.ccode);
-      }
-   
+      wifi.startScan();   
    }
    
    
@@ -527,12 +508,33 @@ public class WLocate
    {
       public void onReceive(Context c, Intent intent) 
       {
-        List<ScanResult> configs=wifi.getScanResults();
-/*         for (ScanResult config : configs) 
-         {
-            tv.append("\n\n" + config.BSSID+"  "+config.level);
-         }*/
-        
+         int           netCnt=0,ret=WLOC_LOCATION_ERROR;
+         wloc_req      request;
+         wloc_position pos=null;
+         
+         List<ScanResult> configs=wifi.getScanResults();
+         request=new wloc_req();
+         for (ScanResult config : configs) 
+         {            
+            {
+               String bssidStr[];
+
+               bssidStr=config.BSSID.split(":");
+               request.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
+               request.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
+               request.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
+               request.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
+               request.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
+               request.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
+               request.signal[netCnt]=(byte)Math.abs(config.level);               
+            }
+            
+            netCnt++;
+            if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
+         }        
+         pos=new wloc_position();
+         ret=get_position(request,pos);
+         wloc_return_position(ret,pos.lat,pos.lon,pos.quality,pos.ccode);
      }
   }
    

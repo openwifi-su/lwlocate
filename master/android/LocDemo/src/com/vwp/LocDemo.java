@@ -1,12 +1,14 @@
 package com.vwp;
 
 import android.app.*;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
-import android.app.*;
 import java.net.*;
+import java.util.List;
 import java.io.*;
 import android.content.*;
 import android.graphics.*;
@@ -14,6 +16,8 @@ import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
+
+import com.vwp.WLocate.WifiReceiver;
 
 
 class MainCanvas extends View 
@@ -187,6 +191,7 @@ class MainCanvas extends View
             loadTile("http://tah.openstreetmap.org/Tiles/tile/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+xOffs,y+yOffs);
          }
       }
+      invalidate();
       pDlg.dismiss();
    }
    
@@ -212,22 +217,27 @@ class MainCanvas extends View
       tileLon1=tilex2long(m_tileX,m_zoom);
       tileLon2=tilex2long(m_tileX+1,m_zoom);
       
-      cy=(float)(256+(256.0*(m_lat-tileLat1)/(tileLat2-tileLat1)));
-      cx=(float)(256+(256.0*(m_lon-tileLon1)/(tileLon2-tileLon1)));
+      cy=(float)(256*yOffs+(256.0*(m_lat-tileLat1)/(tileLat2-tileLat1)));
+      cx=(float)(256*xOffs+(256.0*(m_lon-tileLon1)/(tileLon2-tileLon1)));
 
       if ((cx!=0) && (cy!=0))
       {
          double zoomFactor;
+         float  radius;
 
          if (m_quality>0)
          {
             zoomFactor=Math.pow(2.0,(17.0-m_zoom));
-            c.drawCircle(cx,cy,(float)((120-m_quality)/zoomFactor),circleColour);
+            radius=(float)((120-m_quality)/zoomFactor);
+            if (radius<5) radius=5;
+            c.drawCircle(cx,cy,radius,circleColour);
          }
          else
          {
             zoomFactor=Math.pow(2.0,(10.0-m_zoom));
-            c.drawCircle(cx,cy,(float)(130/zoomFactor),circleColour);
+            radius=(float)(130/zoomFactor);
+            if (radius<5) radius=5;
+            c.drawCircle(cx,cy,radius,circleColour);
          }
       }
       
@@ -241,20 +251,17 @@ public class LocDemo extends Activity implements OnClickListener
 {
    private WLocateReceiver wLocateRec=new WLocateReceiver();
    private MainCanvas      mainCanvas;
-   private Button          zoomInButton,zoomOutButton,refreshButton,infoButton;
+   private Button          zoomInButton,zoomOutButton,refreshButton,infoButton,exitButton;
 	
+      
+   
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) 
-    {
-    	
+    {    	
         super.onCreate(savedInstanceState);
+        setTitle("LocDemo - free and open location based service demo");
         mainCanvas=new MainCanvas(this);        
-//        setContentView(mainCanvas);
-/*        tv = new TextView(this);
-        
-        setContentView(tv);*/
-
         FrameLayout mainLayout = new FrameLayout(this);
 
         LinearLayout navButtons = new LinearLayout (this);
@@ -271,17 +278,22 @@ public class LocDemo extends Activity implements OnClickListener
         zoomOutButton.setOnClickListener(this);
 
         refreshButton = new Button(this);
-        refreshButton.setText("Refresh");
+        refreshButton.setText("Refresh Position");
         refreshButton.setOnClickListener(this);
         
         infoButton = new Button(this);
-        infoButton.setText("About");
+        infoButton.setText("About LocDemo");
         infoButton.setOnClickListener(this);
+        
+        exitButton = new Button(this);
+        exitButton.setText("Exit LocDemo");
+        exitButton.setOnClickListener(this);
         
         navButtons.addView(zoomInButton);       
         navButtons.addView(zoomOutButton);       
         navButtons.addView(refreshButton);
         navButtons.addView(infoButton);
+        navButtons.addView(exitButton);
         mainLayout.addView(mainCanvas);
         mainLayout.addView(navButtons);
         setContentView(mainLayout);        
@@ -297,7 +309,7 @@ public class LocDemo extends Activity implements OnClickListener
        {
           AlertDialog ad = new AlertDialog.Builder(this).create();  
           ad.setCancelable(false);  
-          ad.setMessage("LocDemo Version 0.8 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
+          ad.setMessage("LocDemo Version 0.8 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate that does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
           ad.setButton("OK", new DialogInterface.OnClickListener() {  
               @Override  
               public void onClick(DialogInterface dialog, int which) {  
@@ -306,6 +318,7 @@ public class LocDemo extends Activity implements OnClickListener
           });  
           ad.show();           
        }
+       else if (v==exitButton) finish();
        else
        {
           if (v==zoomInButton) mainCanvas.m_zoom++;
