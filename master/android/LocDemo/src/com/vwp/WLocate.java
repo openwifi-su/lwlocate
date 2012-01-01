@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.*;
 import android.content.*;
 import android.net.wifi.*;
+import android.location.*;
+import android.os.*;
 
 
 
@@ -30,7 +32,8 @@ class wloc_req
 class wloc_res
 {
    public byte  version,length;
-   public byte  result,iresult,quality;
+   public byte  result,iresult;
+   public short quality;
    public byte  cres6,cres7,cres8;
    public int   lat,lon;    
    public short ccode;
@@ -46,7 +49,7 @@ class wloc_position
    }
    
    double lat,lon;
-   byte   quality;
+   short  quality;
    short  ccode;
 }
 
@@ -64,8 +67,34 @@ public class WLocate
    private static final int WLOC_RESULT_ERROR=2;
    private static final int WLOC_RESULT_IERROR=3;
    
-   WifiManager  wifi;
-   WifiReceiver receiverWifi = new WifiReceiver();
+   private LocationManager     location;
+   private GPSLocationListener locationListener;
+   private WifiManager         wifi;
+   private WifiReceiver        receiverWifi = new WifiReceiver();
+   private boolean             GPSAvailable=false;
+   private double              m_lat,m_lon;
+
+   
+   
+   public WLocate(Context ctx)
+   {
+      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+      
+      location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
+      locationListener = new GPSLocationListener();
+      location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener)locationListener);
+   }
+   
+   
+   
+   public void wloc_request_position()
+   {
+      if (!GPSAvailable) wifi.startScan();
+      else wloc_return_position(WLOC_OK,m_lat,m_lon,1000,(short)0);
+   }
+   
+
    
    public String wloc_get_country_from_code(short ccode)
    {
@@ -440,15 +469,6 @@ public class WLocate
    
    
    
-   public void wloc_request_position(Context ctx)
-   {
-      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-      wifi.startScan();   
-   }
-   
-   
-   
    private int get_position(wloc_req request,wloc_position position)
    {
       Socket wlocSocket;
@@ -476,6 +496,8 @@ public class WLocate
          result.result=din.readByte();
          result.iresult=din.readByte();
          result.quality=din.readByte();
+         if (result.quality<0) result.quality+=255;
+         if (result.quality>100) result.quality=100;
          result.cres6=din.readByte();
          result.cres7=din.readByte();
          result.cres7=din.readByte();
@@ -544,5 +566,31 @@ public class WLocate
       
    }
    
+   
+   
+   class GPSLocationListener implements LocationListener 
+   {
+      public void onLocationChanged(Location location) 
+      {
+         m_lat=location.getLatitude();
+         m_lon=location.getLongitude();
+      }
+
+      public void onStatusChanged(String provider, int status, Bundle extras)
+      {
+         if (status==LocationProvider.AVAILABLE) GPSAvailable=true;
+         else GPSAvailable=false;
+      }
+
+      public void onProviderEnabled(String provider)
+      {
+         GPSAvailable=true;
+      }
+
+      public void onProviderDisabled(String provider)
+      {
+         GPSAvailable=false;
+      }
+   };
    
 }

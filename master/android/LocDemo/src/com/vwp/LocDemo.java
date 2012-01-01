@@ -1,32 +1,31 @@
 package com.vwp;
 
 import android.app.*;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
+import android.hardware.*;
 import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
 import java.net.*;
-import java.util.List;
 import java.io.*;
+import java.util.concurrent.locks.*;
 import android.content.*;
+import android.content.res.Configuration;
 import android.graphics.*;
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 
-import com.vwp.WLocate.WifiReceiver;
 
 
 class MainCanvas extends View 
 {
    private Bitmap locTile[][];
-   private int    m_tileX,m_tileY,m_quality,xOffs,yOffs;
+   private int    m_tileX,m_tileY,m_quality,xOffs,yOffs,m_lastOrientation=-1;
    private double m_lat,m_lon;
    private Paint  circleColour;
-   
+   private Lock   lock=new ReentrantLock();
    public  int    m_zoom=17; 
 
    
@@ -38,14 +37,39 @@ class MainCanvas extends View
       circleColour=new Paint();
       circleColour.setARGB(255,255,0,0);
       circleColour.setStyle(Paint.Style.STROKE);
-      circleColour.setStrokeWidth(3);
-            
-      Display display =((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
+      circleColour.setStrokeWidth(4);
+
+      updateScreenOrientation();
+   }
+   
+   
+   
+   public void updateScreenOrientation()
+   {
+      Display display;
+      int     orientation;
+
+      display=((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
+      orientation=display.getOrientation();
+      lock.lock();
       xOffs=display.getWidth()/256;
       xOffs=(int)Math.ceil(xOffs/3.0);
       yOffs=display.getHeight()/256;
       yOffs=(int)Math.ceil(yOffs/3.0);
-      locTile=new Bitmap[xOffs*3][yOffs*3];                     
+      if (orientation!=m_lastOrientation)
+      {
+         m_lastOrientation=orientation;
+         if (m_lastOrientation==Configuration.ORIENTATION_PORTRAIT)
+         {
+            int swp;
+            
+            swp=xOffs; 
+            xOffs=yOffs; 
+            yOffs=swp;
+         }
+         locTile=new Bitmap[xOffs*3][yOffs*3];                     
+      }
+      lock.unlock();
    }
    
    
@@ -173,6 +197,7 @@ class MainCanvas extends View
       pDlg.setMax(xOffs*yOffs*3);
       pDlg.setTitle("Loading map tiles...");
       pDlg.show();
+      lock.lock();
       for (x=-xOffs; x<=xOffs; x++)
        for (y=-yOffs; y<=yOffs; y++)
       {
@@ -191,6 +216,7 @@ class MainCanvas extends View
             loadTile("http://tah.openstreetmap.org/Tiles/tile/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+xOffs,y+yOffs);
          }
       }
+      lock.unlock();
       invalidate();
       pDlg.dismiss();
    }
@@ -203,6 +229,7 @@ class MainCanvas extends View
       float  cx,cy;
       double tileLat1,tileLon1,tileLat2,tileLon2;
 
+      lock.lock();
       for (x=-xOffs; x<=xOffs; x++)
          for (y=-yOffs; y<=yOffs; y++)
       {
@@ -225,34 +252,42 @@ class MainCanvas extends View
          double zoomFactor;
          float  radius;
 
-         if (m_quality>0)
+         if (m_quality==1000)
+         {
+            c.drawLine(cx-8,cy-8,cx+8,cy+8,circleColour);            
+            c.drawLine(cx-8,cy+8,cx+8,cy-8,circleColour);            
+         }
+         else if (m_quality>0)
          {
             zoomFactor=Math.pow(2.0,(17.0-m_zoom));
             radius=(float)((120-m_quality)/zoomFactor);
-            if (radius<5) radius=5;
+            if (radius<6) radius=6;
             c.drawCircle(cx,cy,radius,circleColour);
          }
          else
          {
             zoomFactor=Math.pow(2.0,(10.0-m_zoom));
             radius=(float)(130/zoomFactor);
-            if (radius<5) radius=5;
+            if (radius<6) radius=6;
+            else if (radius>400) radius=400;
             c.drawCircle(cx,cy,radius,circleColour);
          }
       }
-      
+      lock.unlock();
    }
    
 }
 
 
 
-public class LocDemo extends Activity implements OnClickListener
+public class LocDemo extends Activity implements OnClickListener,SensorEventListener 
 {
-   private WLocateReceiver wLocateRec=new WLocateReceiver();
-   private MainCanvas      mainCanvas;
-   private Button          zoomInButton,zoomOutButton,refreshButton,infoButton,exitButton;
-	
+   private WLocateReceiver     wLocateRec;
+   private MainCanvas          mainCanvas;
+   private Button              zoomInButton,zoomOutButton,refreshButton,infoButton,exitButton;
+   private SensorManager       mSensorManager;
+   private Sensor              mAccelerometer;	
+      
       
    
     /** Called when the activity is first created. */
@@ -261,7 +296,12 @@ public class LocDemo extends Activity implements OnClickListener
     {    	
         super.onCreate(savedInstanceState);
         setTitle("LocDemo - free and open location based service demo");
-        mainCanvas=new MainCanvas(this);        
+        wLocateRec=new WLocateReceiver(this);
+        mainCanvas=new MainCanvas(this);
+        
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);      
+        
         FrameLayout mainLayout = new FrameLayout(this);
 
         LinearLayout navButtons = new LinearLayout (this);
@@ -298,13 +338,40 @@ public class LocDemo extends Activity implements OnClickListener
         mainLayout.addView(navButtons);
         setContentView(mainLayout);        
         
-        wLocateRec.wloc_request_position(this);
+        wLocateRec.wloc_request_position();
     }
+   
+    
+    
+   public void onResume() 
+   {
+       super.onResume();
+       mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+   }
+
+   public void onPause() 
+   {
+       super.onPause();
+       mSensorManager.unregisterListener(this);
+   }    
+    
+    
+    public void onAccuracyChanged(Sensor sensor, int accuracy) 
+    {
+    }
+    
+    
+    
+    public void onSensorChanged(SensorEvent event) 
+    {
+       if (event.sensor.getType()==Sensor.TYPE_ORIENTATION) mainCanvas.updateScreenOrientation();
+    }
+    
     
     
     public void onClick(View v)
     {
-       if (v==refreshButton) wLocateRec.wloc_request_position(this);
+       if (v==refreshButton) wLocateRec.wloc_request_position();
        else if (v==infoButton)
        {
           AlertDialog ad = new AlertDialog.Builder(this).create();  
@@ -343,6 +410,14 @@ public class LocDemo extends Activity implements OnClickListener
 
     class WLocateReceiver extends WLocate
     {
+       
+       public WLocateReceiver(Context ctx)
+       {
+          super(ctx);   
+       }
+       
+       
+       
        protected void wloc_return_position(int ret,double lat,double lon,int quality,short ccode)
        {
           if (ret==WLocate.WLOC_OK)
