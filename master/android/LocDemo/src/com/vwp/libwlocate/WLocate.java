@@ -73,17 +73,18 @@ public class WLocate
    private WifiReceiver        receiverWifi = new WifiReceiver();
    private boolean             GPSAvailable=false;
    private double              m_lat,m_lon;
+   private float               m_radius=1.0f;
 
    
    
    public WLocate(Context ctx)
    {
-      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-      
       location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
       locationListener = new GPSLocationListener();
       location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener)locationListener);
+      
+      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));      
    }
    
    
@@ -91,7 +92,7 @@ public class WLocate
    public void wloc_request_position()
    {
       if (!GPSAvailable) wifi.startScan();
-      else wloc_return_position(WLOC_OK,m_lat,m_lon,1000,(short)0);
+      else wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);
    }
    
 
@@ -196,43 +197,30 @@ public class WLocate
 
          case 48:
             return "CN";
-
          case 49:
             return "CO";
-
          case 52:
             return "CR";
-
          case 53:
             return "HR";
-
          case 55:
             return "CY";
-
          case 56:
             return "CZ";
-
          case 59:
             return "DO";
-
          case 60:
             return "EC";
-
          case 61:
             return "EG";
-
          case 66:
             return "ET";
-
          case 68:
             return "FI";
-
          case 69:
             return "FR";
-
          case 73:
             return "GH";
-
          case 75:
             return "GR";
 
@@ -556,12 +544,13 @@ public class WLocate
          }        
          pos=new wloc_position();
          ret=get_position(request,pos);
-         wloc_return_position(ret,pos.lat,pos.lon,pos.quality,pos.ccode);
+         if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
+         else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);
      }
   }
    
    
-   protected void wloc_return_position(int ret,double lat,double lon,int quality,short ccode)
+   protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
    {
       
    }
@@ -575,6 +564,7 @@ public class WLocate
          GPSAvailable=true;
          m_lat=location.getLatitude();
          m_lon=location.getLongitude();
+         if (location.hasAccuracy()) m_radius=location.getAccuracy();
       }
 
       public void onStatusChanged(String provider, int status, Bundle extras)

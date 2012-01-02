@@ -22,9 +22,10 @@ import com.vwp.libwlocate.*;
 class MainCanvas extends View 
 {
    private Bitmap locTile[][];
-   private int    m_tileX,m_tileY,m_quality,xOffs,yOffs,m_lastOrientation=-1;
+   private int    m_tileX,m_tileY,xOffs,yOffs,m_lastOrientation=-1;
+   private float  m_radius;
    private double m_lat,m_lon;
-   private Paint  circleColour;
+   private Paint  circleColour,fillColour;
    private Lock   lock=new ReentrantLock();
    public  int    m_zoom=17; 
 
@@ -37,7 +38,11 @@ class MainCanvas extends View
       circleColour=new Paint();
       circleColour.setARGB(255,255,0,0);
       circleColour.setStyle(Paint.Style.STROKE);
-      circleColour.setStrokeWidth(4);
+      circleColour.setStrokeWidth(2);
+
+      fillColour=new Paint();
+      fillColour.setARGB(75,255,0,0);
+      fillColour.setStyle(Paint.Style.FILL);
 
       updateScreenOrientation();
    }
@@ -168,7 +173,7 @@ class MainCanvas extends View
    
    public void refreshTiles()
    {
-      updateTiles(m_lat,m_lon,m_quality);
+      updateTiles(m_lat,m_lon,m_radius);
       invalidate();
    }
    
@@ -181,7 +186,7 @@ class MainCanvas extends View
     * @param[in] lat the latitude of the current position which has to be displayed in center tile
     * @param[in] lon the longitude of the current position which has to be displayed in center tile
     */
-   public void updateTiles(double lat,double lon,int quality)
+   public void updateTiles(double lat,double lon,float radius)
    {
       int             x,y,cnt=0;
       FileInputStream in;
@@ -189,7 +194,7 @@ class MainCanvas extends View
 
       m_lat=lat;
       m_lon=lon;
-      m_quality=quality;
+      m_radius=radius;
       
       m_tileX=long2tilex(lon,m_zoom);
       m_tileY=lat2tiley(lat,m_zoom);
@@ -252,26 +257,11 @@ class MainCanvas extends View
          double zoomFactor;
          float  radius;
 
-         if (m_quality==1000)
-         {
-            c.drawLine(cx-8,cy-8,cx+8,cy+8,circleColour);            
-            c.drawLine(cx-8,cy+8,cx+8,cy-8,circleColour);            
-         }
-         else if (m_quality>0)
-         {
-            zoomFactor=Math.pow(2.0,(17.0-m_zoom));
-            radius=(float)((120-m_quality)/zoomFactor);
-            if (radius<6) radius=6;
-            c.drawCircle(cx,cy,radius,circleColour);
-         }
-         else
-         {
-            zoomFactor=Math.pow(2.0,(10.0-m_zoom));
-            radius=(float)(130/zoomFactor);
-            if (radius<6) radius=6;
-            else if (radius>400) radius=400;
-            c.drawCircle(cx,cy,radius,circleColour);
-         }
+         zoomFactor=Math.pow(2.0,(17.0-m_zoom));
+         radius=(float)((m_radius*1.193)/zoomFactor);
+         if (radius<6) radius=6;
+         c.drawCircle(cx,cy,radius,fillColour);
+         c.drawCircle(cx,cy,radius,circleColour);
       }
       lock.unlock();
    }
@@ -418,11 +408,11 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
        
        
        
-       protected void wloc_return_position(int ret,double lat,double lon,int quality,short ccode)
+       protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
        {
           if (ret==WLocate.WLOC_OK)
           {
-             mainCanvas.updateTiles(lat,lon,quality);             
+             mainCanvas.updateTiles(lat,lon,radius);             
           }
        }       
     }
