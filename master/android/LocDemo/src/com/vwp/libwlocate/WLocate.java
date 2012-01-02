@@ -1,4 +1,4 @@
-package com.vwp;
+package com.vwp.libwlocate;
 
 import java.io.*;
 import java.net.*;
@@ -572,6 +572,7 @@ public class WLocate
    {
       public void onLocationChanged(Location location) 
       {
+         GPSAvailable=true;
          m_lat=location.getLatitude();
          m_lon=location.getLongitude();
       }
