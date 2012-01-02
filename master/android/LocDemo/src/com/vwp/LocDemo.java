@@ -16,7 +16,7 @@ import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
-
+import com.vwp.libwlocate.*;
 
 
 class MainCanvas extends View 
