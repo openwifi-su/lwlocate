@@ -1,3 +1,7 @@
+NOTE: It seems like this no longer works, the JSON-interface was removed by
+      Google, thus Browsers like firefox no longer use it and send a different
+      request. So this interface is obsolete now.
+
 This directory contains a CGI (common gateway interface application) that can be
 used together with a webserver to provide a JSON-based geolocation interface. Such
 interfaces are used e.g. by webbrowsers to offer geolocation services for
