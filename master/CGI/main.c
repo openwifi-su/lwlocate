@@ -231,16 +231,23 @@ int main(int argc, char* argv[])
    p=getenv("CONTENT_LENGTH" );
    if (!p)
    {
-      if (log) fclose(log);
-      return 0;
+      if (log) fprintf(log,"Warning: CONTENT_LENGTH not found!\n");
+      inLength=10000; //should be enough?
    }
-   inLength=atoi(p);
-   fprintf(log,"CONTENT_LENGTH: %d\n",inLength);
-   if (inLength<10)
+   else
    {
-      if (log) fclose(log);
-      return 0;
-   } 
+      inLength=atoi(p);
+      fprintf(log,"CONTENT_LENGTH: %d\n",inLength);
+      if (inLength<10)
+      {
+         if (log)
+         {
+            fprintf(log,"Error: CONTENT_LENGTH too small (%d)!\n",inLength);
+            fclose(log);
+         }
+         return 0;
+      } 
+   }
     
    p=getenv("REMOTE_ADDR");
    if (p)
@@ -256,6 +263,24 @@ int main(int argc, char* argv[])
       }
       if (log) fprintf(log,"Remote-IP: %s - %lu\n",p,(unsigned long)ntohl(remoteIP));
    }
+
+   if (log)
+   {
+      p=getenv("REQUEST_METHOD");
+      if (p)
+      {
+         fprintf(log,"Request-Method: %s\n",p);
+         if (strcmp(p,"GET")==0)
+         {
+            p=getenv("QUERY_STRING");
+            if (p)
+            {
+               fprintf(log,"Query-String: %s\n",p);
+            }
+         }
+      }
+   }
+   
    init_JSON_config(&config);
     
    config.depth                  = 19;
@@ -270,15 +295,19 @@ int main(int argc, char* argv[])
    while ((input) && (!exitLoop) && (inLength>0))
    {
       next_char = fgetc(input);
+      if (next_char==EOF) break;
+      if (log) fprintf(log,"%c",next_char);
       inLength--;
       if (next_char <= 0) break;
       if (log) fprintf(log,"%c",(char)next_char);
       if (!JSON_parser_char(jc, next_char)) 
       {
+         if (log) fprintf(log,"\n");
          fprintf(stderr, "JSON_parser_char: syntax error in stream");
          break;
       }
    }
+   if (log) fprintf(log," - %d\n",inLength);
    if (!JSON_parser_done(jc)) fprintf(stderr, "JSON_parser_end: syntax error\n");
     
    delete_JSON_parser(jc);
