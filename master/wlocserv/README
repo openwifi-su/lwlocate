@@ -1,0 +1,8 @@
+This directory contains the server application that is connected by libwlocate
+whenever it requests a new position that has to be evaluated out of the available
+WLAN networks.
+
+This server depends on liboapc which is available at
+http://git.fedorahosted.org/git/OpenAPC.git and has to be cloned into the same
+directory where the libwlocate-git-tree already resides within.
+
