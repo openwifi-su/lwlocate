@@ -3,7 +3,7 @@ package com.vwp.libwlocate;
 /**
  * Internal class, used for storing request data
  */
-class wloc_req
+public class wloc_req
 {
    public static final int WLOC_MAX_NETWORKS=16;
    

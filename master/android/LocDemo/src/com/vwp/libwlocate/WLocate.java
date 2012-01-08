@@ -11,28 +11,6 @@ import android.os.*;
 
 
 /**
- * Internal class, used for storing request data
- */
-class wloc_req
-{
-   public static final int WLOC_MAX_NETWORKS=16;
-   
-   public byte     version,length;
-   public byte[][] bssids=new byte[WLOC_MAX_NETWORKS][6];  
-   public byte[]   signal=new byte[WLOC_MAX_NETWORKS];
-   public int      cgiIP;
-   
-   wloc_req()
-   {
-      version=1;
-      length=118;
-      cgiIP=0;
-   }
-}
-
-
-
-/**
  * Internal class, used for receiving the result
  */
 class wloc_res
@@ -75,6 +53,9 @@ class wloc_position
  */
 public class WLocate
 {
+   public static final int FLAG_NO_NET_ACCESS=0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_GPS_ACCESS=0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
+   
    public static final int WLOC_OK=0;               /** Result code for position request, given position information are OK */
    public static final int WLOC_CONNECTION_ERROR=1; /** Result code for position request, a connection error occured, no position information are available */
    public static final int WLOC_SERVER_ERROR=2;     
@@ -92,6 +73,7 @@ public class WLocate
    private boolean             GPSAvailable=false;
    private double              m_lat,m_lon;
    private float               m_radius=1.0f;
+   private wloc_req            request;
 
    
 
@@ -114,14 +96,31 @@ public class WLocate
    /**
     * Start position evaluation process, the result is returned via method wloc_return_position()
     * that may be called asynchronously
+    * @param flags specifies how the position has to be evaluated using the FLAG_NO_xxx_ACCESS-values
     */
-   public void wloc_request_position()
+   public void wloc_request_position(int flags)
    {
-      if (!GPSAvailable) wifi.startScan();
-      else wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);
+      if (!GPSAvailable)
+      {
+         if ((flags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+         else wifi.startScan();
+      }
+      else
+      {
+         // TODO: disable GPS in case NO_GPS_FLAGT is set and re-enable it on next call without this option
+         if ((flags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+         else wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
+      }
    }
-   
 
+   
+   
+   public wloc_req last_bssids()
+   {
+      return request;
+   }   
+
+   
    
    private int get_position(wloc_req request,wloc_position position)
    {
@@ -185,7 +184,6 @@ public class WLocate
       public void onReceive(Context c, Intent intent) 
       {
          int           netCnt=0,ret=WLOC_LOCATION_ERROR;
-         wloc_req      request;
          wloc_position pos=null;
          
          List<ScanResult> configs=wifi.getScanResults();
@@ -195,6 +193,7 @@ public class WLocate
             {
                String bssidStr[];
 
+               config.BSSID=config.BSSID.toUpperCase();
                bssidStr=config.BSSID.split(":");
                request.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
                request.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
