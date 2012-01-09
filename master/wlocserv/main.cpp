@@ -701,12 +701,13 @@ static bool mainLoop(void* /*hInstance*/)
                                     sum=atoi(row[2]);
                                     if ((sum>0) && (sum<250)) country=sum;
                                     if ((!row[3]) || (row[3][0]=='3')) client->request.signal[i]/=2; // interpolated location
-                                    else if (row[3][0]=='0') client->request.signal[i]*=2;           // manually entered by users of homepage
+                                    else if (row[3][0]=='0') client->request.signal[i]*=2;           // manually entered by users of homepage / owners of AP
                                     else if (row[3][0]=='4') client->request.signal[i]/=3;           // g-fetched Location
                                     else if (row[3][0]=='5') client->request.signal[i]/=3;           // g-collected data
                                     // 1 - imported from other db
                                     // 2 - scanned for my own
                                     // 6 - uploads from wardrivers
+                                    // 7 - uploaded by OWLMap@Android App
                                  }
 #else
                                  if (i==0)
