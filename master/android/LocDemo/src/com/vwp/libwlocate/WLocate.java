@@ -75,6 +75,7 @@ public class WLocate
    private float               m_radius=1.0f;
    private wloc_req            request;
    private int                 scanFlags;
+   private Context             ctx;
 
    
 
@@ -89,7 +90,22 @@ public class WLocate
       location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener)locationListener);
       
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));      
+      this.ctx=ctx;
+      doResume();
+   }
+   
+   
+   
+   public void doPause()
+   {
+      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));            
+   }
+   
+   
+   
+   public void doResume()
+   {
+      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));            
    }
    
    
