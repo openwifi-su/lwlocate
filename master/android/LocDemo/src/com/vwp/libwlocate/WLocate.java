@@ -74,6 +74,7 @@ public class WLocate
    private double              m_lat,m_lon;
    private float               m_radius=1.0f;
    private wloc_req            request;
+   private int                 scanFlags;
 
    
 
@@ -100,17 +101,8 @@ public class WLocate
     */
    public void wloc_request_position(int flags)
    {
-      if (!GPSAvailable)
-      {
-         if ((flags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
-         else wifi.startScan();
-      }
-      else
-      {
-         // TODO: disable GPS in case NO_GPS_FLAGT is set and re-enable it on next call without this option
-         if ((flags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
-         else wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
-      }
+      scanFlags=flags;
+      wifi.startScan();
    }
 
    
@@ -207,10 +199,23 @@ public class WLocate
             netCnt++;
             if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
          }        
-         pos=new wloc_position();
-         ret=get_position(request,pos);
-         if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
-         else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);
+         if (!GPSAvailable)
+         {
+            if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+            else
+            {
+               pos=new wloc_position();
+               ret=get_position(request,pos);
+               if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
+               else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);               
+            }
+         }
+         else
+         {
+            // TODO: disable GPS in case NO_GPS_FLAGT is set and re-enable it on next call without this option
+            if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+            else wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
+         }         
       }
    }
    
