@@ -49,7 +49,10 @@ class wloc_position
  * 
  * The usage is quite simple: create an own class that inherits from WLocate and overwrite method
  * wloc_return_position(). Call wloc_request_position() to start position evaluation. The resulting is returned via
- * overwritten method wloc_return_position() asynchronously.
+ * overwritten method wloc_return_position() asynchronously.<BR><BR>
+ *
+ * Beside of that it is recommended to call the doPause() and doResume() methods whenever an onPause() and onResume()
+ * event occurs in main Activity to avoid Exceptions caused by the WiFi-receiver.
  */
 public class WLocate
 {
@@ -77,7 +80,7 @@ public class WLocate
    private int                 scanFlags;
    private Context             ctx;
 
-   
+
 
    /**
     * Constructor for WLocate class, this constructor has to be overwritten by inheriting class
@@ -96,6 +99,11 @@ public class WLocate
    
    
    
+   /**
+   * Send pause-information to active WLocate object. This method should be called out of the main Activity
+   * whenever an onPause() event occurs to avoid leakted IntentReceiver exceptions caused by the receiver
+   * when it is still registered after application switched over to pause state
+   */
    public void doPause()
    {
       ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));            
@@ -103,6 +111,11 @@ public class WLocate
    
    
    
+   /**
+   * Send resume-information to active WLocate object. This method has to be called out of the main Activity
+   * whenever an onResume() event occurs and in case the doPause() method is used to reactivate the WiFi
+   * receiver
+   */
    public void doResume()
    {
       ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));            
