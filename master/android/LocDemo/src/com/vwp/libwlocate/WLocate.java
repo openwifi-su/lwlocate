@@ -87,7 +87,7 @@ public class WLocate
    {
       location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
       locationListener = new GPSLocationListener();
-      location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener)locationListener);
+      location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 1, (LocationListener)locationListener);
       
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       this.ctx=ctx;
