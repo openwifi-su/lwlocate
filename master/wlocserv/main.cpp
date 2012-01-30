@@ -368,7 +368,75 @@ static bool readPackets(struct list_entry *entry, long timeout)
    }
    return true;
 }
-#endif // TEST_MODE
+
+
+
+// Get the geolocation of a single BSSID from OpenBMap
+static char get_wlan_location(double *lat,double *lon,char *bssid)
+{
+   char             line[5001],body[5001],mime[101];
+   int              sock,retCode;
+
+   *lat=0;
+   *lon=0;
+   sock=oapc_tcp_connect_to("openbmap.org",80);
+   if (sock<=0) return 0;
+   sprintf(body,"bssid=%s",bssid);
+   sprintf(line,"POST /api/getGPSfromWifiAPBSSID.php5 HTTP/1.1\r\nHost: openbmap.org\r\nAccept: text/xml, application/xml, */*\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %d\r\n\r\n%s",strlen(body),body); 	
+   if (oapc_tcp_send(sock,line,strlen(line),2000)!=(int)strlen(line))
+   {
+      printf("Sending head failed...\n");
+      oapc_tcp_closesocket(sock);
+      return 0;
+   }
+   memset(line,0,sizeof(line));
+   while (oapc_tcp_recv(sock,line,1000,"\n",4000))
+   {
+      if (strstr(line,"HTTP/1.")==line)
+      {
+         retCode=atoi(line+9);
+         if (retCode!=200)
+         {
+            oapc_tcp_closesocket(sock);
+            return 0;
+         };
+      }
+      else if (strstr(line,"Content-Type:")==line)
+      {
+         strncpy(mime,line+14,100);
+      }
+      else if ((line[0]=='\r') || (line[0]=='\n'))
+      {
+         memset(body,0,sizeof(body));
+         while (oapc_tcp_recv(sock,body,5000,"\n",4000)>0)
+         {
+            if ((strstr(body,"lat")) && (strstr(body,"lng")))
+            {
+               char *c;
+            		
+               c=strstr(body,"lat=")+5;
+               if ((c) && (c>body)) *lat=atof(c);
+               else return 0;
+
+               c=strstr(body,"lng=")+5;
+               if ((c) && (c>body)) *lon=atof(c);
+               else return 0;
+               showLog("Position from openbmap.org: %f %f",*lat,*lon);
+               return 1;
+            }                            
+            if ((strstr(body,"\r")==body) || (strstr(body,"\n")==body))
+            {
+               oapc_tcp_closesocket(sock);
+               return 0;
+            }                           
+            memset(body,0,sizeof(body));
+         }
+      } 
+      memset(line,0,sizeof(line));
+   }
+   oapc_tcp_closesocket(sock);
+   return 0;
+}
 
 
 
@@ -485,7 +553,7 @@ static int getCountryNum(const char *countryTxt)
    else if (!strcmp(countryTxt,"ZM")) return 195;
    else return -1;
 }
-
+#endif // TEST_MODE
 
 
 /**
@@ -662,7 +730,7 @@ static bool mainLoop(void* /*hInstance*/)
                      for (j=0; j<6; j++) sum+=client->request.bssids[i][j];
                      if (sum!=0)
                      {
-                        snprintf(query,1000,"SELECT lat,lon,country,source FROM netpoints WHERE bssid='%02X%02X%02X%02X%02X%02X' AND lat!=0 and lon!=0",
+                        snprintf(query,1000,"SELECT lat,lon,country,source FROM netpoints WHERE bssid='%02X%02X%02X%02X%02X%02X'",
                                  client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
                                  client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
 //printf("%s\n",query);                                 
@@ -735,9 +803,29 @@ static bool mainLoop(void* /*hInstance*/)
 #ifndef TEST_MODE
                               else
                               {
-                                 client->request.signal[i]=-1; // mark as not found
-                                 lat[i]=-1000;
-                                 lon[i]=-1000;
+                                 char countryTxt[100];
+                              
+                                 snprintf(countryTxt,99,"%02X-%02X-%02X-%02X-%02X-%02X",
+                                          client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,
+                                          client->request.bssids[i][2] & 0xFF,client->request.bssids[i][3] & 0xFF,
+                                          client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
+                                 if (get_wlan_location(&lat[i],&lon[i],countryTxt)) // get info from Google
+                                 {
+                                    snprintf(query,1000,"INSERT INTO netpoints (bssid, lat, lon, timestamp, source, country) VALUES ('%02X%02X%02X%02X%02X%02X', '%f', '%f', '%ld', '4', '%d')",
+                                             client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,
+                                             client->request.bssids[i][2] & 0xFF,client->request.bssids[i][3] & 0xFF,
+                                             client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF,
+                                             lat[i],lon[i],(unsigned long)time(NULL),0);
+printf("Query: %s\n",query);
+                                    mysql_query(conn,query);
+                                    client->request.signal[i]=25; // accuracy is quite poor, so set a small weight for this position
+                                 }
+                                 else
+                                 {
+                                    client->request.signal[i]=-1; // mark as not found
+                                    lat[i]=-1000;
+                                    lon[i]=-1000;
+                                 }
                               }
                               mysql_free_result(sqlResult);
 #endif
@@ -747,7 +835,7 @@ static bool mainLoop(void* /*hInstance*/)
                                           client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,
                                           client->request.bssids[i][2] & 0xFF,client->request.bssids[i][3] & 0xFF,
                                           client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
-showLog("Query: %s\n",query);                                 
+//showLog("Query: %s\n",query);                                 
                                  mysql_query(conn,query);
                                  if ((client->request.signal[i]<=0) || (client->request.signal[i]>100)) client->request.signal[i]=60;
                                  latTotal+=(lat[i]*client->request.signal[i]/100.0);
@@ -795,7 +883,7 @@ printf("%s\n",query);
                               else if ((row = mysql_fetch_row(sqlResult)) && (row[0]) && (row[1]) && (row[2]))
                               {
                                  int ival;
-printf("Lat: %s - %f - %d Lon: %s - %f - %d\n",row[0],atof(row[0])*10000000.0,(int)(atof(row[0])*10000000.0),row[1],atof(row[1])*10000000.0,(int)(atof(row[1])*10000000.0));
+//printf("Lat: %s - %f - %d Lon: %s - %f - %d\n",row[0],atof(row[0])*10000000.0,(int)(atof(row[0])*10000000.0),row[1],atof(row[1])*10000000.0,(int)(atof(row[1])*10000000.0));
                                  ival=(int)(atof(row[0])*10000000.0);
                                  result.lat=htonl(ival);
                                  ival=(int)(atof(row[1])*10000000.0);
@@ -882,7 +970,7 @@ printf("Maximum error distances %f %f at %d\n",latMaxDist,lonMaxDist,maxPos);
                                           errval=(int)atoi(row[0]);
                                           useval=(int)atoi(row[1]);
                                           
-                                          if ((errval>=useval) && (useval>25))
+                                          if (((errval>=useval) && (useval>20)) || (errval>50))
                                           {
                                              snprintf(query,1000,"DELETE FROM netpoints WHERE bssid='%02X%02X%02X%02X%02X%02X'",
                                                       client->request.bssids[maxPos][0] & 0xFF,client->request.bssids[maxPos][1] & 0xFF,
