@@ -19,7 +19,7 @@
 #define MAINDEFS_H
 
 #define FCOMMON_NAME      "WLocate Server"
-#define FCOMMON_VERSION   0.1
+#define FCOMMON_VERSION   0.2
 #define FCOMMON_URL       ""
 #define FCOMMON_COPYRIGHT "(c) 2009-2012"
 
