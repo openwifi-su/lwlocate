@@ -189,6 +189,12 @@ class MainCanvas extends View
       FileInputStream in;
       Message msg;
 
+      msg=new Message();
+      msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+      msg.arg2=(xOffs*2+1)*(yOffs*2+1);
+      msg.obj="Loading map tiles...";
+      locDemo.uiHandler.sendMessage(msg);
+      
       m_lat=lat;
       m_lon=lon;
       m_radius=radius;
@@ -196,12 +202,6 @@ class MainCanvas extends View
       m_tileX=long2tilex(lon,m_zoom);
       m_tileY=lat2tiley(lat,m_zoom);
 
-      msg=new Message();
-      msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-      msg.arg2=xOffs*yOffs*3;
-      msg.obj="Loading map tiles...";
-      locDemo.uiHandler.sendMessage(msg);
-      
       lock.lock();
       for (x=-xOffs; x<=xOffs; x++)
        for (y=-yOffs; y<=yOffs; y++)
@@ -240,7 +240,8 @@ class MainCanvas extends View
       float  cx,cy;
       double tileLat1,tileLon1,tileLat2,tileLon2;
 
-      lock.lock();
+      super.onDraw(c);
+      if (!lock.tryLock()) return;
       for (x=-xOffs; x<=xOffs; x++)
          for (y=-yOffs; y<=yOffs; y++)
       {
@@ -306,14 +307,14 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
             {
                progDlg=new ProgressDialog(ctx);
                progDlg.setTitle((String)msg.obj);
-//               progDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//               progDlg.setMax(msg.arg2);
+               progDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+               progDlg.setMax(msg.arg2);
                progDlg.show();         
                break;
             }
             case MSG_UPD_PRG_DLG:
             {
-//               progDlg.setProgress(msg.arg2);
+               progDlg.setProgress(msg.arg2);
                break;
             }
             case MSG_CLOSE_PRG_DLG:
