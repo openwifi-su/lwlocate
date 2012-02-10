@@ -183,7 +183,7 @@ class MainCanvas extends View
     * @param[in] lat the latitude of the current position which has to be displayed in center tile
     * @param[in] lon the longitude of the current position which has to be displayed in center tile
     */
-   public void updateTiles(double lat,double lon,float radius)
+   public void updateViewTiles(double lat,double lon,float radius)
    {
       int             x,y,cnt=0;
       FileInputStream in;
@@ -425,7 +425,7 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
     
     public void run()
     {    
-       mainCanvas.updateTiles(lat,lon,radius);
+       mainCanvas.updateViewTiles(lat,lon,radius);
        updateRunning=false;
     }
     
@@ -470,7 +470,7 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
              zoomOutButton.setEnabled(false);
           }
           else zoomOutButton.setEnabled(true);
-          mainCanvas.updateTiles(lat,lon,radius);
+          updateTiles(lat,lon,radius);
        }
     }
     
