@@ -1,6 +1,6 @@
 package com.vwp.libwlocate;
 
-import java.io.*;
+import java.io.*; 
 import java.net.*;
 import java.util.*;
 import android.content.*;
@@ -76,9 +76,9 @@ public class WLocate
    private boolean             GPSAvailable=false;
    private double              m_lat,m_lon;
    private float               m_radius=1.0f;
-   private wloc_req            request;
    private int                 scanFlags;
    private Context             ctx;
+   private loc_info            locationInfo=new loc_info();
 
 
 
@@ -136,9 +136,9 @@ public class WLocate
 
    
    
-   public wloc_req last_bssids()
+   public loc_info last_location_info()
    {
-      return request;
+      return locationInfo;
    }   
 
    
@@ -156,13 +156,13 @@ public class WLocate
          wlocSocket=new Socket("62.112.159.250",10443);
          dout=new DataOutputStream(wlocSocket.getOutputStream());
          din=new DataInputStream(wlocSocket.getInputStream());
-         dout.write(request.version);
-         dout.write(request.length);
+         dout.write(locationInfo.requestData.version);
+         dout.write(locationInfo.requestData.length);
          for (i=0; i<wloc_req.WLOC_MAX_NETWORKS; i++)
-          dout.write(request.bssids[i],0,6);
+          dout.write(locationInfo.requestData.bssids[i],0,6);
          for (i=0; i<wloc_req.WLOC_MAX_NETWORKS; i++)
-          dout.writeByte(request.signal[i]);
-         dout.writeInt(request.cgiIP);
+          dout.writeByte(locationInfo.requestData.signal[i]);
+         dout.writeInt(locationInfo.requestData.cgiIP);
          dout.flush();
 
          result.version=din.readByte();
@@ -208,7 +208,8 @@ public class WLocate
          wloc_position pos=null;
          
          List<ScanResult> configs=wifi.getScanResults();
-         request=new wloc_req();
+         locationInfo.wifiScanResult=configs;
+         locationInfo.requestData=new wloc_req();
          for (ScanResult config : configs) 
          {            
             {
@@ -216,34 +217,40 @@ public class WLocate
 
                config.BSSID=config.BSSID.toUpperCase();
                bssidStr=config.BSSID.split(":");
-               request.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
-               request.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
-               request.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
-               request.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
-               request.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
-               request.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
-               request.signal[netCnt]=(byte)Math.abs(config.level);               
+               locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
+               locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
+               locationInfo.requestData.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
+               locationInfo.requestData.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
+               locationInfo.requestData.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
+               locationInfo.requestData.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
+               locationInfo.requestData.signal[netCnt]=(byte)Math.abs(config.level);               
             }
             
             netCnt++;
             if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
          }        
+         locationInfo.lastLocMethod=loc_info.LOC_METHOD_NONE;
          if (!GPSAvailable)
          {
             if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             else
             {
                pos=new wloc_position();
-               ret=get_position(request,pos);
+               ret=get_position(locationInfo.requestData,pos);
+               locationInfo.lastLocMethod=loc_info.LOC_METHOD_LIBWLOCATE;
                if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
                else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);               
             }
          }
          else
          {
-            // TODO: disable GPS in case NO_GPS_FLAGT is set and re-enable it on next call without this option
+            // TODO: disable GPS in case NO_GPS_FLAG is set and re-enable it on next call without this option
             if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
-            else wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
+            else
+            {
+               locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;
+               wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
+            }
          }         
       }
    }
