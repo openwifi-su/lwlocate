@@ -153,7 +153,7 @@ public class WLocate
       
       try
       {
-         wlocSocket=new Socket("62.112.159.250",10443);
+         wlocSocket=new Socket("www.openwlanmap.org",10443);
          dout=new DataOutputStream(wlocSocket.getOutputStream());
          din=new DataInputStream(wlocSocket.getInputStream());
          dout.write(locationInfo.requestData.version);
