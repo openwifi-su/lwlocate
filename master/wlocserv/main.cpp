@@ -581,7 +581,7 @@ static bool mainLoop(void* /*hInstance*/)
    MYSQL             *conn=NULL;
    char               query[1000+1];
    struct list_entry *client;
-   unsigned int       country;
+   int                country;
    struct wloc_res    result;
    time_t             lastDBAccess=0;
    double             lat[WLOC_MAX_NETWORKS],lon[WLOC_MAX_NETWORKS];
@@ -605,6 +605,9 @@ static bool mainLoop(void* /*hInstance*/)
    if (daemonMode)
 #endif
    showLog("Starting %s...",FCOMMON_NAME);
+   #ifdef ENV_POSIX
+   if (verbose) printf("Listening...\n");
+   #endif
    list_s=oapc_tcp_listen_on_port(srcport,"62.112.159.250");
    if (list_s<=0)
    {
@@ -613,7 +616,7 @@ static bool mainLoop(void* /*hInstance*/)
       #else
       perror("");
       #endif
-      showLog("ERROR: could not create listening socket %s:%d, %d!","62.112.159.250",srcport,errno);
+      showLog("ERROR: could not create listening socket %s:%d, %d!","api.openwlanmap.org",srcport,errno);
       return false;
    }
    oapc_tcp_set_blocking(list_s,0);
@@ -626,7 +629,7 @@ static bool mainLoop(void* /*hInstance*/)
        #endif
       showLog("WARNING: could not set socket options, %d!",errno);
    }
-   showLog("INFO: binding to %s:%d","62.112.159.250",srcport);
+   showLog("INFO: binding to %s:%d","api.openwlanmap.org",srcport);
 
 #ifdef ENV_POSIX
    if (userName)
@@ -727,7 +730,14 @@ static bool mainLoop(void* /*hInstance*/)
                      sum=0;
                      lat[i]=-1000;
                      if ((client->request.signal[i]<=0) || (client->request.signal[i]>100)) client->request.signal[i]=60;
+                     
                      for (j=0; j<6; j++) sum+=client->request.bssids[i][j];
+                     #ifdef ENV_POSIX
+                     if (verbose) printf("Next AP: %02X%02X%02X%02X%02X%02X, sum=%d\n",
+                                         client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
+                                         client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF,
+                                         sum);
+                     #endif
                      if (sum!=0)
                      {
                         snprintf(query,1000,"SELECT lat,lon,country,source FROM netpoints WHERE bssid='%02X%02X%02X%02X%02X%02X'",
@@ -757,17 +767,24 @@ static bool mainLoop(void* /*hInstance*/)
 #endif
                               {
 #ifndef TEST_MODE
+                                 #ifdef ENV_POSIX
+                                 if (verbose) printf("Got SQL result...\n");
+                                 #endif
                                  num_fields = mysql_num_fields(sqlResult);
                                  if (num_fields<2)
                                  {
                                     showLog("Fields error: %s %d %s\n",__FILE__,__LINE__,mysql_error(conn));
                                  }
-                                 else if ((row = mysql_fetch_row(sqlResult)) && (row[0]) && (row[1]) && (row[2]))
+                                 else if ((row = mysql_fetch_row(sqlResult)) && (row[0]) && (row[1]) && (row[3]))
                                  {
                                     lat[i]=atof(row[0]);
                                     lon[i]=atof(row[1]);   
-                                    sum=atoi(row[2]);
-                                    if ((sum>0) && (sum<250)) country=sum;
+                                    if (row[2])
+                                    {
+                                       sum=atoi(row[2]);
+                                       if ((sum>0) && (sum<250)) country=sum;
+                                    }
+                                    else country=-1;
                                     if ((!row[3]) || (row[3][0]=='3')) client->request.signal[i]/=2; // interpolated location
                                     else if (row[3][0]=='0') client->request.signal[i]*=2;           // manually entered by users of homepage / owners of AP
                                     else if (row[3][0]=='4') client->request.signal[i]/=3;           // g-fetched Location
@@ -776,6 +793,18 @@ static bool mainLoop(void* /*hInstance*/)
                                     // 2 - scanned for my own
                                     // 6 - uploads from wardrivers
                                     // 7 - uploaded by OWLMap@Android App
+                                    #ifdef ENV_POSIX
+                                    if (verbose) printf("Result for %02X%02X%02X%02X%02X%02X: Lat: %f Lon: %f, Signal: %d\n",
+                                                        client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
+                                                        client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF,
+                                                        lat[i],lon[i],client->request.signal[i]);
+                                    #endif
+                                 }
+                                 else
+                                 {
+                                    #ifdef ENV_POSIX
+                                    if (verbose) printf("Error fetching row %p %p %p\n",row[0],row[1],row[3]);
+                                    #endif                                 
                                  }
 #else
                                  if (i==0)
@@ -805,12 +834,22 @@ static bool mainLoop(void* /*hInstance*/)
                               {
                                  char countryTxt[100];
                               
+                                 #ifdef ENV_POSIX
+                                 if (verbose) printf("New AP %02X%02X%02X%02X%02X%02X, checking at external source\n",
+                                                     client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
+                                                     client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
+                                 #endif
                                  snprintf(countryTxt,99,"%02X-%02X-%02X-%02X-%02X-%02X",
                                           client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,
                                           client->request.bssids[i][2] & 0xFF,client->request.bssids[i][3] & 0xFF,
                                           client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
                                  if (get_wlan_location(&lat[i],&lon[i],countryTxt)) // get info from Google
                                  {
+                                    #ifdef ENV_POSIX
+                                    if (verbose) printf("New AP %02X%02X%02X%02X%02X%02X, adding to own database\n",
+                                                        client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
+                                                        client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
+                                    #endif
                                     snprintf(query,1000,"INSERT INTO netpoints (bssid, lat, lon, timestamp, source, country) VALUES ('%02X%02X%02X%02X%02X%02X', '%f', '%f', '%ld', '4', '%d')",
                                              client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,
                                              client->request.bssids[i][2] & 0xFF,client->request.bssids[i][3] & 0xFF,
@@ -822,6 +861,11 @@ printf("Query: %s\n",query);
                                  }
                                  else
                                  {
+                                    #ifdef ENV_POSIX
+                                    if (verbose) printf("New AP %02X%02X%02X%02X%02X%02X, not found at external source\n",
+                                                        client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
+                                                        client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
+                                    #endif
                                     client->request.signal[i]=-1; // mark as not found
                                     lat[i]=-1000;
                                     lon[i]=-1000;
@@ -831,6 +875,11 @@ printf("Query: %s\n",query);
 #endif
                               if (lat[i]>-900)
                               {
+                                 #ifdef ENV_POSIX
+                                 if (verbose) printf("AP %02X%02X%02X%02X%02X%02X, updating use counter\n",
+                                                     client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,client->request.bssids[i][2] & 0xFF,
+                                                     client->request.bssids[i][3] & 0xFF,client->request.bssids[i][4] & 0xFF,client->request.bssids[i][5] & 0xFF);
+                                 #endif
                                  snprintf(query,1000,"UPDATE netpoints SET usecnt=usecnt+1 WHERE bssid='%02X%02X%02X%02X%02X%02X'",
                                           client->request.bssids[i][0] & 0xFF,client->request.bssids[i][1] & 0xFF,
                                           client->request.bssids[i][2] & 0xFF,client->request.bssids[i][3] & 0xFF,
@@ -852,9 +901,12 @@ printf("Query: %s\n",query);
                   {
                      char         countryTxt[3];
 
-                      if (client->request.cgiIP==0) client->request.cgiIP=client->remoteIPNum;
-                     snprintf(query,1000,"SELECT ipoints.lat,ipoints.lon,ipoints.ccode FROM ips,ipoints WHERE ips.fromip<=%u AND ips.toip>=%u AND ips.kidx=ipoints.idx",
-                              ntohl(client->request.cgiIP),ntohl(client->request.cgiIP));
+                     #ifdef ENV_POSIX
+                     if (verbose) printf("No position, performing IP-based localisation\n");
+                     #endif
+                     if (client->request.cgiIP==0) client->request.cgiIP=client->remoteIPNum;
+                      snprintf(query,1000,"SELECT ipoints.lat,ipoints.lon,ipoints.ccode FROM ips,ipoints WHERE ips.fromip<=%u AND ips.toip>=%u AND ips.kidx=ipoints.idx",
+                               ntohl(client->request.cgiIP),ntohl(client->request.cgiIP));
 printf("%s\n",query);
                      if (mysql_query(conn,query)!=0)
                      {
@@ -908,31 +960,38 @@ printf("%s\n",query);
                   {
                      latTotal/=sumTotal;
                      lonTotal/=sumTotal;
-printf("Intermediate position: %f %f\n",latTotal,lonTotal);
+                     #ifdef ENV_POSIX
+                     if (verbose) printf("Intermediate position: %f %f\n",latTotal,lonTotal);
+                     #endif
+
                      if (result.quality>2)      // if there are more than two hits we can check if one of them is out of range
                      {                     	
                         for (i=0; i<WLOC_MAX_NETWORKS; i++)
                         {
-                        	double latMaxDist=0.0,lonMaxDist=0.0;
-                        	int    maxPos=-1;
-                        	
-                        	for (j=0; j<WLOC_MAX_NETWORKS; j++)
-                        	{
-                        		if (lat[j]>-900)
-                        		{
-                        			if ((fabs(latTotal-lat[j])>latMaxDist) || (fabs(lonTotal-lon[j])>lonMaxDist))
-                        			{
-                        				latMaxDist=fabs(latTotal-lat[j]);
-                        				lonMaxDist=fabs(lonTotal-lon[j]);
-                        				maxPos=j;
-                        			}
-                        		}
-                        	}
+                           double latMaxDist=0.0,lonMaxDist=0.0;
+                           int    maxPos=-1;
+                        
+                           for (j=0; j<WLOC_MAX_NETWORKS; j++)
+                           {
+                              if (lat[j]>-900)
+                              {
+                                 if ((fabs(latTotal-lat[j])>latMaxDist) || (fabs(lonTotal-lon[j])>lonMaxDist))
+                                 {
+                                    latMaxDist=fabs(latTotal-lat[j]);
+                                    lonMaxDist=fabs(lonTotal-lon[j]);
+                                    maxPos=j;
+                                    }
+                                 }
+                           }
                            if ((latMaxDist>0.003) || (lonMaxDist>0.003))
                            {
-#ifdef TEST_MODE
-printf("Maximum error distances %f %f at %d\n",latMaxDist,lonMaxDist,maxPos);
-#endif                           	
+                              #ifdef ENV_POSIX
+                              if (verbose) printf("Maximum error distances %f %f for AP %02X%02X%02X%02X%02X%02X, increasing error count\n",
+                                                  latMaxDist,lonMaxDist,
+                                                  client->request.bssids[maxPos][0] & 0xFF,client->request.bssids[maxPos][1] & 0xFF,
+                                                  client->request.bssids[maxPos][2] & 0xFF,client->request.bssids[maxPos][3] & 0xFF,
+                                                  client->request.bssids[maxPos][4] & 0xFF,client->request.bssids[maxPos][5] & 0xFF);
+                              #endif                           	
                               snprintf(query,1000,"UPDATE netpoints SET errcnt=errcnt+1, usecnt=usecnt-1 WHERE bssid='%02X%02X%02X%02X%02X%02X'",
                                        client->request.bssids[maxPos][0] & 0xFF,client->request.bssids[maxPos][1] & 0xFF,
                                        client->request.bssids[maxPos][2] & 0xFF,client->request.bssids[maxPos][3] & 0xFF,
