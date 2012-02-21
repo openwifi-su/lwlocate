@@ -54,8 +54,8 @@
 // internally used communication structures and defines ======================================================================
 struct wloc_req
 {
-	unsigned char version,length;
-	char          bssids[WLOC_MAX_NETWORKS][6];
+   unsigned char version,length;
+   unsigned char bssids[WLOC_MAX_NETWORKS][6];
    char          signal[WLOC_MAX_NETWORKS];
    unsigned long cgiIP;
 };
