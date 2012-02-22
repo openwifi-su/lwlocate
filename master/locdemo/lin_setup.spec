@@ -1,6 +1,6 @@
 Summary: LocDemo libwlocate demo application
 Name: LocDemo
-Version: 0.7
+Version: 0.9
 Release: 1
 License: GPL
 Packager: http://www.openwlanmap.org

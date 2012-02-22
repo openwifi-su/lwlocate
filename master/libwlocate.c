@@ -37,7 +37,7 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
 
    request->version=1;
    request->length=sizeof(struct wloc_req);
-   sock=tcp_connect_to("62.112.159.250",10443);
+   sock=tcp_connect_to("api.openwlanmap.org",10443);
    if (sock<=0) return WLOC_SERVER_ERROR;
    tcp_set_blocking(sock,0); // set to non-blocking, we do not want to waid endless for a dead connection
    ret=tcp_send(sock,(char*)request,sizeof(struct wloc_req),5000);
