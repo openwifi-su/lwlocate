@@ -73,7 +73,7 @@ public class WLocate
    private GPSLocationListener locationListener;
    private WifiManager         wifi;
    private WifiReceiver        receiverWifi = new WifiReceiver();
-   private boolean             GPSAvailable=false;
+   private boolean             GPSAvailable=false,scanStarted=false;
    private double              m_lat,m_lon;
    private float               m_radius=1.0f;
    private int                 scanFlags;
@@ -131,6 +131,7 @@ public class WLocate
    public void wloc_request_position(int flags)
    {
       scanFlags=flags;
+      scanStarted=true;
       wifi.startScan();
    }
 
@@ -207,6 +208,8 @@ public class WLocate
          int           netCnt=0,ret=WLOC_LOCATION_ERROR;
          wloc_position pos=null;
          
+         if (!scanStarted) return;
+         scanStarted=false;
          List<ScanResult> configs=wifi.getScanResults();
          locationInfo.wifiScanResult=configs;
          locationInfo.requestData=new wloc_req();
