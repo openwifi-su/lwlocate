@@ -69,14 +69,17 @@ public class WLocate
    private static final int WLOC_RESULT_ERROR=2;
    private static final int WLOC_RESULT_IERROR=3;
    
+   private Location            lastLocation=null;
    private LocationManager     location;
    private GPSLocationListener locationListener;
+   private GPSStatusListener   statusListener;
    private WifiManager         wifi;
    private WifiReceiver        receiverWifi = new WifiReceiver();
    private boolean             GPSAvailable=false,scanStarted=false;
    private double              m_lat,m_lon;
    private float               m_radius=1.0f;
    private int                 scanFlags;
+   private long                lastLocationMillis=0;
    private Context             ctx;
    private loc_info            locationInfo=new loc_info();
 
@@ -90,7 +93,9 @@ public class WLocate
    {
       location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
       locationListener = new GPSLocationListener();
-      location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 1, (LocationListener)locationListener);
+      location.requestLocationUpdates(LocationManager.GPS_PROVIDER,250,3,(LocationListener)locationListener);
+      statusListener=new GPSStatusListener();
+      location.addGpsStatusListener(statusListener);
       
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       this.ctx=ctx;
@@ -554,28 +559,59 @@ public class WLocate
             return "";
       }
    }
+
    
+   
+   private class GPSStatusListener implements GpsStatus.Listener 
+   {
+      
+      public void onGpsStatusChanged(int event) 
+      {
+         switch (event) 
+         {
+            case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+               if (lastLocation != null)
+               {
+                  GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 3000;
+               }
+               break;
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
+               // Do something.
+               GPSAvailable=true;
+               break;
+            case GpsStatus.GPS_EVENT_STOPPED:
+               GPSAvailable=false;
+               break;
+         }
+      }
+   }   
     
    
-   class GPSLocationListener implements LocationListener 
+   private class GPSLocationListener implements LocationListener 
    {
       public void onLocationChanged(Location location) 
       {
-         GPSAvailable=true;
+         if (location == null) return;
+         lastLocationMillis = SystemClock.elapsedRealtime();
+         lastLocation = location;         
+//         GPSAvailable=true;
          m_lat=location.getLatitude();
          m_lon=location.getLongitude();
          if (location.hasAccuracy()) m_radius=location.getAccuracy();
+         else m_radius=-1;
       }
 
       public void onStatusChanged(String provider, int status, Bundle extras)
       {
-         if (status==LocationProvider.AVAILABLE) GPSAvailable=true;
-         else GPSAvailable=false;
+         if ((provider!=null) && (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)))
+         {
+            if (status==LocationProvider.AVAILABLE) GPSAvailable=true;
+            else GPSAvailable=false;
+         }
       }
 
       public void onProviderEnabled(String provider)
       {
-         GPSAvailable=true;
       }
 
       public void onProviderDisabled(String provider)
