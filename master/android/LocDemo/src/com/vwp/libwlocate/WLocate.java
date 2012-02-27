@@ -56,8 +56,9 @@ class wloc_position
  */
 public class WLocate
 {
-   public static final int FLAG_NO_NET_ACCESS=0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
-   public static final int FLAG_NO_GPS_ACCESS=0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_NET_ACCESS =0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_GPS_ACCESS =0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_IP_LOCATION=0x0004; /** TODO: don't send a request to the server for IP-based location in case no WLANs are available */
    
    public static final int WLOC_OK=0;               /** Result code for position request, given position information are OK */
    public static final int WLOC_CONNECTION_ERROR=1; /** Result code for position request, a connection error occured, no position information are available */
@@ -66,8 +67,8 @@ public class WLocate
    public static final int WLOC_ERROR=100;          /** Result code for position request, an unknown error occured, no position information are available */
    
    private static final int WLOC_RESULT_OK=1;
-   private static final int WLOC_RESULT_ERROR=2;
-   private static final int WLOC_RESULT_IERROR=3;
+//   private static final int WLOC_RESULT_ERROR=2;
+//   private static final int WLOC_RESULT_IERROR=3;
    
    private Location            lastLocation=null;
    private LocationManager     location;
@@ -238,6 +239,7 @@ public class WLocate
             if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
          }        
          locationInfo.lastLocMethod=loc_info.LOC_METHOD_NONE;
+         if (GPSAvailable) GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 7500;
          if (!GPSAvailable)
          {
             if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
@@ -572,7 +574,7 @@ public class WLocate
             case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                if (lastLocation != null)
                {
-                  GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 3000;
+                  GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 3500;
                }
                break;
             case GpsStatus.GPS_EVENT_FIRST_FIX:
@@ -605,8 +607,7 @@ public class WLocate
       {
          if ((provider!=null) && (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)))
          {
-            if (status==LocationProvider.AVAILABLE) GPSAvailable=true;
-            else GPSAvailable=false;
+            if (status!=LocationProvider.AVAILABLE) GPSAvailable=false;
          }
       }
 
