@@ -54,7 +54,7 @@ class wloc_position
  * Beside of that it is recommended to call the doPause() and doResume() methods whenever an onPause() and onResume()
  * event occurs in main Activity to avoid Exceptions caused by the WiFi-receiver.
  */
-public class WLocate
+public class WLocate implements Runnable
 {
    public static final int FLAG_NO_NET_ACCESS =0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
    public static final int FLAG_NO_GPS_ACCESS =0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
@@ -78,12 +78,13 @@ public class WLocate
    private WifiReceiver        receiverWifi = new WifiReceiver();
    private boolean             GPSAvailable=false,scanStarted=false;
    private double              m_lat,m_lon;
-   private float               m_radius=1.0f;
+   private float               m_radius=1.0f,m_speed=-1.0f;
    private int                 scanFlags;
    private long                lastLocationMillis=0;
    private Context             ctx;
    private loc_info            locationInfo=new loc_info();
-
+   private Thread              netThread;
+   private WLocate             me;
 
 
    /**
@@ -100,6 +101,7 @@ public class WLocate
       
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       this.ctx=ctx;
+      me=this;
       doResume();
    }
    
@@ -239,17 +241,15 @@ public class WLocate
             if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
          }        
          locationInfo.lastLocMethod=loc_info.LOC_METHOD_NONE;
+         locationInfo.lastSpeed=-1.0f;
          if (GPSAvailable) GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 7500;
          if (!GPSAvailable)
          {
             if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             else
             {
-               pos=new wloc_position();
-               ret=get_position(locationInfo.requestData,pos);
-               locationInfo.lastLocMethod=loc_info.LOC_METHOD_LIBWLOCATE;
-               if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
-               else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);               
+               netThread=new Thread(me);
+               netThread.start();
             }
          }
          else
@@ -259,12 +259,26 @@ public class WLocate
             else
             {
                locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;
+               locationInfo.lastSpeed=m_speed*3.6f;
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
             }
          }         
       }
    }
+
    
+   
+   public void run()
+   {
+      int           ret=WLOC_LOCATION_ERROR;
+      wloc_position pos=null;
+      
+      pos=new wloc_position();
+      ret=get_position(locationInfo.requestData,pos);
+      locationInfo.lastLocMethod=loc_info.LOC_METHOD_LIBWLOCATE;
+      if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
+      else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);                     
+   }
    
    
    /**
@@ -599,6 +613,8 @@ public class WLocate
 //         GPSAvailable=true;
          m_lat=location.getLatitude();
          m_lon=location.getLongitude();
+         if (location.hasSpeed()) m_speed=location.getSpeed(); //m/sec
+         else m_speed=-1;
          if (location.hasAccuracy()) m_radius=location.getAccuracy();
          else m_radius=-1;
       }
