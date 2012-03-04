@@ -80,9 +80,11 @@ print_scanning_token(struct stream_descr *	stream,	/* Stream of events */
 		     struct iw_range *	iw_range,	/* Range info */
 		     int		has_range)
 {
-   int i;
+   int  i;
+   char buffer[128];
 
-   if (state->ap_num>=WLOC_MAX_NETWORKS) return;
+   if (state->ap_num>=WLOC_MAX_NETWORKS)
+	return;
   /* Now, let's decode the event */
   switch(event->cmd)
     {
@@ -91,14 +93,13 @@ print_scanning_token(struct stream_descr *	stream,	/* Stream of events */
 	     iw_saether_ntop(&event->u.ap_addr, buffer));
       state->ap_num++;
       for (i=0; i<6; i++)
-      {
-         g_request->bssids[state->ap_num-1][i]=(event->u.ap_addr.sa_data[i] & 0xFF);
-         printf("%02X",g_request->bssids[state->ap_num-1][i]);
-      }
+       g_request->bssids[state->ap_num-1][i]=(event->u.ap_addr.sa_data[i] & 0xFF);
       break;
     case IWEVQUAL:
     {
-    	g_request->signal[state->ap_num-1]=100.0*event->u.qual.qual/iw_range->max_qual.qual;
+      if (iw_range->max_qual.qual==0) g_request->signal[state->ap_num-1]=abs(event->u.qual.qual);
+      else g_request->signal[state->ap_num-1]=100.0*event->u.qual.qual/iw_range->max_qual.qual;
+      printf("                    Signal: %d\n",g_request->signal[state->ap_num-1]);
       break;
     }
     default:
@@ -200,13 +201,13 @@ print_scanning_info(int		skfd,
     }*/
 
   /* Check if we have scan options */
-  if(scanflags)
+/*  if(scanflags)
     {
       wrq.u.data.pointer = (caddr_t) &scanopt;
       wrq.u.data.length = sizeof(scanopt);
       wrq.u.data.flags = scanflags;
     }
-  else
+  else*/
     {
       wrq.u.data.pointer = NULL;
       wrq.u.data.flags = 0;

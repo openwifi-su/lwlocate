@@ -1,5 +1,12 @@
+DBGFLAGS = -O2 -g0 -DNDEBUG
+STRIP=strip
+ifeq ($(DEBUG),1)
+DBGFLAGS = -O0 -g3
+STRIP=ls -al
+endif
+
 CC      = gcc
-CFLAGS  = -Wall -g0 -O3 -DENV_LINUX -D_REENTRANT -DNDEBUG -L/usr/lib -L/usr/local/lib/ -I.
+CFLAGS  = -Wall $(DBGFLAGS) -DENV_LINUX -D_REENTRANT -DNDEBUG -L/usr/lib -L/usr/local/lib/ -I.
 
 LDFLAGS  = -L. -lwlocate -lm
 
@@ -10,7 +17,7 @@ SRC = trace.c
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) -o $(PNAME) $(OBJ) $(LDFLAGS)
-	strip $(PNAME)
+	$(STRIP) $(PNAME)
 
 clean:
 	rm *.o
