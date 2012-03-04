@@ -88,8 +88,13 @@ print_scanning_token(struct stream_descr *	stream,	/* Stream of events */
     {
     case SIOCGIWAP:
       state->ap_num++;
+      printf("\t");
       for (i=0; i<6; i++)
-       g_request->bssids[state->ap_num-1][i]=(event->u.ap_addr.sa_data[i] & 0xFF);
+      {
+         g_request->bssids[state->ap_num-1][i]=(event->u.ap_addr.sa_data[i] & 0xFF);
+         printf("%02X",g_request->bssids[state->ap_num-1][i]);
+      }
+      printf("\n");
       break;
     case IWEVQUAL:
     {
@@ -347,7 +352,7 @@ print_scanning_info(int		skfd,
 	printf(":%02X", buffer[i]);
       printf("]\n");
 #endif
-      printf("%-8.16s  Scan completed :\n", ifname);
+      printf("%-8.16s  Scan completed:\n", ifname);
       iw_init_event_stream(&stream, (char *) buffer, wrq.u.data.length);
       do
 	{
