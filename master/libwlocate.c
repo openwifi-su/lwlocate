@@ -111,9 +111,9 @@ WLOC_EXT_API int wloc_get_location(double *lat,double *lon,char *quality,short *
 #endif
    if (ret==0)
    {
-      if (wloc_get_wlan_data(&request)<=0)
+      if (wloc_get_wlan_data(&request)<2)
       {
-         wloc_get_wlan_data(&request); // try two times in case the device was currently used
+         wloc_get_wlan_data(&request); // try two times in case the device was currently used or could not find all networks
          // in case of no success request localisation without WLAN data
       }
    }
