@@ -22,7 +22,8 @@ import com.vwp.libwlocate.*;
 class MainCanvas extends View 
 {
    private Bitmap  locTile[][];
-   private int     m_tileX,m_tileY,xOffs,yOffs,m_lastOrientation=-1;
+   private int     m_tileX,m_tileY,m_lastOrientation=-1;
+   public  int     xOffs,yOffs;
    private float   m_radius;
    private double  m_lat,m_lon;
    private Paint   circleColour,fillColour;
@@ -187,14 +188,16 @@ class MainCanvas extends View
    {
       int             x,y,cnt=0;
       FileInputStream in;
-      Message msg;
-
-      msg=new Message();
-      msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-      msg.arg2=(xOffs*2+1)*(yOffs*2+1);
-      msg.obj="Loading map tiles...";
-      locDemo.uiHandler.sendMessage(msg);
+      Message         msg; 
       
+      try
+      {
+         Thread.sleep(250);
+      }
+      catch (InterruptedException ie)
+      {
+         
+      }
       m_lat=lat;
       m_lon=lon;
       m_radius=radius;
@@ -223,7 +226,7 @@ class MainCanvas extends View
          }
          catch (IOException ioe)
          {         
-            loadTile("http://tah.openstreetmap.org/Tiles/tile/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+xOffs,y+yOffs);
+            loadTile("http://otile1.mqcdn.com/tiles/1.0.0/osm/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+xOffs,y+yOffs);
          }
       }
       lock.unlock();
@@ -425,6 +428,14 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
     
     public void run()
     {    
+       Message msg;
+
+       msg=new Message();
+       msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+       msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+       msg.obj="Loading map tiles...";
+       uiHandler.sendMessage(msg);
+       
        mainCanvas.updateViewTiles(lat,lon,radius);
        updateRunning=false;
     }

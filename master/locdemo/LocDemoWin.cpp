@@ -307,10 +307,10 @@ void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
       	get=new wxHTTP();
          get->SetTimeout(10); // 10 seconds of timeout instead of 10 minutes ...
          get->SetHeader(_T("User-Agent"),_T("LocDemo libwlocate demo application"));
-         while (!get->Connect(_T("tah.openstreetmap.org")))
+         while (!get->Connect(_T("a.tile.openstreetmap.org")))
           wxSleep(5);
  
-         path=wxString::Format(_T("/Tiles/tile/%d/%d/%d.png"),m_zoom,m_tileX+x,m_tileY+y);
+         path=wxString::Format(_T("/%d/%d/%d.png"),m_zoom,m_tileX+x,m_tileY+y);
          httpStream = get->GetInputStream(path);
          if (get->GetError() == wxPROTO_NOERR)
          {
