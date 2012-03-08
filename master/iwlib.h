@@ -28,16 +28,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <netdb.h>		/* gethostbyname, getnetbyname */
+#include <net/ethernet.h>	/* struct ether_addr */
 #include <sys/time.h>		/* struct timeval */
 #include <unistd.h>
-#include <netinet/in.h>         /* For struct sockaddr_in */
-#ifndef ENV_QNX
-#include <net/ethernet.h>	/* struct ether_addr */
-#include <linux/types.h>		/* for "caddr_t" et al		*/
-#else
-#include <usb.h>
-#include <netinet/ip_compat.h>
-#endif
+
 /* This is our header selection. Try to hide the mess and the misery :-(
  * Don't look, you would go blind ;-)
  * Note : compatibility with *old* distributions has been removed,
@@ -48,15 +42,16 @@
 /* Set of headers proposed by Dr. Michael Rietz <rietz@mail.amps.de>, 27.3.2 */
 #include <net/if_arp.h>		/* For ARPHRD_ETHER */
 #include <sys/socket.h>		/* For AF_INET & struct sockaddr */
-#ifndef ENV_QNX
+#include <netinet/in.h>         /* For struct sockaddr_in */
 #include <netinet/if_ether.h>
-#endif
 
 /* Fixup to be able to include kernel includes in userspace.
  * Basically, kill the sparse annotations... Jean II */
 #ifndef __user
 #define __user
 #endif
+
+#include <linux/types.h>		/* for "caddr_t" et al		*/
 
 /* Glibc systems headers are supposedly less problematic than kernel ones */
 #include <sys/socket.h>			/* for "struct sockaddr" et al	*/

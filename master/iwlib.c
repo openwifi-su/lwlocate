@@ -92,6 +92,51 @@ union	iw_range_raw
 
 /**************************** VARIABLES ****************************/
 
+/* Modes as human readable strings */
+const char * const iw_operation_mode[] = { "Auto",
+					"Ad-Hoc",
+					"Managed",
+					"Master",
+					"Repeater",
+					"Secondary",
+					"Monitor",
+					"Unknown/bug" };
+
+/* Modulations as human readable strings */
+const struct iw_modul_descr	iw_modul_list[] = {
+  /* Start with aggregate types, so that they display first */
+  { IW_MODUL_11AG, "11ag",
+    "IEEE 802.11a + 802.11g (2.4 & 5 GHz, up to 54 Mb/s)" },
+  { IW_MODUL_11AB, "11ab",
+    "IEEE 802.11a + 802.11b (2.4 & 5 GHz, up to 54 Mb/s)" },
+  { IW_MODUL_11G, "11g", "IEEE 802.11g (2.4 GHz, up to 54 Mb/s)" },
+  { IW_MODUL_11A, "11a", "IEEE 802.11a (5 GHz, up to 54 Mb/s)" },
+  { IW_MODUL_11B, "11b", "IEEE 802.11b (2.4 GHz, up to 11 Mb/s)" },
+
+  /* Proprietary aggregates */
+  { IW_MODUL_TURBO | IW_MODUL_11A, "turboa",
+    "Atheros turbo mode at 5 GHz (up to 108 Mb/s)" },
+  { IW_MODUL_TURBO | IW_MODUL_11G, "turbog",
+    "Atheros turbo mode at 2.4 GHz (up to 108 Mb/s)" },
+  { IW_MODUL_PBCC | IW_MODUL_11B, "11+",
+    "TI 802.11+ (2.4 GHz, up to 22 Mb/s)" },
+
+  /* Individual modulations */
+  { IW_MODUL_OFDM_G, "OFDMg",
+    "802.11g higher rates, OFDM at 2.4 GHz (up to 54 Mb/s)" },
+  { IW_MODUL_OFDM_A, "OFDMa", "802.11a, OFDM at 5 GHz (up to 54 Mb/s)" },
+  { IW_MODUL_CCK, "CCK", "802.11b higher rates (2.4 GHz, up to 11 Mb/s)" },
+  { IW_MODUL_DS, "DS", "802.11 Direct Sequence (2.4 GHz, up to 2 Mb/s)" },
+  { IW_MODUL_FH, "FH", "802.11 Frequency Hopping (2,4 GHz, up to 2 Mb/s)" },
+
+  /* Proprietary modulations */
+  { IW_MODUL_TURBO, "turbo",
+    "Atheros turbo mode, channel bonding (up to 108 Mb/s)" },
+  { IW_MODUL_PBCC, "PBCC",
+    "TI 802.11+ higher rates (2.4 GHz, up to 22 Mb/s)" },
+  { IW_MODUL_CUSTOM, "custom",
+    "Driver specific modulation (check driver documentation)" },
+};
 
 /* Disable runtime version warning in iw_get_range_info() */
 int	iw_ignore_version = 0;
@@ -944,10 +989,557 @@ iw_freq2float(const iwfreq *	in)
 #endif	/* WE_NOLIBM */
 }
 
+/*------------------------------------------------------------------*/
+/*
+ * Output a frequency with proper scaling
+ */
+void
+iw_print_freq_value(char *	buffer,
+		    int		buflen,
+		    double	freq)
+{
+  if(freq < KILO)
+    snprintf(buffer, buflen, "%g", freq);
+  else
+    {
+      char	scale;
+      int	divisor;
 
+      if(freq >= GIGA)
+	{
+	  scale = 'G';
+	  divisor = GIGA;
+	}
+      else
+	{
+	  if(freq >= MEGA)
+	    {
+	      scale = 'M';
+	      divisor = MEGA;
+	    }
+	  else
+	    {
+	      scale = 'k';
+	      divisor = KILO;
+	    }
+	}
+      snprintf(buffer, buflen, "%g %cHz", freq / divisor, scale);
+    }
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Output a frequency with proper scaling
+ */
+void
+iw_print_freq(char *	buffer,
+	      int	buflen,
+	      double	freq,
+	      int	channel,
+	      int	freq_flags)
+{
+  char	sep = ((freq_flags & IW_FREQ_FIXED) ? '=' : ':');
+  char	vbuf[16];
+
+  /* Print the frequency/channel value */
+  iw_print_freq_value(vbuf, sizeof(vbuf), freq);
+
+  /* Check if channel only */
+  if(freq < KILO)
+    snprintf(buffer, buflen, "Channel%c%s", sep, vbuf);
+  else
+    {
+      /* Frequency. Check if we have a channel as well */
+      if(channel >= 0)
+	snprintf(buffer, buflen, "Frequency%c%s (Channel %d)",
+		 sep, vbuf, channel);
+      else
+	snprintf(buffer, buflen, "Frequency%c%s", sep, vbuf);
+    }
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Convert a frequency to a channel (negative -> error)
+ */
+int
+iw_freq_to_channel(double			freq,
+		   const struct iw_range *	range)
+{
+  double	ref_freq;
+  int		k;
+
+  /* Check if it's a frequency or not already a channel */
+  if(freq < KILO)
+    return(-1);
+
+  /* We compare the frequencies as double to ignore differences
+   * in encoding. Slower, but safer... */
+  for(k = 0; k < range->num_frequency; k++)
+    {
+      ref_freq = iw_freq2float(&(range->freq[k]));
+      if(freq == ref_freq)
+	return(range->freq[k].i);
+    }
+  /* Not found */
+  return(-2);
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Convert a channel to a frequency (negative -> error)
+ * Return the channel on success
+ */
+int
+iw_channel_to_freq(int				channel,
+		   double *			pfreq,
+		   const struct iw_range *	range)
+{
+  int		has_freq = 0;
+  int		k;
+
+  /* Check if the driver support only channels or if it has frequencies */
+  for(k = 0; k < range->num_frequency; k++)
+    {
+      if((range->freq[k].e != 0) || (range->freq[k].m > (int) KILO))
+	has_freq = 1;
+    }
+  if(!has_freq)
+    return(-1);
+
+  /* Find the correct frequency in the list */
+  for(k = 0; k < range->num_frequency; k++)
+    {
+      if(range->freq[k].i == channel)
+	{
+	  *pfreq = iw_freq2float(&(range->freq[k]));
+	  return(channel);
+	}
+    }
+  /* Not found */
+  return(-2);
+}
+
+/*********************** BITRATE SUBROUTINES ***********************/
+
+/*------------------------------------------------------------------*/
+/*
+ * Output a bitrate with proper scaling
+ */
+void
+iw_print_bitrate(char *	buffer,
+		 int	buflen,
+		 int	bitrate)
+{
+  double	rate = bitrate;
+  char		scale;
+  int		divisor;
+
+  if(rate >= GIGA)
+    {
+      scale = 'G';
+      divisor = GIGA;
+    }
+  else
+    {
+      if(rate >= MEGA)
+	{
+	  scale = 'M';
+	  divisor = MEGA;
+	}
+      else
+	{
+	  scale = 'k';
+	  divisor = KILO;
+	}
+    }
+  snprintf(buffer, buflen, "%g %cb/s", rate / divisor, scale);
+}
+
+/************************ POWER SUBROUTINES *************************/
+
+/*------------------------------------------------------------------*/
+/*
+ * Convert a value in dBm to a value in milliWatt.
+ */
+int
+iw_dbm2mwatt(int	in)
+{
+#ifdef WE_NOLIBM
+  /* Version without libm : slower */
+  int		ip = in / 10;
+  int		fp = in % 10;
+  int		k;
+  double	res = 1.0;
+
+  /* Split integral and floating part to avoid accumulating rounding errors */
+  for(k = 0; k < ip; k++)
+    res *= 10;
+  for(k = 0; k < fp; k++)
+    res *= LOG10_MAGIC;
+  return((int) res);
+#else	/* WE_NOLIBM */
+  /* Version with libm : faster */
+  return((int) (floor(pow(10.0, (((double) in) / 10.0)))));
+#endif	/* WE_NOLIBM */
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Convert a value in milliWatt to a value in dBm.
+ */
+int
+iw_mwatt2dbm(int	in)
+{
+#ifdef WE_NOLIBM
+  /* Version without libm : slower */
+  double	fin = (double) in;
+  int		res = 0;
+
+  /* Split integral and floating part to avoid accumulating rounding errors */
+  while(fin > 10.0)
+    {
+      res += 10;
+      fin /= 10.0;
+    }
+  while(fin > 1.000001)	/* Eliminate rounding errors, take ceil */
+    {
+      res += 1;
+      fin /= LOG10_MAGIC;
+    }
+  return(res);
+#else	/* WE_NOLIBM */
+  /* Version with libm : faster */
+  return((int) (ceil(10.0 * log10((double) in))));
+#endif	/* WE_NOLIBM */
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Output a txpower with proper conversion
+ */
+void
+iw_print_txpower(char *			buffer,
+		 int			buflen,
+		 struct iw_param *	txpower)
+{
+  int		dbm;
+
+  /* Check if disabled */
+  if(txpower->disabled)
+    {
+      snprintf(buffer, buflen, "off");
+    }
+  else
+    {
+      /* Check for relative values */
+      if(txpower->flags & IW_TXPOW_RELATIVE)
+	{
+	  snprintf(buffer, buflen, "%d", txpower->value);
+	}
+      else
+	{
+	  /* Convert everything to dBm */
+	  if(txpower->flags & IW_TXPOW_MWATT)
+	    dbm = iw_mwatt2dbm(txpower->value);
+	  else
+	    dbm = txpower->value;
+
+	  /* Display */
+	  snprintf(buffer, buflen, "%d dBm", dbm);
+	}
+    }
+}
+
+/********************** STATISTICS SUBROUTINES **********************/
+
+/*------------------------------------------------------------------*/
+/*
+ * Read /proc/net/wireless to get the latest statistics
+ * Note : strtok not thread safe, not used in WE-12 and later.
+ */
+int
+iw_get_stats(int		skfd,
+	     const char *	ifname,
+	     iwstats *		stats,
+	     const iwrange *	range,
+	     int		has_range)
+{
+  /* Fortunately, we can always detect this condition properly */
+  if((has_range) && (range->we_version_compiled > 11))
+    {
+      struct iwreq		wrq;
+      wrq.u.data.pointer = (caddr_t) stats;
+      wrq.u.data.length = sizeof(struct iw_statistics);
+      wrq.u.data.flags = 1;		/* Clear updated flag */
+      strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
+      if(iw_get_ext(skfd, ifname, SIOCGIWSTATS, &wrq) < 0)
+	return(-1);
+
+      /* Format has not changed since WE-12, no conversion */
+      return(0);
+    }
+  else
+    {
+      FILE *	f = fopen(PROC_NET_WIRELESS, "r");
+      char	buf[256];
+      char *	bp;
+      int	t;
+
+      if(f==NULL)
+	return -1;
+      /* Loop on all devices */
+      while(fgets(buf,255,f))
+	{
+	  bp=buf;
+	  while(*bp&&isspace(*bp))
+	    bp++;
+	  /* Is it the good device ? */
+	  if(strncmp(bp,ifname,strlen(ifname))==0 && bp[strlen(ifname)]==':')
+	    {
+	      /* Skip ethX: */
+	      bp=strchr(bp,':');
+	      bp++;
+	      /* -- status -- */
+	      bp = strtok(bp, " ");
+	      sscanf(bp, "%X", &t);
+	      stats->status = (unsigned short) t;
+	      /* -- link quality -- */
+	      bp = strtok(NULL, " ");
+	      if(strchr(bp,'.') != NULL)
+		stats->qual.updated |= 1;
+	      sscanf(bp, "%d", &t);
+	      stats->qual.qual = (unsigned char) t;
+	      /* -- signal level -- */
+	      bp = strtok(NULL, " ");
+	      if(strchr(bp,'.') != NULL)
+		stats->qual.updated |= 2;
+	      sscanf(bp, "%d", &t);
+	      stats->qual.level = (unsigned char) t;
+	      /* -- noise level -- */
+	      bp = strtok(NULL, " ");
+	      if(strchr(bp,'.') != NULL)
+		stats->qual.updated += 4;
+	      sscanf(bp, "%d", &t);
+	      stats->qual.noise = (unsigned char) t;
+	      /* -- discarded packets -- */
+	      bp = strtok(NULL, " ");
+	      sscanf(bp, "%d", &stats->discard.nwid);
+	      bp = strtok(NULL, " ");
+	      sscanf(bp, "%d", &stats->discard.code);
+	      bp = strtok(NULL, " ");
+	      sscanf(bp, "%d", &stats->discard.misc);
+	      fclose(f);
+	      /* No conversion needed */
+	      return 0;
+	    }
+	}
+      fclose(f);
+      return -1;
+    }
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Output the link statistics, taking care of formating
+ */
+void
+iw_print_stats(char *		buffer,
+	       int		buflen,
+	       const iwqual *	qual,
+	       const iwrange *	range,
+	       int		has_range)
+{
+  int		len;
+
+  /* People are very often confused by the 8 bit arithmetic happening
+   * here.
+   * All the values here are encoded in a 8 bit integer. 8 bit integers
+   * are either unsigned [0 ; 255], signed [-128 ; +127] or
+   * negative [-255 ; 0].
+   * Further, on 8 bits, 0x100 == 256 == 0.
+   *
+   * Relative/percent values are always encoded unsigned, between 0 and 255.
+   * Absolute/dBm values are always encoded between -192 and 63.
+   * (Note that up to version 28 of Wireless Tools, dBm used to be
+   *  encoded always negative, between -256 and -1).
+   *
+   * How do we separate relative from absolute values ?
+   * The old way is to use the range to do that. As of WE-19, we have
+   * an explicit IW_QUAL_DBM flag in updated...
+   * The range allow to specify the real min/max of the value. As the
+   * range struct only specify one bound of the value, we assume that
+   * the other bound is 0 (zero).
+   * For relative values, range is [0 ; range->max].
+   * For absolute values, range is [range->max ; 63].
+   *
+   * Let's take two example :
+   * 1) value is 75%. qual->value = 75 ; range->max_qual.value = 100
+   * 2) value is -54dBm. noise floor of the radio is -104dBm.
+   *    qual->value = -54 = 202 ; range->max_qual.value = -104 = 152
+   *
+   * Jean II
+   */
+
+  /* Just do it...
+   * The old way to detect dBm require both the range and a non-null
+   * level (which confuse the test). The new way can deal with level of 0
+   * because it does an explicit test on the flag. */
+  if(has_range && ((qual->level != 0)
+		   || (qual->updated & (IW_QUAL_DBM | IW_QUAL_RCPI))))
+    {
+      /* Deal with quality : always a relative value */
+      if(!(qual->updated & IW_QUAL_QUAL_INVALID))
+	{
+	  len = snprintf(buffer, buflen, "Quality%c%d/%d  ",
+			 qual->updated & IW_QUAL_QUAL_UPDATED ? '=' : ':',
+			 qual->qual, range->max_qual.qual);
+	  buffer += len;
+	  buflen -= len;
+	}
+
+      /* Check if the statistics are in RCPI (IEEE 802.11k) */
+      if(qual->updated & IW_QUAL_RCPI)
+	{
+	  /* Deal with signal level in RCPI */
+	  /* RCPI = int{(Power in dBm +110)*2} for 0dbm > Power > -110dBm */
+	  if(!(qual->updated & IW_QUAL_LEVEL_INVALID))
+	    {
+	      double	rcpilevel = (qual->level / 2.0) - 110.0;
+	      len = snprintf(buffer, buflen, "Signal level%c%g dBm  ",
+			     qual->updated & IW_QUAL_LEVEL_UPDATED ? '=' : ':',
+			     rcpilevel);
+	      buffer += len;
+	      buflen -= len;
+	    }
+
+	  /* Deal with noise level in dBm (absolute power measurement) */
+	  if(!(qual->updated & IW_QUAL_NOISE_INVALID))
+	    {
+	      double	rcpinoise = (qual->noise / 2.0) - 110.0;
+	      len = snprintf(buffer, buflen, "Noise level%c%g dBm",
+			     qual->updated & IW_QUAL_NOISE_UPDATED ? '=' : ':',
+			     rcpinoise);
+	    }
+	}
+      else
+	{
+	  /* Check if the statistics are in dBm */
+	  if((qual->updated & IW_QUAL_DBM)
+	     || (qual->level > range->max_qual.level))
+	    {
+	      /* Deal with signal level in dBm  (absolute power measurement) */
+	      if(!(qual->updated & IW_QUAL_LEVEL_INVALID))
+		{
+		  int	dblevel = qual->level;
+		  /* Implement a range for dBm [-192; 63] */
+		  if(qual->level >= 64)
+		    dblevel -= 0x100;
+		  len = snprintf(buffer, buflen, "Signal level%c%d dBm  ",
+				 qual->updated & IW_QUAL_LEVEL_UPDATED ? '=' : ':',
+				 dblevel);
+		  buffer += len;
+		  buflen -= len;
+		}
+
+	      /* Deal with noise level in dBm (absolute power measurement) */
+	      if(!(qual->updated & IW_QUAL_NOISE_INVALID))
+		{
+		  int	dbnoise = qual->noise;
+		  /* Implement a range for dBm [-192; 63] */
+		  if(qual->noise >= 64)
+		    dbnoise -= 0x100;
+		  len = snprintf(buffer, buflen, "Noise level%c%d dBm",
+				 qual->updated & IW_QUAL_NOISE_UPDATED ? '=' : ':',
+				 dbnoise);
+		}
+	    }
+	  else
+	    {
+	      /* Deal with signal level as relative value (0 -> max) */
+	      if(!(qual->updated & IW_QUAL_LEVEL_INVALID))
+		{
+		  len = snprintf(buffer, buflen, "Signal level%c%d/%d  ",
+				 qual->updated & IW_QUAL_LEVEL_UPDATED ? '=' : ':',
+				 qual->level, range->max_qual.level);
+		  buffer += len;
+		  buflen -= len;
+		}
+
+	      /* Deal with noise level as relative value (0 -> max) */
+	      if(!(qual->updated & IW_QUAL_NOISE_INVALID))
+		{
+		  len = snprintf(buffer, buflen, "Noise level%c%d/%d",
+				 qual->updated & IW_QUAL_NOISE_UPDATED ? '=' : ':',
+				 qual->noise, range->max_qual.noise);
+		}
+	    }
+	}
+    }
+  else
+    {
+      /* We can't read the range, so we don't know... */
+      snprintf(buffer, buflen,
+	       "Quality:%d  Signal level:%d  Noise level:%d",
+	       qual->qual, qual->level, qual->noise);
+    }
+}
 
 /*********************** ENCODING SUBROUTINES ***********************/
 
+/*------------------------------------------------------------------*/
+/*
+ * Output the encoding key, with a nice formating
+ */
+void
+iw_print_key(char *			buffer,
+	     int			buflen,
+	     const unsigned char *	key,		/* Must be unsigned */
+	     int			key_size,
+	     int			key_flags)
+{
+  int	i;
+
+  /* Check buffer size -> 1 bytes => 2 digits + 1/2 separator */
+  if((key_size * 3) > buflen)
+    {
+      snprintf(buffer, buflen, "<too big>");
+      return;
+    }
+
+  /* Is the key present ??? */
+  if(key_flags & IW_ENCODE_NOKEY)
+    {
+      /* Nope : print on or dummy */
+      if(key_size <= 0)
+	strcpy(buffer, "on");			/* Size checked */
+      else
+	{
+	  strcpy(buffer, "**");			/* Size checked */
+	  buffer +=2;
+	  for(i = 1; i < key_size; i++)
+	    {
+	      if((i & 0x1) == 0)
+		strcpy(buffer++, "-");		/* Size checked */
+	      strcpy(buffer, "**");		/* Size checked */
+	      buffer +=2;
+	    }
+	}
+    }
+  else
+    {
+      /* Yes : print the key */
+      sprintf(buffer, "%.2X", key[0]);		/* Size checked */
+      buffer +=2;
+      for(i = 1; i < key_size; i++)
+	{
+	  if((i & 0x1) == 0)
+	    strcpy(buffer++, "-");		/* Size checked */
+	  sprintf(buffer, "%.2X", key[i]);	/* Size checked */
+	  buffer +=2;
+	}
+    }
+}
 
 /*------------------------------------------------------------------*/
 /*
@@ -964,15 +1556,367 @@ iw_pass_key(const char *	input,
   return(-1);
 }
 
+/*------------------------------------------------------------------*/
+/*
+ * Parse a key from the command line.
+ * Return size of the key, or 0 (no key) or -1 (error)
+ * If the key is too long, it's simply truncated...
+ */
+int
+iw_in_key(const char *		input,
+	  unsigned char *	key)
+{
+  int		keylen = 0;
+
+  /* Check the type of key */
+  if(!strncmp(input, "s:", 2))
+    {
+      /* First case : as an ASCII string (Lucent/Agere cards) */
+      keylen = strlen(input + 2);		/* skip "s:" */
+      if(keylen > IW_ENCODING_TOKEN_MAX)
+	keylen = IW_ENCODING_TOKEN_MAX;
+      memcpy(key, input + 2, keylen);
+    }
+  else
+    if(!strncmp(input, "p:", 2))
+      {
+	/* Second case : as a passphrase (PrismII cards) */
+	return(iw_pass_key(input + 2, key));		/* skip "p:" */
+      }
+    else
+      {
+	const char *	p;
+	int		dlen;	/* Digits sequence length */
+	unsigned char	out[IW_ENCODING_TOKEN_MAX];
+
+	/* Third case : as hexadecimal digits */
+	p = input;
+	dlen = -1;
+
+	/* Loop until we run out of chars in input or overflow the output */
+	while(*p != '\0')
+	  {
+	    int	temph;
+	    int	templ;
+	    int	count;
+	    /* No more chars in this sequence */
+	    if(dlen <= 0)
+	      {
+		/* Skip separator */
+		if(dlen == 0)
+		  p++;
+		/* Calculate num of char to next separator */
+		dlen = strcspn(p, "-:;.,");
+	      }
+	    /* Get each char separatly (and not by two) so that we don't
+	     * get confused by 'enc' (=> '0E'+'0C') and similar */
+	    count = sscanf(p, "%1X%1X", &temph, &templ);
+	    if(count < 1)
+	      return(-1);		/* Error -> non-hex char */
+	    /* Fixup odd strings such as '123' is '01'+'23' and not '12'+'03'*/
+	    if(dlen % 2)
+	      count = 1;
+	    /* Put back two chars as one byte and output */
+	    if(count == 2)
+	      templ |= temph << 4;
+	    else
+	      templ = temph;
+	    out[keylen++] = (unsigned char) (templ & 0xFF);
+	    /* Check overflow in output */
+	    if(keylen >= IW_ENCODING_TOKEN_MAX)
+	      break;
+	    /* Move on to next chars */
+	    p += count;
+	    dlen -= count;
+	  }
+	/* We use a temporary output buffer 'out' so that if there is
+	 * an error, we don't overwrite the original key buffer.
+	 * Because of the way iwconfig loop on multiple key/enc arguments
+	 * until it finds an error in here, this is necessary to avoid
+	 * silently corrupting the encryption key... */
+	memcpy(key, out, keylen);
+      }
+
+#ifdef DEBUG
+  {
+    char buf[IW_ENCODING_TOKEN_MAX * 3];
+    iw_print_key(buf, sizeof(buf), key, keylen, 0);
+    printf("Got key : %d [%s]\n", keylen, buf);
+  }
+#endif
+
+  return(keylen);
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Parse a key from the command line.
+ * Return size of the key, or 0 (no key) or -1 (error)
+ */
+int
+iw_in_key_full(int		skfd,
+	       const char *	ifname,
+	       const char *	input,
+	       unsigned char *	key,
+	       __u16 *		flags)
+{
+  int		keylen = 0;
+  char *	p;
+
+  if(!strncmp(input, "l:", 2))
+    {
+      struct iw_range	range;
+
+      /* Extra case : as a login (user:passwd - Cisco LEAP) */
+      keylen = strlen(input + 2) + 1;		/* skip "l:", add '\0' */
+      /* Most user/password is 8 char, so 18 char total, < 32 */
+      if(keylen > IW_ENCODING_TOKEN_MAX)
+	keylen = IW_ENCODING_TOKEN_MAX;
+      memcpy(key, input + 2, keylen);
+
+      /* Separate the two strings */
+      p = strchr((char *) key, ':');
+      if(p == NULL)
+	{
+	  fprintf(stderr, "Error: Invalid login format\n");
+	  return(-1);
+	}
+      *p = '\0';
+
+      /* Extract range info */
+      if(iw_get_range_info(skfd, ifname, &range) < 0)
+	/* Hum... Maybe we should return an error ??? */
+	memset(&range, 0, sizeof(range));
+
+      if(range.we_version_compiled > 15)
+	{
+
+	  printf("flags = %X, index = %X\n",
+		 *flags, range.encoding_login_index);
+	  if((*flags & IW_ENCODE_INDEX) == 0)
+	    {
+	      /* Extract range info */
+	      if(iw_get_range_info(skfd, ifname, &range) < 0)
+		memset(&range, 0, sizeof(range));
+	      printf("flags = %X, index = %X\n", *flags, range.encoding_login_index);
+	      /* Set the index the driver expects */
+	      *flags |= range.encoding_login_index & IW_ENCODE_INDEX;
+	    }
+	  printf("flags = %X, index = %X\n", *flags, range.encoding_login_index);
+	}
+    }
+  else
+    /* Simpler routine above */
+    keylen = iw_in_key(input, key);
+
+  return(keylen);
+}
+
 /******************* POWER MANAGEMENT SUBROUTINES *******************/
 
+/*------------------------------------------------------------------*/
+/*
+ * Output a power management value with all attributes...
+ */
+void
+iw_print_pm_value(char *	buffer,
+		  int		buflen,
+		  int		value,
+		  int		flags,
+		  int		we_version)
+{
+  /* Check size */
+  if(buflen < 25)
+    {
+      snprintf(buffer, buflen, "<too big>");
+      return;
+    }
+  buflen -= 25;
 
+  /* Modifiers */
+  if(flags & IW_POWER_MIN)
+    {
+      strcpy(buffer, " min");				/* Size checked */
+      buffer += 4;
+    }
+  if(flags & IW_POWER_MAX)
+    {
+      strcpy(buffer, " max");				/* Size checked */
+      buffer += 4;
+    }
+
+  /* Type */
+  if(flags & IW_POWER_TIMEOUT)
+    {
+      strcpy(buffer, " timeout:");			/* Size checked */
+      buffer += 9;
+    }
+  else
+    {
+      if(flags & IW_POWER_SAVING)
+	{
+	  strcpy(buffer, " saving:");			/* Size checked */
+	  buffer += 8;
+	}
+      else
+	{
+	  strcpy(buffer, " period:");			/* Size checked */
+	  buffer += 8;
+	}
+    }
+
+  /* Display value without units */
+  if(flags & IW_POWER_RELATIVE)
+    {
+      if(we_version < 21)
+	value /= MEGA;
+      snprintf(buffer, buflen, "%d", value);
+    }
+  else
+    {
+      /* Display value with units */
+      if(value >= (int) MEGA)
+	snprintf(buffer, buflen, "%gs", ((double) value) / MEGA);
+      else
+	if(value >= (int) KILO)
+	  snprintf(buffer, buflen, "%gms", ((double) value) / KILO);
+	else
+	  snprintf(buffer, buflen, "%dus", value);
+    }
+}
+
+/*------------------------------------------------------------------*/
+/*
+ * Output a power management mode
+ */
+void
+iw_print_pm_mode(char *	buffer,
+		 int	buflen,
+		 int	flags)
+{
+  /* Check size */
+  if(buflen < 28)
+    {
+      snprintf(buffer, buflen, "<too big>");
+      return;
+    }
+
+  /* Print the proper mode... */
+  switch(flags & IW_POWER_MODE)
+    {
+    case IW_POWER_UNICAST_R:
+      strcpy(buffer, "mode:Unicast only received");	/* Size checked */
+      break;
+    case IW_POWER_MULTICAST_R:
+      strcpy(buffer, "mode:Multicast only received");	/* Size checked */
+      break;
+    case IW_POWER_ALL_R:
+      strcpy(buffer, "mode:All packets received");	/* Size checked */
+      break;
+    case IW_POWER_FORCE_S:
+      strcpy(buffer, "mode:Force sending");		/* Size checked */
+      break;
+    case IW_POWER_REPEATER:
+      strcpy(buffer, "mode:Repeat multicasts");		/* Size checked */
+      break;
+    default:
+      strcpy(buffer, "");				/* Size checked */
+      break;
+    }
+}
 
 /***************** RETRY LIMIT/LIFETIME SUBROUTINES *****************/
 
+/*------------------------------------------------------------------*/
+/*
+ * Output a retry value with all attributes...
+ */
+void
+iw_print_retry_value(char *	buffer,
+		     int	buflen,
+		     int	value,
+		     int	flags,
+		     int	we_version)
+{
+  /* Check buffer size */
+  if(buflen < 20)
+    {
+      snprintf(buffer, buflen, "<too big>");
+      return;
+    }
+  buflen -= 20;
+
+  /* Modifiers */
+  if(flags & IW_RETRY_MIN)
+    {
+      strcpy(buffer, " min");				/* Size checked */
+      buffer += 4;
+    }
+  if(flags & IW_RETRY_MAX)
+    {
+      strcpy(buffer, " max");				/* Size checked */
+      buffer += 4;
+    }
+  if(flags & IW_RETRY_SHORT)
+    {
+      strcpy(buffer, " short");				/* Size checked */
+      buffer += 6;
+    }
+  if(flags & IW_RETRY_LONG)
+    {
+      strcpy(buffer, "  long");				/* Size checked */
+      buffer += 6;
+    }
+
+  /* Type lifetime of limit */
+  if(flags & IW_RETRY_LIFETIME)
+    {
+      strcpy(buffer, " lifetime:");			/* Size checked */
+      buffer += 10;
+
+      /* Display value without units */
+      if(flags & IW_RETRY_RELATIVE)
+	{
+	  if(we_version < 21)
+	    value /= MEGA;
+	  snprintf(buffer, buflen, "%d", value);
+	}
+      else
+	{
+	  /* Display value with units */
+	  if(value >= (int) MEGA)
+	    snprintf(buffer, buflen, "%gs", ((double) value) / MEGA);
+	  else
+	    if(value >= (int) KILO)
+	      snprintf(buffer, buflen, "%gms", ((double) value) / KILO);
+	    else
+	      snprintf(buffer, buflen, "%dus", value);
+	}
+    }
+  else
+    snprintf(buffer, buflen, " limit:%d", value);
+}
 
 /************************* TIME SUBROUTINES *************************/
 
+/*------------------------------------------------------------------*/
+/*
+ * Print timestamps
+ * Inspired from irdadump...
+ */
+void
+iw_print_timeval(char *				buffer,
+		 int				buflen,
+		 const struct timeval *		timev,
+		 const struct timezone *	tz)
+{
+        int s;
+
+	s = (timev->tv_sec - tz->tz_minuteswest * 60) % 86400;
+	snprintf(buffer, buflen, "%02d:%02d:%02d.%06u", 
+		s / 3600, (s % 3600) / 60, 
+		s % 60, (u_int32_t) timev->tv_usec);
+}
 
 /*********************** ADDRESS SUBROUTINES ************************/
 /*
