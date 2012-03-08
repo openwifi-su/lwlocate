@@ -226,7 +226,7 @@ class MainCanvas extends View
          }
          catch (IOException ioe)
          {         
-            loadTile("http://otile1.mqcdn.com/tiles/1.0.0/osm/"+m_zoom+"/"+(m_tileX+x)+"/"+(m_tileY+y)+".png",x+xOffs,y+yOffs);
+            loadTile("http://tiles.virtualworlds.de/tile.php?z="+m_zoom+"&x="+(m_tileX+x)+"&y="+(m_tileY+y),x+xOffs,y+yOffs);
          }
       }
       lock.unlock();
