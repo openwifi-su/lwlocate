@@ -7,13 +7,13 @@ CCOMPILER=gcc -Wall -fPIC -shared -Wno-unused $(DBGFLAGS) -D_REENTRANT -DENV_LIN
 
 SYSLIBRARIES=
 
-LIBS = $(SYSLIBRARIES)
+LIBS = $(SYSLIBRARIES) -liw
 
 EXECUTABLE=libwlocate.so
 
 LINK=gcc -shared
 
-OBJECTS = connect.o wlan.o libwlocate.o iwlist.o iwlib.o
+OBJECTS = connect.o wlan.o libwlocate.o iwlist.o
 
 default: $(EXECUTABLE)
 
