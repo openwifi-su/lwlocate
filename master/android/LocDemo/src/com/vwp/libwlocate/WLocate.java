@@ -221,21 +221,19 @@ public class WLocate implements Runnable
          List<ScanResult> configs=wifi.getScanResults();
          locationInfo.wifiScanResult=configs;
          locationInfo.requestData=new wloc_req();
-         for (ScanResult config : configs) 
+         if (configs.size()>0) for (ScanResult config : configs) 
          {            
-            {
-               String bssidStr[];
+            String bssidStr[];
 
-               config.BSSID=config.BSSID.toUpperCase();
-               bssidStr=config.BSSID.split(":");
-               locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
-               locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
-               locationInfo.requestData.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
-               locationInfo.requestData.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
-               locationInfo.requestData.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
-               locationInfo.requestData.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
-               locationInfo.requestData.signal[netCnt]=(byte)Math.abs(config.level);               
-            }
+            config.BSSID=config.BSSID.toUpperCase();
+            bssidStr=config.BSSID.split(":");
+            locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
+            locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
+            locationInfo.requestData.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
+            locationInfo.requestData.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
+            locationInfo.requestData.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
+            locationInfo.requestData.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
+            locationInfo.requestData.signal[netCnt]=(byte)Math.abs(config.level);               
             
             netCnt++;
             if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
