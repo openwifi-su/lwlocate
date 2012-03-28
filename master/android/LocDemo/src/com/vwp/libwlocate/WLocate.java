@@ -225,7 +225,7 @@ public class WLocate implements Runnable
          {            
             String bssidStr[];
 
-            config.BSSID=config.BSSID.toUpperCase();
+            config.BSSID=config.BSSID.toUpperCase().replace(".",":"); // some strange devices use a dot instead of :
             bssidStr=config.BSSID.split(":");
             locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
             locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
