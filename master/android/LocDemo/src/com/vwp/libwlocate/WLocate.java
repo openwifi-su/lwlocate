@@ -58,7 +58,7 @@ public class WLocate implements Runnable
 {
    public static final int FLAG_NO_NET_ACCESS =0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
    public static final int FLAG_NO_GPS_ACCESS =0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
-   public static final int FLAG_NO_IP_LOCATION=0x0004; /** TODO: don't send a request to the server for IP-based location in case no WLANs are available */
+   public static final int FLAG_NO_IP_LOCATION=0x0004; /** Don't send a request to the server for IP-based location in case no WLANs are available */
    
    public static final int WLOC_OK=0;               /** Result code for position request, given position information are OK */
    public static final int WLOC_CONNECTION_ERROR=1; /** Result code for position request, a connection error occured, no position information are available */
@@ -244,10 +244,14 @@ public class WLocate implements Runnable
          if (!GPSAvailable)
          {
             if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
-            else
+            else if ((configs.size()>0) || ((scanFlags & FLAG_NO_IP_LOCATION)==0))
             {
                netThread=new Thread(me);
                netThread.start();
+            }
+            else
+            {
+               wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             }
          }
          else
