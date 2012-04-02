@@ -54,10 +54,11 @@ class wloc_position
  * Beside of that it is recommended to call the doPause() and doResume() methods whenever an onPause() and onResume()
  * event occurs in main Activity to avoid Exceptions caused by the WiFi-receiver.
  */
-public class WLocate
+public class WLocate implements Runnable
 {
-   public static final int FLAG_NO_NET_ACCESS=0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
-   public static final int FLAG_NO_GPS_ACCESS=0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_NET_ACCESS =0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_GPS_ACCESS =0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
+   public static final int FLAG_NO_IP_LOCATION=0x0004; /** Don't send a request to the server for IP-based location in case no WLANs are available */
    
    public static final int WLOC_OK=0;               /** Result code for position request, given position information are OK */
    public static final int WLOC_CONNECTION_ERROR=1; /** Result code for position request, a connection error occured, no position information are available */
@@ -66,20 +67,24 @@ public class WLocate
    public static final int WLOC_ERROR=100;          /** Result code for position request, an unknown error occured, no position information are available */
    
    private static final int WLOC_RESULT_OK=1;
-   private static final int WLOC_RESULT_ERROR=2;
-   private static final int WLOC_RESULT_IERROR=3;
+//   private static final int WLOC_RESULT_ERROR=2;
+//   private static final int WLOC_RESULT_IERROR=3;
    
+   private Location            lastLocation=null;
    private LocationManager     location;
    private GPSLocationListener locationListener;
+   private GPSStatusListener   statusListener;
    private WifiManager         wifi;
    private WifiReceiver        receiverWifi = new WifiReceiver();
-   private boolean             GPSAvailable=false;
+   private boolean             GPSAvailable=false,scanStarted=false;
    private double              m_lat,m_lon;
-   private float               m_radius=1.0f;
+   private float               m_radius=1.0f,m_speed=-1.0f;
    private int                 scanFlags;
+   private long                lastLocationMillis=0;
    private Context             ctx;
    private loc_info            locationInfo=new loc_info();
-
+   private Thread              netThread;
+   private WLocate             me;
 
 
    /**
@@ -90,10 +95,13 @@ public class WLocate
    {
       location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
       locationListener = new GPSLocationListener();
-      location.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 1, (LocationListener)locationListener);
+      location.requestLocationUpdates(LocationManager.GPS_PROVIDER,250,3,(LocationListener)locationListener);
+      statusListener=new GPSStatusListener();
+      location.addGpsStatusListener(statusListener);
       
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       this.ctx=ctx;
+      me=this;
       doResume();
    }
    
@@ -131,6 +139,7 @@ public class WLocate
    public void wloc_request_position(int flags)
    {
       scanFlags=flags;
+      scanStarted=true;
       wifi.startScan();
    }
 
@@ -207,39 +216,42 @@ public class WLocate
          int           netCnt=0,ret=WLOC_LOCATION_ERROR;
          wloc_position pos=null;
          
+         if (!scanStarted) return;
+         scanStarted=false;
          List<ScanResult> configs=wifi.getScanResults();
          locationInfo.wifiScanResult=configs;
          locationInfo.requestData=new wloc_req();
-         for (ScanResult config : configs) 
+         if (configs.size()>0) for (ScanResult config : configs) 
          {            
-            {
-               String bssidStr[];
+            String bssidStr[];
 
-               config.BSSID=config.BSSID.toUpperCase();
-               bssidStr=config.BSSID.split(":");
-               locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
-               locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
-               locationInfo.requestData.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
-               locationInfo.requestData.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
-               locationInfo.requestData.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
-               locationInfo.requestData.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
-               locationInfo.requestData.signal[netCnt]=(byte)Math.abs(config.level);               
-            }
+            config.BSSID=config.BSSID.toUpperCase().replace(".",":"); // some strange devices use a dot instead of :
+            bssidStr=config.BSSID.split(":");
+            locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
+            locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
+            locationInfo.requestData.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
+            locationInfo.requestData.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
+            locationInfo.requestData.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
+            locationInfo.requestData.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
+            locationInfo.requestData.signal[netCnt]=(byte)Math.abs(config.level);               
             
             netCnt++;
             if (netCnt>=wloc_req.WLOC_MAX_NETWORKS) break;   
          }        
          locationInfo.lastLocMethod=loc_info.LOC_METHOD_NONE;
+         locationInfo.lastSpeed=-1.0f;
+         if (GPSAvailable) GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 7500;
          if (!GPSAvailable)
          {
             if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+            else if ((configs.size()>0) || ((scanFlags & FLAG_NO_IP_LOCATION)==0))
+            {
+               netThread=new Thread(me);
+               netThread.start();
+            }
             else
             {
-               pos=new wloc_position();
-               ret=get_position(locationInfo.requestData,pos);
-               locationInfo.lastLocMethod=loc_info.LOC_METHOD_LIBWLOCATE;
-               if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
-               else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);               
+               wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             }
          }
          else
@@ -249,12 +261,26 @@ public class WLocate
             else
             {
                locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;
+               locationInfo.lastSpeed=m_speed*3.6f;
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
             }
          }         
       }
    }
+
    
+   
+   public void run()
+   {
+      int           ret=WLOC_LOCATION_ERROR;
+      wloc_position pos=null;
+      
+      pos=new wloc_position();
+      ret=get_position(locationInfo.requestData,pos);
+      locationInfo.lastLocMethod=loc_info.LOC_METHOD_LIBWLOCATE;
+      if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
+      else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);                     
+   }
    
    
    /**
@@ -551,28 +577,60 @@ public class WLocate
             return "";
       }
    }
+
    
+   
+   private class GPSStatusListener implements GpsStatus.Listener 
+   {
+      
+      public void onGpsStatusChanged(int event) 
+      {
+         switch (event) 
+         {
+            case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+               if (lastLocation != null)
+               {
+                  GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 3500;
+               }
+               break;
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
+               // Do something.
+               GPSAvailable=true;
+               break;
+            case GpsStatus.GPS_EVENT_STOPPED:
+               GPSAvailable=false;
+               break;
+         }
+      }
+   }   
     
    
-   class GPSLocationListener implements LocationListener 
+   private class GPSLocationListener implements LocationListener 
    {
       public void onLocationChanged(Location location) 
       {
-         GPSAvailable=true;
+         if (location == null) return;
+         lastLocationMillis = SystemClock.elapsedRealtime();
+         lastLocation = location;         
+//         GPSAvailable=true;
          m_lat=location.getLatitude();
          m_lon=location.getLongitude();
+         if (location.hasSpeed()) m_speed=location.getSpeed(); //m/sec
+         else m_speed=-1;
          if (location.hasAccuracy()) m_radius=location.getAccuracy();
+         else m_radius=-1;
       }
 
       public void onStatusChanged(String provider, int status, Bundle extras)
       {
-         if (status==LocationProvider.AVAILABLE) GPSAvailable=true;
-         else GPSAvailable=false;
+         if ((provider!=null) && (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)))
+         {
+            if (status!=LocationProvider.AVAILABLE) GPSAvailable=false;
+         }
       }
 
       public void onProviderEnabled(String provider)
       {
-         GPSAvailable=true;
       }
 
       public void onProviderDisabled(String provider)

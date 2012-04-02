@@ -32,7 +32,7 @@ There are several possibilites provided to build the library using different ope
 systems and building environments:
 
 Makelib        - file for building the shared library libwlocate.so for Linux using
-                 standard "make"
+                 standard "make"; requires wireless-tools headers and binaries
 Makefile       - file for building a Linux test and trace application using libwlocate.so
                  and standard make; the resulting position trace file libwlocate.trace
                  can be loaded by LocDemo for later position evaluation

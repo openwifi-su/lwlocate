@@ -60,7 +60,7 @@ int main(void)
 
          memset(&request,0,sizeof(struct wloc_req));
          ret=wloc_get_wlan_data(&request);
-         if (ret==0) wloc_get_wlan_data(&request); // try two times in case the hardware was occupied
+         if (ret<2) wloc_get_wlan_data(&request); // try two times in case the hardware was occupied or not able to find all networks
          if (ret>0) // no conversion from host to network byteorder necessary because we're always working on the same host
           send(c,&request,sizeof(struct wloc_req),MSG_NOSIGNAL);
          close(c);

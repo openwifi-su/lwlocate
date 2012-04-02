@@ -66,7 +66,7 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
    *quality=result.quality;
    
    // this should never happen, the server should send quality values in range 0..99 only
-   assert((*quality>=0) && (*quality<=99));
+//   assert((*quality>=0) && (*quality<=99));
    if (*quality<0) *quality=0;
    else if (*quality>99) *quality=99;
    // end of this should never happen
@@ -111,9 +111,9 @@ WLOC_EXT_API int wloc_get_location(double *lat,double *lon,char *quality,short *
 #endif
    if (ret==0)
    {
-      if (wloc_get_wlan_data(&request)<=0)
+      if (wloc_get_wlan_data(&request)<2)
       {
-         wloc_get_wlan_data(&request); // try two times in case the device was currently used
+         wloc_get_wlan_data(&request); // try two times in case the device was currently used or could not find all networks
          // in case of no success request localisation without WLAN data
       }
    }

@@ -7,7 +7,7 @@ CCOMPILER=gcc -Wall -fPIC -shared -Wno-unused $(DBGFLAGS) -D_REENTRANT -DENV_LIN
 
 SYSLIBRARIES= -lm
 
-LIBS = $(SYSLIBRARIES)
+LIBS = $(SYSLIBRARIES) -liw
 
 EXECUTABLE=libwlocate.so
 

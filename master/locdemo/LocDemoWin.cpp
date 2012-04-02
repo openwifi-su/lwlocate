@@ -307,10 +307,10 @@ void LocDemoWin::updateTiles(wxFloat64 lat,wxFloat64 lon)
       	get=new wxHTTP();
          get->SetTimeout(10); // 10 seconds of timeout instead of 10 minutes ...
          get->SetHeader(_T("User-Agent"),_T("LocDemo libwlocate demo application"));
-         while (!get->Connect(_T("tah.openstreetmap.org")))
+         while (!get->Connect(_T("a.tile.openstreetmap.org")))
           wxSleep(5);
  
-         path=wxString::Format(_T("/Tiles/tile/%d/%d/%d.png"),m_zoom,m_tileX+x,m_tileY+y);
+         path=wxString::Format(_T("/%d/%d/%d.png"),m_zoom,m_tileX+x,m_tileY+y);
          httpStream = get->GetInputStream(path);
          if (get->GetError() == wxPROTO_NOERR)
          {
@@ -500,7 +500,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
          m_traceMode=false;
       }
    }
-   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.7 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
+   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.9 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
 
 

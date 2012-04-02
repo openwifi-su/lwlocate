@@ -1029,13 +1029,13 @@ printf("%s\n",query);
                                           errval=(int)atoi(row[0]);
                                           useval=(int)atoi(row[1]);
                                           
-                                          if (((errval>=useval) && (useval>20)) || (errval>50))
+                                          if (((errval>=useval) && (useval>20)) || (errval>40))
                                           {
                                              snprintf(query,1000,"DELETE FROM netpoints WHERE bssid='%02X%02X%02X%02X%02X%02X'",
                                                       client->request.bssids[maxPos][0] & 0xFF,client->request.bssids[maxPos][1] & 0xFF,
                                                       client->request.bssids[maxPos][2] & 0xFF,client->request.bssids[maxPos][3] & 0xFF,
                                                       client->request.bssids[maxPos][4] & 0xFF,client->request.bssids[maxPos][5] & 0xFF);
-//                                             mysql_query(conn,query);
+                                             mysql_query(conn,query);
 showLog("Delete Entry Query: %s\n",query);                                 
                                           }
                                        }                                       

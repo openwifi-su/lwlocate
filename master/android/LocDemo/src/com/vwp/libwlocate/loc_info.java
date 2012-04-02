@@ -18,4 +18,7 @@ public class loc_info
    
    /** result of last WiFi-scan, this list is filled with valid data also in case of GPS location */
    public List<ScanResult> wifiScanResult;
+   
+   /** last movement speed in km per hour, if no speed could be evaluated the value is smaller than 0*/ 
+   public float lastSpeed=-1;
 }
