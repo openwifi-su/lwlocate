@@ -309,6 +309,8 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
             case MSG_OPEN_PRG_DLG:
             {
                progDlg=new ProgressDialog(ctx);
+               progDlg.setCancelable(false);
+               progDlg.setCanceledOnTouchOutside(false);
                progDlg.setTitle((String)msg.obj);
                progDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                progDlg.setMax(msg.arg2);
@@ -380,6 +382,14 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
         mainLayout.addView(navButtons);
         setContentView(mainLayout);        
         
+        Message msg;
+
+        msg=new Message();
+        msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+        msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+        msg.obj="Loading map tiles...";
+        uiHandler.sendMessage(msg);
+        
         wLocateRec.wloc_request_position(0);
     }
    
@@ -427,15 +437,7 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
     
     
     public void run()
-    {    
-       Message msg;
-
-       msg=new Message();
-       msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-       msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
-       msg.obj="Loading map tiles...";
-       uiHandler.sendMessage(msg);
-       
+    {           
        mainCanvas.updateViewTiles(lat,lon,radius);
        updateRunning=false;
     }
@@ -451,12 +453,23 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
     
     public void onClick(View v)
     {
-       if (v==refreshButton) wLocateRec.wloc_request_position(0);
+       if (v==refreshButton)
+       {
+          Message msg;
+
+          msg=new Message();
+          msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+          msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+          msg.obj="Loading map tiles...";
+          uiHandler.sendMessage(msg);
+
+          wLocateRec.wloc_request_position(0);
+       }
        else if (v==infoButton)
        {
           AlertDialog ad = new AlertDialog.Builder(this).create();  
-          ad.setCancelable(false);  
-          ad.setMessage("LocDemo Version 0.9 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate which does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
+          ad.setCancelable(false);
+          ad.setMessage("LocDemo Version 1.0 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate which does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
           ad.setButton("OK", new DialogInterface.OnClickListener() {  
               @Override  
               public void onClick(DialogInterface dialog, int which) {  
@@ -481,6 +494,15 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
              zoomOutButton.setEnabled(false);
           }
           else zoomOutButton.setEnabled(true);
+
+          Message msg;
+
+          msg=new Message();
+          msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+          msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+          msg.obj="Loading map tiles...";
+          uiHandler.sendMessage(msg);
+          
           updateTiles(lat,lon,radius);
        }
     }
