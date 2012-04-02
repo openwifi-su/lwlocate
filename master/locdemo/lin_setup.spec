@@ -1,11 +1,11 @@
 Summary: LocDemo libwlocate demo application
 Name: LocDemo
-Version: 0.9
+Version: 1.0
 Release: 1
 License: GPL
 Packager: http://www.openwlanmap.org
 Group: Applications/Internet
-Requires: wxGTK
+Requires: wxGTK, wireless-tools
 %description
 A WLAN geolocation demonstration application that makes use of libwlocate and the data of project OpenWLANMap. It is recommended to execute this application with root privileges to get more detailed WLAN information and to get a more exact position information.
 %files
@@ -20,10 +20,10 @@ if [ -x /etc/init.d/wlocd ]; then
 fi
 %preun
 /etc/init.d/wlocd stop
-rm /etc/rc5.d/S99wlocd
-rm /etc/rc5.d/K01wlocd
-rm /etc/rc3.d/S99wlocd
-rm /etc/rc3.d/K01wlocd
+rm -rf /etc/rc5.d/S99wlocd 1>/dev/null 2>/dev/null
+rm -rf /etc/rc5.d/K01wlocd 1>/dev/null 2>/dev/null
+rm -rf /etc/rc3.d/S99wlocd 1>/dev/null 2>/dev/null
+rm -rf /etc/rc3.d/K01wlocd 1>/dev/null 2>/dev/null
 %post
 ln -s /etc/init.d/wlocd /etc/rc5.d/S99wlocd 1>/dev/null 2>/dev/null
 ln -s /etc/init.d/wlocd /etc/rc5.d/K01wlocd 1>/dev/null 2>/dev/null
