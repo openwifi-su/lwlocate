@@ -5,15 +5,15 @@ endif
 
 CCOMPILER=gcc -Wall -fPIC -shared -Wno-unused $(DBGFLAGS) -D_REENTRANT -DENV_LINUX -I. -I..
 
-SYSLIBRARIES=
+SYSLIBRARIES= -lm
 
 LIBS = $(SYSLIBRARIES)
 
 EXECUTABLE=libwlocate.so
 
-LINK=gcc -shared
+LINK=gcc -shared -Wl,--no-as-needed
 
-OBJECTS = connect.o wlan.o libwlocate.o iwlist.o iwlib.o
+OBJECTS = connect.o wlan.o libwlocate.o iwlist.o
 
 default: $(EXECUTABLE)
 
