@@ -374,6 +374,7 @@ static bool readPackets(struct list_entry *entry, long timeout)
 // Get the geolocation of a single BSSID from OpenBMap
 static char get_wlan_location(double *lat,double *lon,char *bssid)
 {
+return 0;
    char             line[5001],body[5001],mime[101];
    int              sock,retCode;
 
@@ -608,7 +609,7 @@ static bool mainLoop(void* /*hInstance*/)
    #ifdef ENV_POSIX
    if (verbose) printf("Listening...\n");
    #endif
-   list_s=oapc_tcp_listen_on_port(srcport,"62.112.159.250");
+   list_s=oapc_tcp_listen_on_port(srcport,"62.112.140.13");
    if (list_s<=0)
    {
       #ifdef ENV_WINDOWS
