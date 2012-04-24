@@ -11,8 +11,8 @@
  *     Copyright (c) 1997-2007 Jean Tourrilhes <jt@hpl.hp.com>
  */
 
+#include "iwlib.h"              /* Header */
 #include "libwlocate.h"
-#include "iwlib.h"		/* Header */
 #include <sys/time.h>
 
 static struct wloc_req    *g_request;
@@ -89,8 +89,7 @@ print_scanning_token(struct stream_descr *	stream,	/* Stream of events */
   switch(event->cmd)
     {
     case SIOCGIWAP:
-      printf("          Cell %02d - Address: %s\n", state->ap_num,
-	     iw_saether_ntop(&event->u.ap_addr, buffer));
+      printf("          Cell %02d - Address: %s\n", state->ap_num, iw_saether_ntop(&event->u.ap_addr, buffer));
       state->ap_num++;
       for (i=0; i<6; i++)
        g_request->bssids[state->ap_num-1][i]=(event->u.ap_addr.sa_data[i] & 0xFF);
