@@ -231,6 +231,7 @@ public class WLocate implements Runnable
          if (!scanStarted) return;
          scanStarted=false;
          List<ScanResult> configs=wifi.getScanResults();
+         if (configs==null) return;
          locationInfo.wifiScanResult=configs;
          locationInfo.requestData=new wloc_req();
          if (configs.size()>0) for (ScanResult config : configs) 
@@ -273,8 +274,7 @@ public class WLocate implements Runnable
             if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             else
             {
-               locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;
-               locationInfo.lastSpeed=m_speed*3.6f;
+               locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;               
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
             }
             if ((lastLocationMillis>0) && (lastLocationMillis+180000<System.currentTimeMillis())) restartGPSLocation();
@@ -621,17 +621,17 @@ public class WLocate implements Runnable
    
    private class GPSLocationListener implements LocationListener 
    {
-      public void onLocationChanged(Location location) 
+      public void onLocationChanged(Location gLocation) 
       {
          if (location == null) return;
          lastLocationMillis = SystemClock.elapsedRealtime();
-         lastLocation = location;         
+         lastLocation = gLocation;         
 //         GPSAvailable=true;
-         m_lat=location.getLatitude();
-         m_lon=location.getLongitude();
-         if (location.hasSpeed()) m_speed=location.getSpeed(); //m/sec
+         m_lat=gLocation.getLatitude();
+         m_lon=gLocation.getLongitude();
+         if (gLocation.hasSpeed()) m_speed=gLocation.getSpeed(); //m/sec
          else m_speed=-1;
-         if (location.hasAccuracy()) m_radius=location.getAccuracy();
+         if (gLocation.hasAccuracy()) m_radius=gLocation.getAccuracy();
          else m_radius=-1;
       }
 
