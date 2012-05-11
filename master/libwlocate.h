@@ -60,8 +60,8 @@ struct wloc_req
    unsigned long cgiIP;
 };
 
-#define WLOC_RESULT_OK    1  // a position could be calculated
-#define WLOC_RESULT_ERROR 2  // the location could not be retrieved
+#define WLOC_RESULT_OK     1  // a position could be calculated
+#define WLOC_RESULT_ERROR  2  // the location could not be retrieved
 #define WLOC_RESULT_IERROR 3 // an internal error occured, no data are available
 
 struct wloc_res

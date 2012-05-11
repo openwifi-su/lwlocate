@@ -1,6 +1,6 @@
 /**
  * libwlocate - WLAN-based location service
- * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
+ * Copyright (C) 2010-2012 Oxygenic/VWP virtual_worlds(at)gmx.de
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
  * Mertinkat. 
  */
 
-#ifndef WLANAPI_H
-#define WLANAPI_H
+#ifndef WLANAPI_CUST_H
+#define WLANAPI_CUST_H
 
+#if (_MSC_VER<=1400)
 
 typedef enum _WLAN_INTERFACE_STATE {
     wlan_interface_state_not_ready = 0,
@@ -42,8 +43,6 @@ typedef struct _WLAN_INTERFACE_INFO {
     WLAN_INTERFACE_STATE isState;
 } WLAN_INTERFACE_INFO, *PWLAN_INTERFACE_INFO;
 
-
-
 typedef struct _WLAN_INTERFACE_INFO_LIST {
     DWORD dwNumberOfItems;
     DWORD dwIndex;
@@ -52,37 +51,32 @@ typedef struct _WLAN_INTERFACE_INFO_LIST {
 
 } WLAN_INTERFACE_INFO_LIST, *PWLAN_INTERFACE_INFO_LIST;
 
-
 #define DOT11_SSID_MAX_LENGTH      32
 #define DOT11_RATE_SET_MAX_LENGTH 126
-
 
 typedef struct _DOT11_SSID {
   ULONG uSSIDLength;
   UCHAR ucSSID[DOT11_SSID_MAX_LENGTH];
 } DOT11_SSID, *PDOT11_SSID;
 
-
 typedef UCHAR DOT11_MAC_ADDRESS[6];
 
-
 typedef enum _DOT11_BSS_TYPE {
-  DOT11_BSS_TYPE_UNUSED,
-} DOT11_BSS_TYPE;
-
+    dot11_BSS_type_infrastructure = 1,
+    dot11_BSS_type_independent = 2,
+    dot11_BSS_type_any = 3
+} DOT11_BSS_TYPE, * PDOT11_BSS_TYPE;
 
 typedef enum _DOT11_PHY_TYPE {
   DOT11_PHY_TYPE_UNUSED,
 } DOT11_PHY_TYPE;
-
 
 typedef struct _WLAN_RATE_SET {
   ULONG uRateSetLength;
   USHORT usRateSet[DOT11_RATE_SET_MAX_LENGTH];
 } WLAN_RATE_SET, *PWLAN_RATE_SET;
 
-
-typedef struct _WLAN_BSS_ENTRY {
+/*typedef struct _WLAN_BSS_ENTRY {
     DOT11_SSID dot11Ssid;
     ULONG uPhyId;
     DOT11_MAC_ADDRESS dot11Bssid;
@@ -99,17 +93,36 @@ typedef struct _WLAN_BSS_ENTRY {
     WLAN_RATE_SET     wlanRateSet; // --> to be verified, according to MSDN this member exists, according to the include of the Platform SDK it doesn't
     ULONG ulIeOffset;
     ULONG ulIeSize;
-} WLAN_BSS_ENTRY, * PWLAN_BSS_ENTRY;
+} WLAN_BSS_ENTRY, * PWLAN_BSS_ENTRY;*/
 
+typedef struct _WLAN_BSS_ENTRY 
+{
+   DOT11_SSID        dot11Ssid;
+   ULONG             uPhyId;
+   DOT11_MAC_ADDRESS dot11Bssid;
+   DOT11_BSS_TYPE    dot11BssType;
+   DOT11_PHY_TYPE    dot11BssPhyType;
+   LONG              lRssi;
+   ULONG             uLinkQuality;
+   BOOLEAN           bInRegDomain;
+   USHORT            usBeaconPeriod;
+   ULONGLONG         ullTimestamp;
+   ULONGLONG         ullHostTimestamp;
+   USHORT            usCapabilityInformation;
+   ULONG             ulChCenterFrequency;
+   WLAN_RATE_SET     wlanRateSet;
+   ULONG             ulIeOffset;
+   ULONG             ulIeSize;
+   DWORD             pad1,pad2; // strange padding bytes, required since Vista
+   char              pad3;      // and Win 7 elsewhere this structure contains crap
+} WLAN_BSS_ENTRY, *PWLAN_BSS_ENTRY;
 
-
-typedef struct _WLAN_BSS_LIST {
-    DWORD dwTotalSize;
-    DWORD dwNumberOfItems;
-    WLAN_BSS_ENTRY wlanBssEntries[1];
+typedef struct _WLAN_BSS_LIST 
+{
+   DWORD          dwTotalSize;
+   DWORD          dwNumberOfItems;
+   WLAN_BSS_ENTRY wlanBssEntries[1];
 } WLAN_BSS_LIST, *PWLAN_BSS_LIST;
-
-
 
 typedef DWORD (WINAPI *WlanOpenHandleFunction)(
     DWORD dwClientVersion,
@@ -118,15 +131,11 @@ typedef DWORD (WINAPI *WlanOpenHandleFunction)(
     PHANDLE phClientHandle
 );
 
-
-
 typedef DWORD (WINAPI *WlanEnumInterfacesFunction)(
     HANDLE hClientHandle,
     PVOID pReserved,
     PWLAN_INTERFACE_INFO_LIST *ppInterfaceList
 );
-
-
 
 typedef DWORD (WINAPI *WlanGetNetworkBssListFunction)(
     HANDLE hClientHandle,
@@ -138,26 +147,22 @@ typedef DWORD (WINAPI *WlanGetNetworkBssListFunction)(
     PWLAN_BSS_LIST *ppWlanBssList
 );
 
-
-
 typedef DWORD (WINAPI *WlanCloseHandleFunction)(
     HANDLE hClientHandle,
     PVOID pReserved
 );
 
-
-
 typedef VOID (WINAPI *WlanFreeMemoryFunction)(
   PVOID pMemory
 );
-
-
 
 WlanOpenHandleFunction WlanOpenHandle;
 WlanEnumInterfacesFunction WlanEnumInterfaces;
 WlanGetNetworkBssListFunction WlanGetNetworkBssList;
 WlanCloseHandleFunction WlanCloseHandle;
 WlanFreeMemoryFunction WlanFreeMemory;
+
+#endif
 
 
 
@@ -234,19 +239,23 @@ typedef char AP_NAME;
 typedef UCHAR NDIS_802_11_MAC_ADDRESS[6];
 
 
+typedef struct _ADAPTER_INFO 
+{
+    ADAPTER_NAME name[ADAPTER_NAME_LENGTH];
+    ADAPTER_DESCRIPTION description[ADAPTER_DESCRIPTION_LENGTH];
+} ADAPTER_INFO;
+
+#if (_MSC_VER<=1400)
+
 typedef struct _NDIS_802_11_SSID 
 {
    ULONG SsidLength;
    UCHAR Ssid [32];
 } NDIS_802_11_SSID, *PNDIS_802_11_SSID;
 
-
-
 typedef UCHAR NDIS_802_11_RATES_EX[16];
 typedef LONG NDIS_802_11_RSSI;
 typedef UCHAR NDIS_802_11_RATES_EX[16];
-
-
 
 typedef enum _NDIS_802_11_NETWORK_TYPE 
 {
@@ -255,8 +264,6 @@ typedef enum _NDIS_802_11_NETWORK_TYPE
    Ndis802_11NetworkTypeMax,
 } NDIS_802_11_NETWORK_TYPE, *PNDIS_802_11_NETWORK_TYPE;
 
-
-
 typedef struct _NDIS_802_11_CONFIGURATION_FH 
 {
    ULONG Length;
@@ -264,8 +271,6 @@ typedef struct _NDIS_802_11_CONFIGURATION_FH
    ULONG HopSet;
    ULONG DwellTime;
 } NDIS_802_11_CONFIGURATION_FH, *PNDIS_802_11_CONFIGURATION_FH;
-
-
 
 typedef struct _NDIS_802_11_CONFIGURATION
 {
@@ -276,8 +281,6 @@ typedef struct _NDIS_802_11_CONFIGURATION
    NDIS_802_11_CONFIGURATION_FH  FHConfig;
 } NDIS_802_11_CONFIGURATION, *PNDIS_802_11_CONFIGURATION;
 
-
-
 typedef enum _NDIS_802_11_NETWORK_INFRASTRUCTURE 
 {
    Ndis802_11IBSS,
@@ -285,8 +288,6 @@ typedef enum _NDIS_802_11_NETWORK_INFRASTRUCTURE
    Ndis802_11AutoUnknown,
    Ndis802_11InfrastructureMax,
 } NDIS_802_11_NETWORK_INFRASTRUCTURE, *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
-
-
 
 typedef struct _NDIS_WLAN_BSSID_EX
 {
@@ -304,8 +305,6 @@ typedef struct _NDIS_WLAN_BSSID_EX
    UCHAR  IEs[1];
 } NDIS_WLAN_BSSID_EX, *PNDIS_WLAN_BSSID_EX;
 
-
-
 typedef struct _NDIS_WLAN_BSSID 
 {
    UCHAR padding1[4];
@@ -318,15 +317,11 @@ typedef struct _NDIS_WLAN_BSSID
    NDIS_802_11_RSSI Rssi;
 } NDIS_WLAN_BSSID, *PNDIS_WLAN_BSSID;
 
-
-
 typedef struct _NDIS_802_11_BSSID_LIST 
 {
    ULONG NumberOfItems;
    NDIS_WLAN_BSSID Bssid[1];
 } NDIS_802_11_BSSID_LIST, *PNDIS_802_11_BSSID_LIST;
-
-
 
 typedef DWORD (WINAPI *WZCRefreshInterfaceFunction)
 (
@@ -336,20 +331,11 @@ typedef DWORD (WINAPI *WZCRefreshInterfaceFunction)
    LPDWORD pdwOutFlags
 );
 
+WZCRefreshInterfaceFunction WZCRefreshInterface;
 
-
-typedef struct _ADAPTER_INFO 
-{
-   ADAPTER_NAME name[ADAPTER_NAME_LENGTH];
-   ADAPTER_DESCRIPTION description[ADAPTER_DESCRIPTION_LENGTH];
-} ADAPTER_INFO;
-
-
+#endif
 
 WZCEnumInterfacesFunction WZCEnumInterfaces;
 WZCQueryInterfaceFunction WZCQueryInterface;
-WZCRefreshInterfaceFunction WZCRefreshInterface;
-
-
 
 #endif
