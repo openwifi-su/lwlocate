@@ -19,6 +19,14 @@
 #ifndef LIBWLOCATE_H
 #define LIBWLOCATE_H
 
+#if defined __GNUC__ && !defined ENV_LINUX && !defined ENV_QNX
+ #define ENV_LINUX
+#endif
+
+#if defined _MSC_VER && !defined ENV_WINDOWS
+ #define ENV_WINDOWS
+#endif
+
 #ifndef WLOC_EXT_API
  #ifdef ENV_LINUX
   #define WLOC_EXT_API extern
