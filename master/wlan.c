@@ -1,6 +1,6 @@
 /**
  * libwlocate - WLAN-based location service
- * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
+ * Copyright (C) 2010-2012 Oxygenic/VWP virtual_worlds(at)gmx.de
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "libwlocate.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifdef ENV_WINDOWS
 #include <windows.h>
 #include <objbase.h>
 #include <wtypes.h>
 
-#include "wlanapi.h"
+#if (_MSC_VER>1400)
+ #include <wlanapi.h>
+ #pragma comment(lib, "wlanapi.lib") 
+#endif
+#include "wlanapi_cust.h"
 #endif
 
+#include "libwlocate.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef ENV_WINDOWS
 /**
@@ -36,7 +39,9 @@
  */
 static int WinMethod1(struct wloc_req *request)
 {
+#if (_MSC_VER<=1400)
    static HINSTANCE                 wlan_library=NULL;
+#endif
           HANDLE                    hClient = NULL;
           DWORD                     dwCurVersion = 0;
           DWORD                     dwResult = 0;
@@ -45,7 +50,9 @@ static int WinMethod1(struct wloc_req *request)
           PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
           PWLAN_INTERFACE_INFO      pIfInfo = NULL;
           PWLAN_BSS_LIST            pBssList=NULL;
+		  PWLAN_BSS_ENTRY           pBssEntry=NULL;
 
+#if (_MSC_VER<=1400)
    if (!wlan_library)
    {
       wlan_library = LoadLibrary("wlanapi");
@@ -63,7 +70,7 @@ static int WinMethod1(struct wloc_req *request)
          return 0;
       }
    }
-    
+#endif
    dwResult = WlanOpenHandle(1, NULL, &dwCurVersion, &hClient); 
    if (dwResult != ERROR_SUCCESS) return 0;
     
@@ -71,27 +78,27 @@ static int WinMethod1(struct wloc_req *request)
    if (dwResult != ERROR_SUCCESS)  
    {
       WlanCloseHandle(hClient,NULL);
-   	return 0;
+      return 0;
    }
    cnt=-1;
    for (i = 0; i < (int) pIfList->dwNumberOfItems; i++) 
    {
       pIfInfo = (WLAN_INTERFACE_INFO *) &pIfList->InterfaceInfo[i];
-      dwResult=WlanGetNetworkBssList(hClient,&pIfInfo->InterfaceGuid,NULL,DOT11_BSS_TYPE_UNUSED,FALSE,NULL,&pBssList);
-      if (dwResult!=ERROR_SUCCESS)
+      dwResult=WlanGetNetworkBssList(hClient,&pIfInfo->InterfaceGuid,NULL,dot11_BSS_type_any,FALSE,NULL,&pBssList);
+      if (dwResult!=ERROR_SUCCESS) continue;
+      for (j=0; j<(int)pBssList->dwNumberOfItems; j++)
       {
-         WlanCloseHandle(hClient,NULL);
-         return 0;
+		  char *c;
+
+         cnt++;
+		 pBssEntry=&pBssList->wlanBssEntries[j];
+		 c=(char*)&pBssList->wlanBssEntries[j];
+         memcpy(request->bssids[cnt],pBssEntry->dot11Bssid,6);
+         request->signal[cnt]=(char)pBssEntry->uLinkQuality;
+         if (cnt>=WLOC_MAX_NETWORKS) break;
       }
-     	for (j=0; j<(int)pBssList->dwNumberOfItems; j++)
-     	{
-     		cnt++;
-         memcpy(request->bssids[cnt],pBssList->wlanBssEntries[j].dot11Bssid,6);
-         request->signal[cnt]=(char)pBssList->wlanBssEntries[j].uLinkQuality;
-    		if (cnt>=9) break;
-     	}
       if (pBssList != NULL) WlanFreeMemory(pBssList); // ???
-  		if (cnt>=9) break;
+      if (cnt>=WLOC_MAX_NETWORKS) break;
    }
    if (pIfList != NULL) WlanFreeMemory(pIfList);
    WlanCloseHandle(hClient,NULL);
@@ -120,9 +127,13 @@ static int WinMethod2(struct wloc_req *request)
       if (!wzc_library) return 0;
       WZCEnumInterfaces = (WZCEnumInterfacesFunction)GetProcAddress(wzc_library, "WZCEnumInterfaces");
       WZCQueryInterface = (WZCQueryInterfaceFunction)GetProcAddress(wzc_library, "WZCQueryInterface");
+#if (_MSC_VER<=1400)
       WZCRefreshInterface = (WZCRefreshInterfaceFunction)GetProcAddress(wzc_library, "WZCRefreshInterface");
 
       if ((!WZCEnumInterfaces) || (!WZCQueryInterface) || (!WZCRefreshInterface))
+#else
+      if ((!WZCEnumInterfaces) || (!WZCQueryInterface))
+#endif
       {
          FreeLibrary(wzc_library);
          wzc_library=0;

@@ -1,7 +1,7 @@
 /**
  * LocDemo - a demo GUI application that uses libwlocate to display the
  * current geographic position
- * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
+ * Copyright (C) 2010-2012 Oxygenic/VWP virtual_worlds(at)gmx.de
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -500,7 +500,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
          m_traceMode=false;
       }
    }
-   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 0.9 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
+   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 1.1 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
 
 
