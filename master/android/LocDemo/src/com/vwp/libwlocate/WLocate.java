@@ -274,6 +274,7 @@ public class WLocate implements Runnable
             if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             else
             {
+               locationInfo.lastSpeed=m_speed;
                locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;               
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
             }
