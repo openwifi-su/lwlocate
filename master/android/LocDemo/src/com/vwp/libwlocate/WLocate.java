@@ -106,19 +106,11 @@ public class WLocate implements Runnable
    {
       location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
       locationListener = new GPSLocationListener();
-      location.requestLocationUpdates(LocationManager.GPS_PROVIDER,250,3,(LocationListener)locationListener);
+      location.requestLocationUpdates(LocationManager.GPS_PROVIDER,350,0,(LocationListener)locationListener);
       statusListener=new GPSStatusListener();
       location.addGpsStatusListener(statusListener);      
    }
-   
-   
-   
-   private void restartGPSLocation()
-   {
-      location.removeGpsStatusListener(statusListener);
-      startGPSLocation();
-   }
-   
+      
    /**
    * Send pause-information to active WLocate object. This method should be called out of the main Activity
    * whenever an onPause() event occurs to avoid leakted IntentReceiver exceptions caused by the receiver
@@ -278,7 +270,6 @@ public class WLocate implements Runnable
                locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;               
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
             }
-            if ((lastLocationMillis>0) && (lastLocationMillis+180000<System.currentTimeMillis())) restartGPSLocation();
          }         
       }
    }
@@ -626,7 +617,7 @@ public class WLocate implements Runnable
       {
          if (location == null) return;
          lastLocationMillis = SystemClock.elapsedRealtime();
-         lastLocation = gLocation;         
+         lastLocation =new Location(gLocation);         
 //         GPSAvailable=true;
          m_lat=gLocation.getLatitude();
          m_lon=gLocation.getLongitude();
