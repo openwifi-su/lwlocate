@@ -20,5 +20,5 @@ all: $(OBJ)
 	$(STRIP) $(PNAME)
 
 clean:
-	rm *.o
-	rm $(PNAME)
+	rm -f *.o
+	rm -f $(PNAME)

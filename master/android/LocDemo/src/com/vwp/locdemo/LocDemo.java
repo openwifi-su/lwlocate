@@ -22,8 +22,8 @@ import com.vwp.libwlocate.*;
 class MainCanvas extends View 
 {
    private Bitmap  locTile[][];
-   private int     m_tileX,m_tileY,m_lastOrientation=-1;
-   public  int     xOffs,yOffs;
+   private int     m_tileX,m_tileY;
+   public  int     xOffs,yOffs,lastWidth=0,lastHeight=0;
    private float   m_radius;
    private double  m_lat,m_lon;
    private Paint   circleColour,fillColour;
@@ -52,31 +52,24 @@ class MainCanvas extends View
    
    
    
-   public void updateScreenOrientation()
+   private void updateScreenOrientation()
    {
       Display display;
-      int     orientation;
 
       display=((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
-      orientation=display.getOrientation();
+      if ((lastWidth==display.getWidth()) && (lastHeight==display.getHeight())) return;
+      lastWidth=display.getWidth();
+      lastHeight=display.getHeight();
+      setMinimumWidth(lastWidth);
+      setMinimumHeight(lastHeight);
       lock.lock();
-      xOffs=display.getWidth()/256;
+      xOffs=lastWidth/256;
       xOffs=(int)Math.ceil(xOffs/3.0);
-      yOffs=display.getHeight()/256;
+      if (xOffs<1) xOffs=1;
+      yOffs=lastHeight/256;
       yOffs=(int)Math.ceil(yOffs/3.0);
-      if (orientation!=m_lastOrientation)
-      {
-         m_lastOrientation=orientation;
-         if (m_lastOrientation==Configuration.ORIENTATION_PORTRAIT)
-         {
-            int swp;
-            
-            swp=xOffs; 
-            xOffs=yOffs; 
-            yOffs=swp;
-         }
-         locTile=new Bitmap[xOffs*3][yOffs*3];                     
-      }
+      if (yOffs<1) yOffs=1;
+      locTile=new Bitmap[xOffs*3][yOffs*3];                     
       lock.unlock();
    }
    
@@ -274,13 +267,14 @@ class MainCanvas extends View
          c.drawCircle(cx,cy,radius,circleColour);
       }
       lock.unlock();
+      updateScreenOrientation();
    }
    
 }
 
 
 
-public class LocDemo extends Activity implements OnClickListener,SensorEventListener,Runnable 
+public class LocDemo extends Activity implements OnClickListener,Runnable 
 {
    private WLocateReceiver wLocateRec;
    private MainCanvas      mainCanvas;
@@ -301,6 +295,7 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
       public static final int MSG_OPEN_PRG_DLG=2;
       public static final int MSG_CLOSE_PRG_DLG=3;
       public static final int MSG_UPD_PRG_DLG=4;
+      public static final int MSG_POSITION_FAILED=5;
       
       public void handleMessage(Message msg) 
       {
@@ -309,6 +304,8 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
             case MSG_OPEN_PRG_DLG:
             {
                progDlg=new ProgressDialog(ctx);
+               progDlg.setCancelable(false);
+               progDlg.setCanceledOnTouchOutside(false);
                progDlg.setTitle((String)msg.obj);
                progDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                progDlg.setMax(msg.arg2);
@@ -327,6 +324,24 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
                progDlg.dismiss();
                progDlg=null;
                break;
+            }
+            case MSG_POSITION_FAILED:
+            {
+               if (progDlg!=null)
+               {
+                  progDlg.dismiss();
+                  progDlg=null;
+               }
+               AlertDialog ad = new AlertDialog.Builder(ctx).create();  
+               ad.setCancelable(false);
+               ad.setMessage("Current position could not be evaluated!");  
+               ad.setButton("OK", new DialogInterface.OnClickListener() {  
+                   @Override  
+                   public void onClick(DialogInterface dialog, int which) {  
+                       dialog.dismiss();                      
+                   }  
+               });  
+               ad.show();           
             }
             default:
                break;
@@ -380,6 +395,14 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
         mainLayout.addView(navButtons);
         setContentView(mainLayout);        
         
+        Message msg;
+
+        msg=new Message();
+        msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+        msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+        msg.obj="Evaluating position / Loading map tiles...";
+        uiHandler.sendMessage(msg);
+        
         wLocateRec.wloc_request_position(0);
     }
    
@@ -388,7 +411,6 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
    public void onResume() 
    {
        super.onResume();
-       mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
    }
    
    
@@ -396,21 +418,8 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
    public void onPause() 
    {
        super.onPause();
-       mSensorManager.unregisterListener(this);
    }    
     
-    
-    public void onAccuracyChanged(Sensor sensor, int accuracy) 
-    {
-    }
-    
-    
-    
-    public void onSensorChanged(SensorEvent event) 
-    {
-       if (event.sensor.getType()==Sensor.TYPE_ORIENTATION) mainCanvas.updateScreenOrientation();
-    }
-
     
     
     private synchronized void updateTiles(double lat,double lon,float radius)
@@ -427,15 +436,7 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
     
     
     public void run()
-    {    
-       Message msg;
-
-       msg=new Message();
-       msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-       msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
-       msg.obj="Loading map tiles...";
-       uiHandler.sendMessage(msg);
-       
+    {           
        mainCanvas.updateViewTiles(lat,lon,radius);
        updateRunning=false;
     }
@@ -451,12 +452,23 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
     
     public void onClick(View v)
     {
-       if (v==refreshButton) wLocateRec.wloc_request_position(0);
+       if (v==refreshButton)
+       {
+          Message msg;
+
+          msg=new Message();
+          msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+          msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+          msg.obj="Loading map tiles...";
+          uiHandler.sendMessage(msg);
+
+          wLocateRec.wloc_request_position(0);
+       }
        else if (v==infoButton)
        {
           AlertDialog ad = new AlertDialog.Builder(this).create();  
-          ad.setCancelable(false);  
-          ad.setMessage("LocDemo Version 0.9 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate which does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
+          ad.setCancelable(false);
+          ad.setMessage("LocDemo Version 1.0 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate which does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
           ad.setButton("OK", new DialogInterface.OnClickListener() {  
               @Override  
               public void onClick(DialogInterface dialog, int which) {  
@@ -481,6 +493,15 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
              zoomOutButton.setEnabled(false);
           }
           else zoomOutButton.setEnabled(true);
+
+          Message msg;
+
+          msg=new Message();
+          msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
+          msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
+          msg.obj="Loading map tiles...";
+          uiHandler.sendMessage(msg);
+          
           updateTiles(lat,lon,radius);
        }
     }
@@ -502,6 +523,12 @@ public class LocDemo extends Activity implements OnClickListener,SensorEventList
           if (ret==WLocate.WLOC_OK)
           {
              updateTiles(lat,lon,radius);
+          }
+          else
+          {
+             Message msg=new Message();
+             msg.arg1=LocDemo.UIHandler.MSG_POSITION_FAILED;
+             uiHandler.sendMessage(msg);
           }
        }       
     }

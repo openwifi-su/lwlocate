@@ -83,7 +83,7 @@ public class WLocate implements Runnable
    private long                lastLocationMillis=0;
    private Context             ctx;
    private loc_info            locationInfo=new loc_info();
-   private Thread              netThread;
+   private Thread              netThread=null;
    private WLocate             me;
 
 
@@ -92,21 +92,25 @@ public class WLocate implements Runnable
     * @param ctx current context, hand over Activity object here
     */
    public WLocate(Context ctx)
-   {
-      location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
-      locationListener = new GPSLocationListener();
-      location.requestLocationUpdates(LocationManager.GPS_PROVIDER,250,3,(LocationListener)locationListener);
-      statusListener=new GPSStatusListener();
-      location.addGpsStatusListener(statusListener);
-      
+   {      
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       this.ctx=ctx;
+      startGPSLocation();      
       me=this;
       doResume();
    }
+
    
    
-   
+   private void startGPSLocation()
+   {
+      location= (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
+      locationListener = new GPSLocationListener();
+      location.requestLocationUpdates(LocationManager.GPS_PROVIDER,350,0,(LocationListener)locationListener);
+      statusListener=new GPSStatusListener();
+      location.addGpsStatusListener(statusListener);      
+   }
+      
    /**
    * Send pause-information to active WLocate object. This method should be called out of the main Activity
    * whenever an onPause() event occurs to avoid leakted IntentReceiver exceptions caused by the receiver
@@ -164,7 +168,6 @@ public class WLocate implements Runnable
       {
          wlocSocket=new Socket("api.openwlanmap.org",10443);
          dout=new DataOutputStream(wlocSocket.getOutputStream());
-         din=new DataInputStream(wlocSocket.getInputStream());
          dout.write(locationInfo.requestData.version);
          dout.write(locationInfo.requestData.length);
          for (i=0; i<wloc_req.WLOC_MAX_NETWORKS; i++)
@@ -174,6 +177,7 @@ public class WLocate implements Runnable
          dout.writeInt(locationInfo.requestData.cgiIP);
          dout.flush();
 
+         din=new DataInputStream(wlocSocket.getInputStream());
          result.version=din.readByte();
          result.length=din.readByte();
          result.result=din.readByte();
@@ -219,6 +223,7 @@ public class WLocate implements Runnable
          if (!scanStarted) return;
          scanStarted=false;
          List<ScanResult> configs=wifi.getScanResults();
+         if (configs==null) return;
          locationInfo.wifiScanResult=configs;
          locationInfo.requestData=new wloc_req();
          if (configs.size()>0) for (ScanResult config : configs) 
@@ -246,6 +251,7 @@ public class WLocate implements Runnable
             if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             else if ((configs.size()>0) || ((scanFlags & FLAG_NO_IP_LOCATION)==0))
             {
+               if ((netThread!=null) && (netThread.isAlive())) return;
                netThread=new Thread(me);
                netThread.start();
             }
@@ -260,8 +266,8 @@ public class WLocate implements Runnable
             if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
             else
             {
-               locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;
-               locationInfo.lastSpeed=m_speed*3.6f;
+               locationInfo.lastSpeed=m_speed;
+               locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;               
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
             }
          }         
@@ -607,17 +613,17 @@ public class WLocate implements Runnable
    
    private class GPSLocationListener implements LocationListener 
    {
-      public void onLocationChanged(Location location) 
+      public void onLocationChanged(Location gLocation) 
       {
          if (location == null) return;
          lastLocationMillis = SystemClock.elapsedRealtime();
-         lastLocation = location;         
+         lastLocation =new Location(gLocation);         
 //         GPSAvailable=true;
-         m_lat=location.getLatitude();
-         m_lon=location.getLongitude();
-         if (location.hasSpeed()) m_speed=location.getSpeed(); //m/sec
+         m_lat=gLocation.getLatitude();
+         m_lon=gLocation.getLongitude();
+         if (gLocation.hasSpeed()) m_speed=gLocation.getSpeed(); //m/sec
          else m_speed=-1;
-         if (location.hasAccuracy()) m_radius=location.getAccuracy();
+         if (gLocation.hasAccuracy()) m_radius=gLocation.getAccuracy();
          else m_radius=-1;
       }
 

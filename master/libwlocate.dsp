@@ -108,15 +108,11 @@ SOURCE=.\wlan.c
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\libwlocate.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\wlan.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wlanapi.h
+SOURCE=.\wlanapi_cust.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
