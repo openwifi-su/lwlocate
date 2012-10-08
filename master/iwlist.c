@@ -131,13 +131,13 @@ print_scanning_info(int		skfd,
   args = args; count = count;
 
   /* Debugging stuff */
-  if((IW_EV_LCP_PK2_LEN != IW_EV_LCP_PK_LEN) || (IW_EV_POINT_PK2_LEN != IW_EV_POINT_PK_LEN))
+/*  if((IW_EV_LCP_PK2_LEN != IW_EV_LCP_PK_LEN) || (IW_EV_POINT_PK2_LEN != IW_EV_POINT_PK_LEN))
     {
       fprintf(stderr, "*** Please report to jt@hpl.hp.com your platform details\n");
       fprintf(stderr, "*** and the following line :\n");
       fprintf(stderr, "*** IW_EV_LCP_PK2_LEN = %zu ; IW_EV_POINT_PK2_LEN = %zu\n\n",
 	      IW_EV_LCP_PK2_LEN, IW_EV_POINT_PK2_LEN);
-    }
+    }*/
 
   /* Get range stuff */
   has_range = (iw_get_range_info(skfd, ifname, &range) >= 0);
