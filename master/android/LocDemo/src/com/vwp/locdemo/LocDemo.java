@@ -468,7 +468,7 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
        {
           AlertDialog ad = new AlertDialog.Builder(this).create();  
           ad.setCancelable(false);
-          ad.setMessage("LocDemo Version 1.0 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate which does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
+          ad.setMessage("LocDemo Version 1.1 is (c) 2012 by Oxy/VWP\nIt demonstrates the usage of WLocate which does NOT use the Google(tm) services and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org");  
           ad.setButton("OK", new DialogInterface.OnClickListener() {  
               @Override  
               public void onClick(DialogInterface dialog, int which) {  
