@@ -4,8 +4,6 @@ import android.content.*;
 import android.graphics.*;
 import android.view.*;
 
-import com.vwp.owm.*;
-
 public class MapView extends View implements Runnable
 {
    private static final int INVALID_POINTER_ID = -1;   
