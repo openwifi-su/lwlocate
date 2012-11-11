@@ -9,6 +9,7 @@ import android.widget.*;
 import android.content.*;
 import android.content.res.*;
 import android.graphics.*;
+
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.locks.*;
@@ -16,10 +17,12 @@ import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
+
 import com.vwp.libwlocate.*;
+import com.vwp.libwlocate.map.*;
 
 
-class MainCanvas extends View 
+/*class MainCanvas extends View 
 {
    private Bitmap  locTile[][];
    private int     m_tileX,m_tileY;
@@ -73,61 +76,30 @@ class MainCanvas extends View
       lock.unlock();
    }
    
-   
-   
-   /**
-    * Gets the horizontal part of a tile number out of a given position
-    * @param[in] lon the longitude to get the tile number for
-    * @param[in] z the zoom level to get the tile number for
-    * @return the tiles x number
-    */
+      
    private int long2tilex(double lon, int z) 
    { 
       return (int)(Math.floor((lon + 180.0) / 360.0 * Math.pow(2.0, z))); 
    }
 
 
-
-   /**
-    * Gets the vertical part of a tile number out of a given position
-    * @param[in] lat the latitude to get the tile number for
-    * @param[in] z the zoom level to get the tile number for
-    * @return the tiles y number
-    */
    private int lat2tiley(double lat, int z)
    { 
       return (int)(Math.floor((1.0 - Math.log( Math.tan(lat * Math.PI/180.0) + 1.0 / Math.cos(lat * Math.PI/180.0)) / Math.PI) / 2.0 * Math.pow(2.0, z))); 
    }
     
 
-
-   /**
-    * Gets the longitude of the side edge of a tile out of a given horizontal
-    * tile number
-    * @param[in] x the horizontal tile number
-    * @param[in] z the zoom level to get the tile number for
-    * @return the longitude of the left position of the tile
-    */
    static double tilex2long(int x, int z) 
    {
       return x / Math.pow(2.0, z) * 360.0 - 180;
    }
     
 
-
-   /**
-    * Gets the latitude of the upper side of a tile out of a given vertical
-    * tile number
-    * @param[in] y the vertical tile number
-    * @param[in] z the zoom level to get the tile number for
-    * @return the latitude of the upper position of the tile
-    */
    static double tiley2lat(int y, int z) 
    {
       double n = Math.PI - 2.0 * Math.PI * y / Math.pow(2.0, z);
       return 180.0 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
    }
-
    
    
    private boolean loadTile(String url,int x,int y)
@@ -167,16 +139,6 @@ class MainCanvas extends View
    }
    
    
-      
-   /**
-    * This method updates the internal locTile array that holds bitmaps of the tiles that have to be
-    * displayed currently. To get the tile images it first tries to load a local PNG image. In case
-    * that fails the TAH server is connected to download and save a tile image in PNG format. Then it
-    * tries again to load the local PNG image - now it should be successful because it was downloaded
-    * just one step before.
-    * @param[in] lat the latitude of the current position which has to be displayed in center tile
-    * @param[in] lon the longitude of the current position which has to be displayed in center tile
-    */
    public void updateViewTiles(double lat,double lon,float radius)
    {
       int             x,y,cnt=0;
@@ -227,8 +189,7 @@ class MainCanvas extends View
       msg.arg1=LocDemo.UIHandler.MSG_CLOSE_PRG_DLG;
       locDemo.uiHandler.sendMessage(msg);
    }
-   
-   
+      
    
    public void onDraw (Canvas c)
    {
@@ -270,31 +231,78 @@ class MainCanvas extends View
       updateScreenOrientation();
    }
    
-}
+}*/
 
 
 
-public class LocDemo extends Activity implements OnClickListener,Runnable 
+public class LocDemo extends Activity implements OnClickListener
 {
    private WLocateReceiver wLocateRec;
-   private MainCanvas      mainCanvas;
-   private Button          zoomInButton,zoomOutButton,refreshButton,infoButton;
-   private SensorManager   mSensorManager;
-   private Sensor          mAccelerometer;
-   private double          lat,lon;
-   private float           radius;
-   private Thread          updateThread;
-   private boolean         updateRunning=false;
+   private MapView         mapView;
+   private Button          refreshButton,infoButton;
    public  UIHandler       uiHandler=new UIHandler();
    private Context         ctx;
    private ProgressDialog  progDlg;
+   private MyOverlay       mapOverlay;
+   private double          m_lat=0.0,m_lon=0.0;
+   private float           m_radius=-1.0f;
       
+   
+   class MyOverlay extends MapOverlay
+   {
+      private Paint circleColour,fillColour;
+      
+      public MyOverlay()
+      {
+         m_zoom=17;
+         circleColour=new Paint();
+         circleColour.setARGB(255,255,0,0);
+         circleColour.setStyle(Paint.Style.STROKE);
+         circleColour.setStrokeWidth(2);
+
+         fillColour=new Paint();
+         fillColour.setARGB(75,255,0,0);
+         fillColour.setStyle(Paint.Style.FILL);
+      }
+      
+   
+      public void onDraw (Canvas canvas,double lonMin,double lonMax,double latMin,double latMax,Bitmap drawMap)
+      {
+         if (m_radius<=0) return;
+         
+         if ((m_lon>=lonMin) && (m_lon<=lonMax) && (m_lat<=latMin) && (m_lat>=latMax))
+         {      
+            double zoomFactor;
+            float  radius;
+            float  x,y;
+            
+            int useTileX=GeoUtils.long2tilex(m_lon,m_zoom);
+            int useTileY=GeoUtils.lat2tiley(m_lat,m_zoom);
+   
+            float tileLon1=GeoUtils.tilex2long(useTileX,m_zoom);
+            float tileLat1=GeoUtils.tiley2lat(useTileY,m_zoom);
+            float tileLon2=GeoUtils.tilex2long(useTileX+1,m_zoom);
+            float tileLat2=GeoUtils.tiley2lat(useTileY+1,m_zoom);
+   
+            y=(int)((useTileY-tileY)*256+(256.0*(m_lat-tileLat1)/(tileLat2-tileLat1)));
+            x=(int)((useTileX-tileX)*256+(256.0*(m_lon-tileLon1)/(tileLon2-tileLon1)));
+   
+            zoomFactor=Math.pow(2.0,(17.0-m_zoom));
+            radius=(float)((m_radius*1.2)/zoomFactor);
+            if (radius<6) radius=6;
+            canvas.drawCircle(x,y,radius,fillColour);
+            canvas.drawCircle(x,y,radius,circleColour);
+         }
+
+      }
+      
+   }
+   
    
    class UIHandler extends Handler
    {
       public static final int MSG_OPEN_PRG_DLG=2;
       public static final int MSG_CLOSE_PRG_DLG=3;
-      public static final int MSG_UPD_PRG_DLG=4;
       public static final int MSG_POSITION_FAILED=5;
       
       public void handleMessage(Message msg) 
@@ -307,19 +315,12 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
                progDlg.setCancelable(false);
                progDlg.setCanceledOnTouchOutside(false);
                progDlg.setTitle((String)msg.obj);
-               progDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-               progDlg.setMax(msg.arg2);
                progDlg.show();         
-               break;
-            }
-            case MSG_UPD_PRG_DLG:
-            {
-               progDlg.setProgress(msg.arg2);
                break;
             }
             case MSG_CLOSE_PRG_DLG:
             {
-               mainCanvas.invalidate();
+//               mainCanvas.invalidate();
                if (progDlg==null) return;
                progDlg.dismiss();
                progDlg=null;
@@ -359,25 +360,16 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
         ctx=this;
         setTitle("LocDemo - free and open location based service demo");
         wLocateRec=new WLocateReceiver(this);
-        mainCanvas=new MainCanvas(this);
-        
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);      
-        
-        FrameLayout mainLayout = new FrameLayout(this);
 
-        LinearLayout navButtons = new LinearLayout (this);
+        mapView=new MapView(this,true,GeoUtils.MODE_OSM);
+        mapOverlay=new MyOverlay();
+        mapView.setOverlay(mapOverlay);
 
-        zoomInButton = new Button(this);
-        zoomInButton.setText("+");
-        zoomInButton.setWidth(60);
-        zoomInButton.setEnabled(false);
-        zoomInButton.setOnClickListener(this);
+        setContentView(R.layout.main);
+        FrameLayout rootLayout=(FrameLayout)findViewById(R.id.rootLayout);
+        rootLayout.addView(mapView);
         
-        zoomOutButton = new Button(this);
-        zoomOutButton.setText("-");
-        zoomOutButton.setWidth(60);
-        zoomOutButton.setOnClickListener(this);
+/*        LinearLayout navButtons = new LinearLayout (this);
 
         refreshButton = new Button(this);
         refreshButton.setText("Refresh Position");
@@ -387,19 +379,16 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
         infoButton.setText("About LocDemo");
         infoButton.setOnClickListener(this);
                 
-        navButtons.addView(zoomInButton);       
-        navButtons.addView(zoomOutButton);       
         navButtons.addView(refreshButton);
         navButtons.addView(infoButton);
-        mainLayout.addView(mainCanvas);
-        mainLayout.addView(navButtons);
-        setContentView(mainLayout);        
+//        mainLayout.addView(mainCanvas);
+        rootLayout.addView(navButtons);
+        setContentView(rootLayout);*/        
         
         Message msg;
 
         msg=new Message();
         msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-        msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
         msg.obj="Evaluating position / Loading map tiles...";
         uiHandler.sendMessage(msg);
         
@@ -420,28 +409,7 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
        super.onPause();
    }    
     
-    
-    
-    private synchronized void updateTiles(double lat,double lon,float radius)
-    {
-       if (updateRunning) return;
-       updateRunning=true;
-       this.lat=lat;
-       this.lon=lon;
-       this.radius=radius;
-       updateThread=new Thread(this);
-       updateThread.start();
-    }
-    
-    
-    
-    public void run()
-    {           
-       mainCanvas.updateViewTiles(lat,lon,radius);
-       updateRunning=false;
-    }
-    
-    
+        
     
     public void onBackButton()
     {
@@ -458,7 +426,6 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
 
           msg=new Message();
           msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-          msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
           msg.obj="Loading map tiles...";
           uiHandler.sendMessage(msg);
 
@@ -479,30 +446,12 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
        }
        else
        {
-          if (v==zoomInButton) mainCanvas.m_zoom++;
-          else if (v==zoomOutButton) mainCanvas.m_zoom--;
-          if (mainCanvas.m_zoom>=17)
-          {
-             mainCanvas.m_zoom=17;
-             zoomInButton.setEnabled(false);
-          }
-          else zoomInButton.setEnabled(true);
-          if (mainCanvas.m_zoom<=3)
-          {
-             mainCanvas.m_zoom=3;
-             zoomOutButton.setEnabled(false);
-          }
-          else zoomOutButton.setEnabled(true);
-
           Message msg;
 
           msg=new Message();
           msg.arg1=LocDemo.UIHandler.MSG_OPEN_PRG_DLG;
-          msg.arg2=(mainCanvas.xOffs*2+1)*(mainCanvas.yOffs*2+1);
           msg.obj="Loading map tiles...";
           uiHandler.sendMessage(msg);
-          
-          updateTiles(lat,lon,radius);
        }
     }
     
@@ -520,13 +469,21 @@ public class LocDemo extends Activity implements OnClickListener,Runnable
        
        protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
        {
+          Message msg;
+
+          msg=new Message();
+          msg.arg1=LocDemo.UIHandler.MSG_CLOSE_PRG_DLG;
+          uiHandler.sendMessage(msg);
+
           if (ret==WLocate.WLOC_OK)
           {
-             updateTiles(lat,lon,radius);
+             mapView.setCenterLocation(lat,lon);
+             m_lat=lat;
+             m_lon=lon;
+             m_radius=radius;
           }
           else
           {
-             Message msg=new Message();
              msg.arg1=LocDemo.UIHandler.MSG_POSITION_FAILED;
              uiHandler.sendMessage(msg);
           }

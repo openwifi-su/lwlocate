@@ -13,7 +13,7 @@ public class MapView extends View implements Runnable
    private Bitmap             locMap=null;
    private Matrix             matrix=new Matrix();
    private Thread             mapThread;
-   private boolean            mapThreadRunning,allowNetAccess;
+   private boolean            mapThreadRunning,breakMapThread,allowNetAccess;
    private int                mActivePointerId = INVALID_POINTER_ID,mActivePointerId2 = INVALID_POINTER_ID;
    private float              mScaleFactor = 1.0f;
    private GeoUtils           geoUtils;
@@ -114,7 +114,7 @@ public class MapView extends View implements Runnable
                   {
                      float w,h,s;
                      
-                     s=d1/d2;
+                     s=d1/d2;                     
                      mScaleFactor*=s;
                      matrix.postScale(s,s);
                      w=(scrWidth-(scrWidth*s))/2.0f;
@@ -136,11 +136,10 @@ public class MapView extends View implements Runnable
                      i=i;
                   }
                   
-                  
+                  mScaleFactor=1.0f;
                   imgOffsetX+=(x-mLastTouchX);
                   imgOffsetY+=(y-mLastTouchY);
                   matrix.setTranslate(imgOffsetX,imgOffsetY);
-                  matrix.postScale(mScaleFactor,mScaleFactor);
                }
                
                if ((mActivePointerId!=INVALID_POINTER_ID) || (mActivePointerId2!=INVALID_POINTER_ID))
@@ -162,26 +161,46 @@ public class MapView extends View implements Runnable
          case MotionEvent.ACTION_UP: 
          case MotionEvent.ACTION_POINTER_UP: 
          {
-            mapThreadRunning=false;
+            breakMapThread=true;
             mActivePointerId = INVALID_POINTER_ID;
             mActivePointerId2 = INVALID_POINTER_ID;
-            invalidate();
-            if (mapThread!=null) try
-            {
-               mapThread.join(1500);
-            }
-            catch (InterruptedException ie)
-            {
-               
-            }
-            mapThread=new Thread(this);
-            mapThread.start();
+            restartMap();
             break;
          }
       }      
       return true;
    }
   
+
+   private void restartMap()
+   {
+      breakMapThread=true;
+      postInvalidate();
+      if (mapThread!=null) try
+      {
+         mapThread.join(1500);
+      }
+      catch (InterruptedException ie)
+      {
+         
+      }
+      mapThread=new Thread(this);
+      mapThread.start();      
+   }
+
+
+   
+   public void setCenterLocation(double lat,double lon)
+   {
+      breakMapThread=true;
+      
+      useOverlay.tileX=GeoUtils.long2tilex(lon,useOverlay.m_zoom);
+      useOverlay.tileY=GeoUtils.lat2tiley(lat,useOverlay.m_zoom);
+      imgOffsetX+=scrWidth/2.0f;
+      imgOffsetY+=scrHeight/2.0f;
+      restartMap();
+   }
+   
    
    public void run()
    {
@@ -191,6 +210,7 @@ public class MapView extends View implements Runnable
       float      useLon,useLat,useLonMax,useLatMax;
 
       System.gc();
+      if ((useOverlay.tileX==0) && (useOverlay.tileY==0)) return;
       mapThreadRunning=true;
       try
       {
@@ -210,25 +230,23 @@ public class MapView extends View implements Runnable
       {
          mScaleFactor/=2.0f;
          useOverlay.m_zoom++;
-         if (useOverlay.m_zoom>17) useOverlay.m_zoom=17;
-         else
+         if (useOverlay.m_zoom>17)
          {
-//            imgOffsetX*=2.0;
-//            imgOffsetY*=2.0;            
+            useOverlay.m_zoom=17;
+            imgOffsetX-=(scrWidth-(scrWidth*2.0))/2.0;
+            imgOffsetY-=(scrHeight-(scrHeight*2.0))/2.0;            
          }
-//         wasScaleOp=true;
       }
       while (mScaleFactor<=0.5)
       {
          mScaleFactor*=2.0f;
          useOverlay.m_zoom--;
-         if (useOverlay.m_zoom<4) useOverlay.m_zoom=4;
-         else
+         if (useOverlay.m_zoom<4)
          {
-//            imgOffsetX/=2.0;
-//            imgOffsetY/=2.0;                        
+            useOverlay.m_zoom=4;
+            imgOffsetX-=(scrWidth-(scrWidth*2.0))/2.0;
+            imgOffsetY-=(scrHeight-(scrHeight*2.0))/2.0;            
          }
-//         wasScaleOp=true;
       }
       mScaleFactor=1.0f;
 
@@ -308,19 +326,15 @@ public class MapView extends View implements Runnable
          lonCenter=(((tileLon2-tileLon1)/256.0f)*x)+tileLon1;
          latCenter=(((tileLat2-tileLat1)/256.0f)*y)+tileLat1;
       }*/
-
-      if ((Math.abs(imgOffsetX)>400) || (Math.abs(imgOffsetY)>400))
-      {
-         int i=0;
-         i=i;
-      }
       
       
       matrix.setTranslate(imgOffsetX,imgOffsetY);
+      breakMapThread=false;
+      mapThreadRunning=false;
       for (x=0; x<tileWidth; x++)
        for (y=0; y<tileHeight; y++)
       {
-         while (!mapThreadRunning) return;
+         if (breakMapThread) return;
          locTile=geoUtils.loadMapTile(getContext(),useOverlay.tileX+x,useOverlay.tileY+y,useOverlay.m_zoom,allowNetAccess);
          if (locTile!=null) canvas.drawBitmap(locTile,x*256,y*256,null);
          postInvalidate();
@@ -328,7 +342,6 @@ public class MapView extends View implements Runnable
       useOverlay.onDraw(canvas,useLon,useLonMax,useLat,useLatMax,locMap);
       postInvalidate();
       System.gc();
-      mapThreadRunning=false;
    }
 
    Bitmap getBitmap()
