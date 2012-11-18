@@ -4,20 +4,22 @@ import android.content.*;
 import android.graphics.*;
 import android.view.*;
 
+
 public class MapView extends View implements Runnable
 {
    private static final int INVALID_POINTER_ID = -1;   
 
-   private int                scrWidth,scrHeight,tileWidth,tileHeight;
-   private float              mLastTouchX=0.0f,mLastTouchY=0.0f,mLastTouchX2=0.0f,mLastTouchY2=0.0f,imgOffsetX=0.0f,imgOffsetY=0.0f;
-   private Bitmap             locMap=null;
-   private Matrix             matrix=new Matrix();
-   private Thread             mapThread;
-   private boolean            mapThreadRunning,breakMapThread,allowNetAccess;
-   private int                mActivePointerId = INVALID_POINTER_ID,mActivePointerId2 = INVALID_POINTER_ID;
-   private float              mScaleFactor = 1.0f;
-   private GeoUtils           geoUtils;
-   private MapOverlay         useOverlay=new MapOverlay();
+   private int             scrWidth,scrHeight,tileWidth,tileHeight;
+   private float           mLastTouchX=0.0f,mLastTouchY=0.0f,mLastTouchX2=0.0f,mLastTouchY2=0.0f,imgOffsetX=0.0f,imgOffsetY=0.0f;
+   private Bitmap          locMap=null;
+   private Matrix          matrix=new Matrix();
+   private Thread          mapThread;
+   private boolean         mapThreadRunning,breakMapThread,allowNetAccess;
+   private int             mActivePointerId = INVALID_POINTER_ID,mActivePointerId2 = INVALID_POINTER_ID;
+   private float           mScaleFactor = 1.0f;
+   private GeoUtils        geoUtils;
+   private MapOverlay      useOverlay=new MapOverlay();
+   private GestureDetector gestureDetector;
    
    public MapView(Context ctx,boolean allowNetAccess,int mode)
    {
@@ -38,8 +40,35 @@ public class MapView extends View implements Runnable
       setMinimumWidth(scrHeight);
       tileWidth=(int)Math.ceil(scrWidth/256.0)+1;
       tileHeight=(int)Math.ceil(scrHeight/256.0)+1;
+      gestureDetector = new GestureDetector(ctx,new GestureListener());
+   }
+   
+   
+   private class GestureListener extends GestureDetector.SimpleOnGestureListener 
+   {
+      public boolean onDoubleTap(MotionEvent e) 
+      {
+         if (mapThreadRunning) return false; // no updates when download is running
+         
+         float w,h;
+         
+         mScaleFactor*=2.0;
+         matrix.postScale(2.0f,2.0f);
+         w=scrWidth/2.0f;
+         h=scrHeight/2.0f;
+         
+         matrix.postTranslate(w,h);
+         imgOffsetX+=w;
+         imgOffsetY+=h;                                    
+
+         breakMapThread=true;
+         restartMap();
+         
+         return true;
+      }
    }
 
+   
    public MapView(Context ctx) throws RuntimeException
    {
       super(ctx);
@@ -55,10 +84,13 @@ public class MapView extends View implements Runnable
          mapThread.start();
       }
    }
+      
    
    public boolean onTouchEvent(MotionEvent ev) 
    {
-      if (mapThreadRunning) return true; // no updates when download is running
+      if (mapThreadRunning) return false; // no updates when download is running
+      if (gestureDetector.onTouchEvent(ev)) return true;
+      
       final int action = ev.getAction();
       switch (action & MotionEvent.ACTION_MASK) 
       {
@@ -117,8 +149,8 @@ public class MapView extends View implements Runnable
                      s=d1/d2;                     
                      mScaleFactor*=s;
                      matrix.postScale(s,s);
-                     w=(scrWidth-(scrWidth*s))/2.0f;
-                     h=(scrHeight-(scrHeight*s))/2.0f;
+                     w=scrWidth/2.0f;
+                     h=scrHeight/2.0f;
                      
                      matrix.postTranslate(w,h);
                      imgOffsetX+=w;
