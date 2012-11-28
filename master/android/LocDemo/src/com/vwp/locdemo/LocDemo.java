@@ -237,15 +237,15 @@ import com.vwp.libwlocate.map.*;
 
 public class LocDemo extends Activity implements OnClickListener
 {
-   private WLocateReceiver wLocateRec;
-   private MapView         mapView;
-   private Button          refreshButton,infoButton;
-   public  UIHandler       uiHandler=new UIHandler();
-   private Context         ctx;
-   private ProgressDialog  progDlg;
-   private MyOverlay       mapOverlay;
-   private double          m_lat=0.0,m_lon=0.0;
-   private float           m_radius=-1.0f;
+   private WLocateReceiver       wLocateRec;
+   private MapView               mapView;
+   private Button                refreshButton,infoButton;
+   public  UIHandler             uiHandler=new UIHandler();
+   private MyOverlay             mapOverlay;
+   private double                m_lat=0.0,m_lon=0.0;
+   private float                 m_radius=-1.0f;
+   private static Context        ctx;
+   private static ProgressDialog progDlg;
       
    
    class MyOverlay extends MapOverlay
@@ -299,8 +299,8 @@ public class LocDemo extends Activity implements OnClickListener
    }
    
    
-   class UIHandler extends Handler
-   {
+   static class UIHandler extends Handler
+   {      
       public static final int MSG_OPEN_PRG_DLG=2;
       public static final int MSG_CLOSE_PRG_DLG=3;
       public static final int MSG_POSITION_FAILED=5;
@@ -366,25 +366,26 @@ public class LocDemo extends Activity implements OnClickListener
         mapView.setOverlay(mapOverlay);
 
         setContentView(R.layout.main);
-        FrameLayout rootLayout=(FrameLayout)findViewById(R.id.rootLayout);
-        rootLayout.addView(mapView);
         
-/*        LinearLayout navButtons = new LinearLayout (this);
+        
+        FrameLayout mainLayout=(FrameLayout)findViewById(R.id.rootLayout);
+        mainLayout.addView(mapView);
+        
+        LinearLayout navButtons = new LinearLayout (this);
+
 
         refreshButton = new Button(this);
         refreshButton.setText("Refresh Position");
         refreshButton.setOnClickListener(this);
-        
+
         infoButton = new Button(this);
         infoButton.setText("About LocDemo");
         infoButton.setOnClickListener(this);
-                
+
         navButtons.addView(refreshButton);
         navButtons.addView(infoButton);
-//        mainLayout.addView(mainCanvas);
-        rootLayout.addView(navButtons);
-        setContentView(rootLayout);*/        
-        
+        mainLayout.addView(navButtons);        
+                                
         Message msg;
 
         msg=new Message();
