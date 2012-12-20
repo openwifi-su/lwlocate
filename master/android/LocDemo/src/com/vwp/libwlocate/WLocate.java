@@ -144,7 +144,16 @@ public class WLocate implements Runnable
    {
       scanFlags=flags;
       scanStarted=true;
-      wifi.startScan();
+      if ((flags & FLAG_NO_NET_ACCESS)==0)
+      {
+         if (wifi.isWifiEnabled())
+         {
+            wifi.startScan();
+            return;
+         }         
+      }
+      if ((!GPSAvailable) || ((flags & FLAG_NO_GPS_ACCESS)==0))
+       wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,0.0f,(short)0);         
    }
 
    
