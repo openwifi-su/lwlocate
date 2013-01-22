@@ -162,12 +162,6 @@ public class MapView extends View implements Runnable
                }
                else if (mScaleFactor==1.0)
                {
-                  if ((Math.abs(x-mLastTouchX)>100) || (Math.abs(y-mLastTouchY)>100))
-                  {
-                     int i=0;
-                     i=i;
-                  }
-                  
                   mScaleFactor=1.0f;
                   imgOffsetX+=(x-mLastTouchX);
                   imgOffsetY+=(y-mLastTouchY);
