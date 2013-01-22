@@ -144,16 +144,9 @@ public class WLocate implements Runnable
    {
       scanFlags=flags;
       scanStarted=true;
-      if ((flags & FLAG_NO_NET_ACCESS)==0)
-      {
-         if (wifi.isWifiEnabled())
-         {
-            wifi.startScan();
-            return;
-         }         
-      }
-      if ((!GPSAvailable) || ((flags & FLAG_NO_GPS_ACCESS)==0))
+      if ((!wifi.isWifiEnabled()) && (!GPSAvailable))
        wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,0.0f,(short)0);         
+      wifi.startScan();
    }
 
    
@@ -226,8 +219,7 @@ public class WLocate implements Runnable
    {
       public void onReceive(Context c, Intent intent) 
       {
-         int           netCnt=0,ret=WLOC_LOCATION_ERROR;
-         wloc_position pos=null;
+         int           netCnt=0;
          
          if (!scanStarted) return;
          scanStarted=false;
