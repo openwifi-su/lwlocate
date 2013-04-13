@@ -180,7 +180,7 @@ public class MapView extends View implements Runnable
                   mLastTouchY = y;
                }
             }
-            catch (ArrayIndexOutOfBoundsException aioobe)
+            catch (Exception e)
             {
                // can be caused by
                // pointerIndex= ev.findPointerIndex(mActivePointerId);
@@ -371,7 +371,7 @@ public class MapView extends View implements Runnable
          if (locTile!=null) canvas.drawBitmap(locTile,x*256,y*256,null);
          postInvalidate();
       }
-      useOverlay.onDraw(canvas,useLon,useLonMax,useLat,useLatMax,locMap);
+      useOverlay.doDraw(canvas,useLon,useLonMax,useLat,useLatMax,locMap);
       postInvalidate();
       System.gc();
    }
