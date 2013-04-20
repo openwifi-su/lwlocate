@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ <CheckBoxPreference android:title="@string/prefsAutoConnect"
+  android:defaultValue="false"
+  android:summary="@string/prefsAutoConnectText"
+  android:key="autoConnect" />
+ <CheckBoxPreference android:title="@string/prefsAutoStart"
+  android:defaultValue="true"
+  android:summary="@string/prefsAutoStartText"
+  android:key="autoStart" />
+ <ListPreference
+  android:title="@string/prefsAutoUpload"
+  android:summary="@string/prefsAutoUploadText"
+  android:key="autoUpload"
+  android:defaultValue="0"
+  android:entries="@array/prefsAutoUploadEntries"
+  android:entryValues="@array/prefsAutoUploadValues" />
+ <CheckBoxPreference android:title="@string/prefsAdaptiveScanning"
+  android:defaultValue="true"
+  android:summary="@string/prefsAdaptiveScanningText"
+  android:key="adaptiveScanning" />
+ <ListPreference
+  android:title="@string/prefsTextSize"
+  android:summary="@string/prefsTextSizeText"
+  android:key="textSize"
+  android:defaultValue="1"
+  android:entries="@array/prefsTextSizeEntries"
+  android:entryValues="@array/prefsTextSizeValues" />
+ <CheckBoxPreference android:title="@string/prefsBigCounter"
+  android:defaultValue="false"
+  android:summary="@string/prefsBigCounterText"
+  android:key="bigCounter" />
+ <CheckBoxPreference android:title="@string/prefsHudCounter"
+  android:defaultValue="false"
+  android:summary="@string/prefsHudCounterText"
+  android:key="hudCounter" />
+ <CheckBoxPreference android:title="@string/prefsShowMap"
+  android:defaultValue="false"
+  android:summary="@string/prefsShowMapText"
+  android:key="showMap" />
+ <ListPreference
+  android:title="@string/prefsShowType"
+  android:summary="@string/prefsShowTypeText"
+  android:key="showType"
+  android:defaultValue="1"
+  android:entries="@array/prefsShowTypeEntries"
+  android:entryValues="@array/prefsShowTypeValues" />
+ <ListPreference
+  android:title="@string/prefsMapType"
+  android:summary="@string/prefsMapTypeText"
+  android:key="mapType"
+  android:defaultValue="2"
+  android:entries="@array/prefsMapTypeEntries"
+  android:entryValues="@array/prefsMapTypeValues" />
+ <ListPreference
+  android:title="@string/prefsScreenLight"
+  android:summary="@string/prefsScreenLightText"
+  android:key="screenLight"
+  android:defaultValue="2"
+  android:entries="@array/prefsScreenLightEntries"
+  android:entryValues="@array/prefsScreenLightValues" />
+ <ListPreference
+  android:title="@string/prefsTelemetry"
+  android:summary="@string/prefsTelemetryText"
+  android:key="telemetry"
+  android:defaultValue="1"
+  android:entries="@array/prefsTelemetryEntries"
+  android:entryValues="@array/prefsTelemetryValues" />
+ <CheckBoxPreference android:title="@string/prefsTrack"
+  android:defaultValue="false"
+  android:summary="@string/prefsTrackText"
+  android:key="track" />
+ <EditTextPreference
+  android:key="tag"
+  android:title="@string/prefsTag"
+  android:summary="@string/prefsTagText" />
+ <EditTextPreference
+  android:key="team"
+  android:title="@string/prefsTeam"
+  android:summary="@string/prefsTeamText" />
+ <CheckBoxPreference android:title="@string/prefsPubMap"
+  android:defaultValue="false"
+  android:summary="@string/prefsPubMapText"
+  android:key="pubmap" />
+ <CheckBoxPreference android:title="@string/prefsPublish"
+  android:defaultValue="false"
+  android:summary="@string/prefsPublishText"
+  android:key="publish" />
+</PreferenceScreen>

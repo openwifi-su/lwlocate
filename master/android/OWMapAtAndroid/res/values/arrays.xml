@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<resources> 
+ <string-array name="prefsTextSizeEntries">         
+  <item>Small</item> 
+  <item>Medium</item> 
+  <item>Large</item> 
+ </string-array>    
+ <string-array name="prefsTextSizeValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array> 
+ <string-array name="prefsShowTypeEntries">         
+  <item>BSSID / MAC address only</item> 
+  <item>SSID / network name only</item> 
+  <item>BSSID and SSID together</item> 
+ </string-array>    
+  <string-array name="prefsShowTypeValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array> 
+ <string-array name="prefsMapTypeEntries">         
+  <item>OpenStreetMap</item> 
+  <item>Google Map</item> 
+  <item>Google Satellite/Map</item> 
+ </string-array>    
+ <string-array name="prefsMapTypeValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array> 
+ <string-array name="prefsScreenLightEntries">         
+  <item>Turn Off</item> 
+  <item>Dim</item> 
+  <item>Full brightness</item> 
+ </string-array>    
+ <string-array name="prefsScreenLightValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array> 
+ <string-array name="prefsTelemetryEntries">         
+  <item>Off</item> 
+  <item>Show</item> 
+  <item>Store</item> 
+  <item>Show and Store</item> 
+ </string-array>    
+ <string-array name="prefsTelemetryValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+  <item>4</item> 
+ </string-array> 
+ <string-array name="prefsAutoUploadEntries">         
+  <item>Off</item> 
+  <item>At more than 5000 APs</item> 
+  <item>At more than 10000 APs</item> 
+  <item>At more than 20000 APs</item> 
+  <item>At more than 50000 APs</item> 
+ </string-array>    
+ <string-array name="prefsAutoUploadValues">         
+  <item>0</item> 
+  <item>5000</item> 
+  <item>10000</item> 
+  <item>20000</item> 
+  <item>50000</item> 
+ </string-array>    
+</resources>
