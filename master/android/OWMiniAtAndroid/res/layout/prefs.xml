@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ <CheckBoxPreference android:title="@string/prefsAutoStart"
+  android:defaultValue="true"
+  android:summary="@string/prefsAutoStartText"
+  android:key="autoStart" />
+ <CheckBoxPreference android:title="@string/prefsAdaptiveScanning"
+  android:defaultValue="true"
+  android:summary="@string/prefsAdaptiveScanningText"
+  android:key="adaptiveScanning" />
+ <ListPreference
+  android:title="@string/prefsTextSize"
+  android:summary="@string/prefsTextSizeText"
+  android:key="textSize"
+  android:defaultValue="1"
+  android:entries="@array/prefsTextSizeEntries"
+  android:entryValues="@array/prefsTextSizeValues" />
+ <CheckBoxPreference android:title="@string/prefsBigCounter"
+  android:defaultValue="false"
+  android:summary="@string/prefsBigCounterText"
+  android:key="bigCounter" />
+ <CheckBoxPreference android:title="@string/prefsHudCounter"
+  android:defaultValue="false"
+  android:summary="@string/prefsHudCounterText"
+  android:key="hudCounter" />
+ <ListPreference
+  android:title="@string/prefsShowType"
+  android:summary="@string/prefsShowTypeText"
+  android:key="showType"
+  android:defaultValue="1"
+  android:entries="@array/prefsShowTypeEntries"
+  android:entryValues="@array/prefsShowTypeValues" />
+ <ListPreference
+  android:title="@string/prefsScreenLight"
+  android:summary="@string/prefsScreenLightText"
+  android:key="screenLight"
+  android:defaultValue="2"
+  android:entries="@array/prefsScreenLightEntries"
+  android:entryValues="@array/prefsScreenLightValues" />
+ <CheckBoxPreference android:title="@string/prefsTrack"
+  android:defaultValue="false"
+  android:summary="@string/prefsTrackText"
+  android:key="track" />
+ <EditTextPreference
+  android:key="tag"
+  android:title="@string/prefsTag"
+  android:summary="@string/prefsTagText" />
+ <EditTextPreference
+  android:key="team"
+  android:title="@string/prefsTeam"
+  android:summary="@string/prefsTeamText" />
+ <CheckBoxPreference android:title="@string/prefsPubMap"
+  android:defaultValue="false"
+  android:summary="@string/prefsPubMapText"
+  android:key="pubmap" />
+ <CheckBoxPreference android:title="@string/prefsPublish"
+  android:defaultValue="false"
+  android:summary="@string/prefsPublishText"
+  android:key="publish" />
+</PreferenceScreen>
