@@ -244,7 +244,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          super(ctx);
       }
       
-      protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
+      protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode,float cog)
       {
          posValid=false;
          if (ret==WLocate.WLOC_OK)
@@ -255,7 +255,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                posValid=true;
                lastLat=lat;
                lastLon=lon;
-               ScanService.scanData.setLatLon(lat, lon);
+               ScanService.scanData.setLatLonCog(lat,lon,cog);
                posState=2;         
                scanThread.interrupt();
             }
@@ -276,12 +276,10 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          else
          {
             lastRadius=-1;
-}
-            posState=2;         
-            scanThread.interrupt();
-//         }
-      }   
-      
+         }
+         posState=2;         
+         scanThread.interrupt();
+      }         
    }	
 
 /*   private class GoogleLocationListener implements LocationListener 

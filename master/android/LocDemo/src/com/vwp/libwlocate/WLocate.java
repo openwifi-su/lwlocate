@@ -78,7 +78,7 @@ public class WLocate implements Runnable
    private WifiReceiver        receiverWifi = new WifiReceiver();
    private boolean             GPSAvailable=false,scanStarted=false;
    private double              m_lat,m_lon;
-   private float               m_radius=1.0f,m_speed=-1.0f;
+   private float               m_radius=1.0f,m_speed=-1.0f,m_cog=-1.0f;
    private int                 scanFlags;
    private long                lastLocationMillis=0;
    private Context             ctx;
@@ -248,7 +248,11 @@ public class WLocate implements Runnable
          if (GPSAvailable) GPSAvailable=(SystemClock.elapsedRealtime()-lastLocationMillis) < 7500;
          if (!GPSAvailable)
          {
-            if ((scanFlags & FLAG_NO_NET_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+            if ((scanFlags & FLAG_NO_NET_ACCESS)!=0)
+            {
+           	   wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+           	   wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0,(float)-1.0);
+            }
             else if ((configs.size()>0) || ((scanFlags & FLAG_NO_IP_LOCATION)==0))
             {
                if ((netThread!=null) && (netThread.isAlive())) return;
@@ -258,17 +262,23 @@ public class WLocate implements Runnable
             else
             {
                wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+               wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0,(float)-1.0);
             }
          }
          else
          {
             // TODO: disable GPS in case NO_GPS_FLAG is set and re-enable it on next call without this option
-            if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0) wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+            if ((scanFlags & FLAG_NO_GPS_ACCESS)!=0)
+            {
+               wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0);
+               wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,(float)0.0,(short)0,(float)-1.0);
+            }
             else
             {
                locationInfo.lastSpeed=m_speed;
                locationInfo.lastLocMethod=loc_info.LOC_METHOD_GPS;               
                wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0);         
+               wloc_return_position(WLOC_OK,m_lat,m_lon,m_radius,(short)0,m_cog);         
             }
          }         
       }
@@ -284,8 +294,16 @@ public class WLocate implements Runnable
       pos=new wloc_position();
       ret=get_position(locationInfo.requestData,pos);
       locationInfo.lastLocMethod=loc_info.LOC_METHOD_LIBWLOCATE;
-      if (pos.quality<=0) wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
-      else wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);                     
+      if (pos.quality<=0)
+      {
+         wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode);
+         wloc_return_position(ret,pos.lat,pos.lon,10000.0f,pos.ccode,(float)-1.0);
+      }
+      else
+      {
+         wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode);
+         wloc_return_position(ret,pos.lat,pos.lon,120-pos.quality,pos.ccode,(float)-1.0);
+      }
    }
    
    
@@ -305,6 +323,31 @@ public class WLocate implements Runnable
     *        specifies the country by calling wloc_get_country_from_code()
     */
    protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
+   {
+      
+   }
+
+   
+   
+   /**
+    * This method is called as soon as a result of a position evaluation request is available.
+    * Thus this method should be overwritten by the inheriting class to receive the results there.
+    * @param ret the return code that informs if the location evaluation request could be fulfilled
+    *        successfully or not. Only in case this parameter is equal to WLOC_OK all the other
+    *        ones can be used, elsewhere no position information could be retrieved.
+    * @param lat the latitude of the current position 
+    * @param lon the latitude of the current position 
+    * @param radius the accuracy of the position information, this radius specifies the range around
+    *        the given latitude and longitude information of the real position. The smaller this value
+    *        is the more accurate the given position information is.
+    * @param ccode code of the country where the current position is located within, in case the
+    *        country is not known, 0 is returned. The country code can be converted to a text that
+    *        specifies the country by calling wloc_get_country_from_code()
+    * @param cog the actual course over ground / bearing in range 0.0..360.0 degrees. This value is not
+    *        always available, in case the current course over ground is not known or could not evaluated
+    *        -1.0 is returned here.
+    */
+   protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode,float cog)
    {
       
    }
@@ -621,6 +664,7 @@ public class WLocate implements Runnable
 //         GPSAvailable=true;
          m_lat=gLocation.getLatitude();
          m_lon=gLocation.getLongitude();
+         m_cog=gLocation.getBearing(); // course over ground/orientation
          if (gLocation.hasSpeed()) m_speed=gLocation.getSpeed(); //m/sec
          else m_speed=-1;
          if (gLocation.hasAccuracy()) m_radius=gLocation.getAccuracy();

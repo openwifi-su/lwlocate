@@ -20,6 +20,7 @@ public class ScanData
                              uploadedCount=0,uploadedRank=0,uploadThres=0;
            WifiManager       wifiManager;
    private double            lat,lon;
+   private float             cog;
            TextView          bigCntTextHud;
            String            ownBSSID;
            HUDView           mView;
@@ -58,11 +59,12 @@ public class ScanData
    }
 
    
-   void setLatLon(double lat,double lon)
+   void setLatLonCog(double lat,double lon,float cog)
    {
       lock.lock();
       this.lat=lat;
       this.lon=lon;
+      this.cog=cog;
       lock.unlock();
    }
    
@@ -79,7 +81,6 @@ public class ScanData
    }
 
    
-   
    double getLon()
    {
       double d;
@@ -91,7 +92,17 @@ public class ScanData
    }
 
    
-   
+   float getCog()
+   {
+      float f;
+      
+      lock.lock();
+      f=cog;
+      lock.unlock();
+      return f;
+   }
+
+      
    int getFlags()
    {
 	   int val;
