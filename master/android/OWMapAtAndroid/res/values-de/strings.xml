@@ -4,7 +4,6 @@
  <string name="stat_newAPs">Eindeutig neue APs:</string>
  <string name="stat_updAPs">Bekannte aber aktualisierte APs:</string>
  <string name="stat_delAPs">Gelöschte APs (_nomap):</string>
- <string name="stat_dist_points">Bonus für Entfernung:</string>
  <string name="stat_newPoints">Neu erhaltene Punkte:</string>
  <string name="teamid">Teamleader-Nummer</string>
  <string name="teamtext">Diese Nummer identifiziert ein Team. Sie sollte allen den Usern gegeben werden, die Teammitglied werden sollen. Die Nummer selbst muss in den Einstellungen eingetragen werden:</string>

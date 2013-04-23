@@ -63,8 +63,7 @@ class UploadThread extends Thread
       WMapSlimEntry                 currEntry;
       byte                          data[]=new byte[12];
       boolean                       foundEntry,scanningEnabled;
-      double                        apDistance=0.0,prevLat=0.0,prevLon=0.0;
-      int                           apCount=0,mainFlags=0,apPoints,cnt;
+      int                           mainFlags=0,cnt;
       String                        tagName="",teamid="";
 
       System.gc();
@@ -79,7 +78,7 @@ class UploadThread extends Thread
          in.readByte(); // version
          outString=in.readUTF();
          in.close();
-         if (!uploadData(outString,0,silent))
+         if (!uploadData(outString,silent))
          {
             if (!silent)
              OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,ctx.getResources().getText(R.string.upload_problem));
@@ -143,17 +142,6 @@ class UploadThread extends Thread
             if ((lat>=-90.0) && (lat<=90.0) &&  
                 (lon>=-180.0) && (lon<=180.0))
             {
-               if ((prevLat!=0.0) && (prevLon!=0.0))
-               {
-                  double d;
-                  
-                  d=GeoUtils.latlon2dist(prevLat, prevLon, lat, lon);
-                  if (d>10.0) d=10.0;
-                  apDistance+=d;
-                  apCount++;
-               }
-               prevLat=lat;
-               prevLon=lon;
                foundEntry=false;
                currEntry=uploadMap.get(bssid);
                if (currEntry!=null)
@@ -180,8 +168,6 @@ class UploadThread extends Thread
       if (tagName.length()>20) tagName=tagName.substring(0, 20);
       outString=outString+"T\t"+tagName+"\n";
       
-      apPoints=(int)(apDistance/20/apCount);
-      if (apPoints>0) outString=outString+"D\t"+apPoints+"\n";         
       if (teamid.length()>0)
       {
          StringBuffer s=new StringBuffer(teamid);
@@ -245,7 +231,7 @@ class UploadThread extends Thread
          txt=ctx.getResources().getText(R.string.app_name)+": "+ctx.getResources().getText(R.string.uploading_data);
          OWMapAtAndroid.sendMessage(ScannerHandler.MSG_TOAST,0,0,txt);
       }                      
-      if (!uploadData(outString,apPoints,silent))
+      if (!uploadData(outString,silent))
       {
          DataOutputStream out;
          
@@ -271,7 +257,7 @@ class UploadThread extends Thread
    }
 
    
-   private boolean uploadData(String outString,int apPoints,boolean silent)
+   private boolean uploadData(String outString,boolean silent)
    {
       HttpURLConnection    c=null;
       BufferedOutputStream os=null;
@@ -377,7 +363,6 @@ ctx.deleteFile("wopendata");
                             ctx.getResources().getText(R.string.stat_newAPs).toString()+": "+newAPs+"\n"+
                             ctx.getResources().getText(R.string.stat_updAPs).toString()+": "+updAPs+"\n"+
                             ctx.getResources().getText(R.string.stat_delAPs).toString()+": "+delAPs+"\n"+
-                            ctx.getResources().getText(R.string.stat_dist_points).toString()+": "+apPoints+"\n"+
                             ctx.getResources().getText(R.string.stat_newPoints).toString()+": "+newPoints);
          ctx.deleteFile(OWMapAtAndroid.MAP_FILE);
          TotalMap.coordList.clear();
