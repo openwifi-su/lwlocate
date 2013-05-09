@@ -6,7 +6,7 @@ import java.util.*;
 import java.text.*;
 
 import com.vwp.libwlocate.*;
-import com.vwp.owmap.OWMapAtAndroid.ScannerHandler;
+import com.vwp.owmap.OWMapAtAndroid.*;
 
 import android.app.*;
 import android.content.*;
@@ -23,7 +23,7 @@ import android.hardware.*;
 public class ScanService extends Service implements Runnable, SensorEventListener
 {
    static  boolean               running=true;
-   private MyWLocate             myWLocate;
+   private MyWLocate             myWLocate=null;
    private boolean               posValid;
    private int                   posState=0,saveCnt=1000000;
    private double                lastLat=0.0,lastLon=0.0,lastRadius;
@@ -70,7 +70,25 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       else flags=PowerManager.SCREEN_DIM_WAKE_LOCK;
       wl = pm.newWakeLock(flags,"OpenWLANMap");
       wl.acquire();
-      myWLocate=new MyWLocate(this);
+      while (myWLocate==null)
+      {
+         try
+         {
+            myWLocate=new MyWLocate(this);
+            break;
+         }
+         catch (IllegalArgumentException iae)
+         {
+    	    myWLocate=null;
+         }
+         try
+         {
+        	 Thread.sleep(100);
+         }
+         catch (InterruptedException ie)
+         {        	 
+         }
+      }
       
       try
       {
@@ -656,58 +674,63 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          if ((trackCnt>500000) && (lastLat!=0) && (lastLon!=0)) 
          {
             if (SP.getBoolean("track", false))
-             uploadPosition();
+             new UploadPositionTask().execute(null,null,null);
             trackCnt=0;
          }
       }
       onDestroy(); // remove all resources (in case the thread was stopped due to some other reason
    }
 
-   protected synchronized void uploadPosition()
+   
+   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
    {
-      String                        outString;
-      HttpURLConnection             c=null;
-      DataOutputStream              os=null;
-      
-      outString=scanData.ownBSSID;
-      outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
+      protected Void doInBackground(Void... params) 
+      {
+         String                        outString;
+         HttpURLConnection             c=null;
+         DataOutputStream              os=null;
+          
+         outString=scanData.ownBSSID;
+         outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
 
-      try
-      {
-         URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
-         c= (HttpURLConnection) connectURL.openConnection();
-         if (c==null)
+         try
          {
-            return;
-         }
-        
-         c.setDoOutput(true); // enable POST
-         c.setRequestMethod("POST");
-         c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-         c.addRequestProperty("Content-Length",""+outString.length());
-         os = new DataOutputStream(c.getOutputStream());
-         os.write(outString.getBytes());
-         os.flush();
-         c.getResponseCode();
-         os.close();
-         outString=null;
-         os=null;
-      }
-      catch (IOException ioe)
-      {
-      }
-      finally
-      {
-         try 
-         {
-            if (os != null) os.close();
-            if (c != null) c.disconnect();
+            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
+            c= (HttpURLConnection) connectURL.openConnection();
+            if (c==null)
+            {
+               return null;
+            }
+            
+            c.setDoOutput(true); // enable POST
+            c.setRequestMethod("POST");
+            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+            c.addRequestProperty("Content-Length",""+outString.length());
+            os = new DataOutputStream(c.getOutputStream());
+            os.write(outString.getBytes());
+            os.flush();
+            c.getResponseCode();
+            os.close();
+            outString=null;
+            os=null;
          }
          catch (IOException ioe)
          {
-            ioe.printStackTrace();
-         } 
+         }
+         finally
+         {
+            try 
+            {
+               if (os != null) os.close();
+               if (c != null) c.disconnect();
+            }
+            catch (IOException ioe)
+            {
+               ioe.printStackTrace();
+            } 
+         }
+         return null;
       }
-   }
-      
+   }      
+
 }

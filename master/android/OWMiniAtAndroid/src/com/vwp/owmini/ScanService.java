@@ -2,27 +2,23 @@ package com.vwp.owmini;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 import com.vwp.libwlocate.*;
-import com.vwp.owmini.OWMiniAtAndroid.ScannerHandler;
+import com.vwp.owmini.OWMiniAtAndroid.*;
 
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
 import android.os.*;
 import android.net.wifi.*;
-import android.net.*;
-import android.net.wifi.WifiConfiguration.*;
 import android.preference.*;
 import android.view.*;
-import android.hardware.*;
 
 
 public class ScanService extends Service implements Runnable
 {
    static  boolean               running=true;
-   private MyWLocate             myWLocate;
+   private MyWLocate             myWLocate=null;
    private boolean               posValid;
    private int                   posState=0;
    private double                lastLat=0.0,lastLon=0.0,lastRadius;
@@ -45,8 +41,6 @@ public class ScanService extends Service implements Runnable
    public void onCreate() 
    {
       int          flags,screenLightVal=1;
-      Sensor       mSensor;
-      List<Sensor> sensors;
       
       if (scanData==null) return; // no ScanData, not possible to run correctly...
       
@@ -64,7 +58,25 @@ public class ScanService extends Service implements Runnable
       else flags=PowerManager.SCREEN_DIM_WAKE_LOCK;
       wl = pm.newWakeLock(flags,"OpenWLANMapMini");
       wl.acquire();
-      myWLocate=new MyWLocate(this);
+      while (myWLocate==null)
+      {
+         try
+         {
+            myWLocate=new MyWLocate(this);
+            break;
+         }
+         catch (IllegalArgumentException iae)
+         {
+    	    myWLocate=null;
+         }
+         try
+         {
+        	 Thread.sleep(100);
+         }
+         catch (InterruptedException ie)
+         {        	 
+         }
+      }
       
       try
       {

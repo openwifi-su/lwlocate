@@ -92,10 +92,11 @@ public class WLocate implements Runnable
     * @param ctx current context, hand over Activity object here
     */
    public WLocate(Context ctx)
+   throws IllegalArgumentException
    {      
       wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
       this.ctx=ctx;
-      startGPSLocation();      
+      startGPSLocation();  
       me=this;
       doResume();
    }
@@ -108,7 +109,7 @@ public class WLocate implements Runnable
       locationListener = new GPSLocationListener();
       location.requestLocationUpdates(LocationManager.GPS_PROVIDER,350,0,(LocationListener)locationListener);
       statusListener=new GPSStatusListener();
-      location.addGpsStatusListener(statusListener);      
+      location.addGpsStatusListener(statusListener);
    }
       
    /**

@@ -319,7 +319,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
             }
             case MSG_GET_FREIFUNK_POS_DL2:
             {
-      	       if (owmp.freifunkList.size()>0)
+       	       if ((owmp.freifunkList!=null) && (owmp.freifunkList.size()>0))
     	       {
     	          owmp.ffLv = new ListView(owmp);
                   ArrayAdapter<String> adapter = new ArrayAdapter<String>(owmp,R.layout.listviewitem,R.id.listViewItemText);

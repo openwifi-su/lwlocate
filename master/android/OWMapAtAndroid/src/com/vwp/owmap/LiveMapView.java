@@ -77,7 +77,7 @@ public class LiveMapView extends View implements Runnable
       instInner2.setStrokeWidth(7);
             
       teleBG=new Paint();
-      teleBG.setARGB(130,100,100,180);
+      teleBG.setARGB(255,130,130,140);
       teleBG.setStyle(Paint.Style.FILL);
             
       updateScreenOrientation();      
@@ -229,6 +229,7 @@ public class LiveMapView extends View implements Runnable
       double    tileLat1,tileLon1,tileLat2,tileLon2,ang;
 
       super.onDraw(c);
+      c.drawRect(0,0,this.getWidth(),this.getHeight(),teleBG);
       if ((m_lat!=0.0) && (m_lon!=0.0) && (OWMapAtAndroid.showMap))
       {
          lock.lock();
@@ -283,7 +284,6 @@ public class LiveMapView extends View implements Runnable
          ScanService.scanData.lock.unlock();
          lock.unlock();
       }
-      else if (OWMapAtAndroid.showTele) c.drawRect(0,0,this.getWidth(),this.getHeight(),teleBG);
       
       if (OWMapAtAndroid.showTele)
       {

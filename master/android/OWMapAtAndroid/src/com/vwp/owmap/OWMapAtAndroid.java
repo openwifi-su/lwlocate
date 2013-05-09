@@ -372,7 +372,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
             }
             case MSG_GET_FREIFUNK_POS_DL2:
             {
-      	       if (owmp.freifunkList.size()>0)
+      	       if ((owmp.freifunkList!=null) && (owmp.freifunkList.size()>0))
     	       {
     	          owmp.ffLv = new ListView(owmp);
                   ArrayAdapter<String> adapter = new ArrayAdapter<String>(owmp,R.layout.listviewitem,R.id.listViewItemText);
@@ -830,7 +830,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
             break;
          }
          case 7:
-            if (scannerHandler.liveMapView!=null)
+            if ((scannerHandler.liveMapView!=null) && (scannerHandler.liveMapView.telemetryData!=null))
             {
                ScanService.scanData.telemetryData.corrAccel(scannerHandler.liveMapView.telemetryData.accelX,
                                                             scannerHandler.liveMapView.telemetryData.accelY,
