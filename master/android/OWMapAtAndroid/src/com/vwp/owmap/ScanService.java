@@ -202,7 +202,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          text=dateFormat.format(new Date(System.currentTimeMillis()))+"\t";
          if (posValid) text=text+lastLat+"\t"+lastLon+"\t"+m_lastSpeed+"\t";
          else text=text+"-\t-\t-\t";
-         text=text+data.accelX+"\t"+data.accelY+"\t"+data.accelZ+"\t"+data.orientX+"\t"+data.orientY+"\t"+data.orientZ+"\n\n";         
+         text=text+data.accelX+"\t"+data.accelY+"\t"+data.accelZ+"\t"+data.cog+"\t"+data.orientY+"\t"+data.orientZ+"\n\n";         
          out.print(text);
          out.close();
 	   }
@@ -212,19 +212,19 @@ public class ScanService extends Service implements Runnable, SensorEventListene
 	}
 
 	
-	public void onSensorChanged(SensorEvent event) 
-	{
-	   synchronized (this) 
-	   {
-	      switch (event.sensor.getType())
-	      {
+   public void onSensorChanged(SensorEvent event) 
+   {
+      synchronized (this) 
+	  {
+         switch (event.sensor.getType())
+	     {
 	         case Sensor.TYPE_ACCELEROMETER:
-	            scanData.telemetryData.addAccel(event.values[0],event.values[1],event.values[2]);
+	           scanData.telemetryData.addAccel(event.values[0],event.values[1],event.values[2]);
                break;	 
             case Sensor.TYPE_ORIENTATION:
-               scanData.telemetryData.addOrient(event.values[0],event.values[1],event.values[2]);
+               scanData.telemetryData.addOrient(event.values[1],event.values[2]);
                break;    
-	      }
+	     }
          if (lastTelemetryTime==0) lastTelemetryTime=System.currentTimeMillis();
          else if (System.currentTimeMillis()-lastTelemetryTime>750)
          {
@@ -267,6 +267,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          posValid=false;
          if (ret==WLocate.WLOC_OK)
          {
+            scanData.telemetryData.addCoG(cog);
             if (radius<OWMapAtAndroid.MAX_RADIUS)
             {
 //               stopGoogleLocation();

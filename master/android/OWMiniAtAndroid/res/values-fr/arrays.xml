@@ -20,16 +20,6 @@
   <item>2</item>
   <item>3</item>
  </string-array>
- <string-array name="prefsMapTypeEntries">
-  <item>OpenStreetMap</item>
-  <item>Google Map</item>
-  <item>Google Satellite/Map</item>
- </string-array>
- <string-array name="prefsMapTypeValues">
-  <item>1</item>
-  <item>2</item>
-  <item>3</item>
- </string-array>
  <string-array name="prefsScreenLightEntries">
   <item>Eteint</item>
   <item>Faible</item>
@@ -39,31 +29,5 @@
   <item>1</item>
   <item>2</item>
   <item>3</item>
- </string-array>
- <string-array name="prefsTelemetryEntries">
-  <item>Off</item>
-  <item>Afficher</item>
-  <item>Stocker</item>
-  <item>Afficher et stocker</item>
- </string-array>
- <string-array name="prefsTelemetryValues">
-  <item>1</item>
-  <item>2</item>
-  <item>3</item>
-  <item>4</item>
- </string-array>
- <string-array name="prefsAutoUploadEntries">
-  <item>Off</item>
-  <item>à plus de 5000 PA</item>
-  <item>à plus de 10000 PA</item>
-  <item>à plus de 20000 PA</item>
-  <item>à plus de 50000 PA</item>
- </string-array>
- <string-array name="prefsAutoUploadValues">
-  <item>0</item>
-  <item>5000</item>
-  <item>10000</item>
-  <item>20000</item>
-  <item>50000</item>
  </string-array>
 </resources>

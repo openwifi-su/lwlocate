@@ -3,11 +3,11 @@ package com.vwp.owmap;
 public class TelemetryData
 {
    float accelX,accelY,accelZ;
-   float orientX,orientY,orientZ;
+   float cog,orientY,orientZ;
    float corrAccelX=0.0f,corrAccelY=0.0f,corrAccelZ=0.0f;
    float corrOrientY=0.0f,corrOrientZ=0.0f;
    float accelMax=9.81f;
-   int   accelCnt,orientCnt;
+   int   accelCnt,orientCnt,cogCnt;
 
    TelemetryData()
    {
@@ -37,9 +37,18 @@ public class TelemetryData
    }
    
    
-   void addOrient(float x,float y,float z)
+   void addCoG(float cog)
    {
-      orientX+=x;
+	  if (cog>0)
+	  {
+         this.cog+=cog;
+         cogCnt++;
+	  }
+   }
+
+   
+   void addOrient(float y,float z)
+   {
       orientY+=y;
       orientZ+=z;
       orientCnt++;
@@ -60,7 +69,8 @@ public class TelemetryData
       accelY=(data.accelY/data.accelCnt)-data.corrAccelY;
       accelZ=(data.accelZ/data.accelCnt)-data.corrAccelZ;      
       accelCnt=1;
-      orientX=data.orientX/data.orientCnt;
+      cog=data.cog/data.cogCnt;
+      cogCnt=1;
       orientY=(data.orientY/data.orientCnt)-data.corrOrientY;
       orientZ=(data.orientZ/data.orientCnt)-data.corrOrientZ;
       orientCnt=1;
@@ -70,7 +80,9 @@ public class TelemetryData
    {
       accelX=0.0f;  accelY=0.0f;  accelZ=0.0f;
       accelCnt=0;      
-      orientX=0.0f; orientY=0.0f; orientZ=0.0f;
+      cog=-1.0f;
+      cogCnt=0;
+      orientY=0.0f; orientZ=0.0f;
       orientCnt=0;      
    }
 

@@ -65,12 +65,8 @@
  <string name="prefsShowMapText">Instead of the coordinates a map is shown where the detected WLANs are shown into; this function works only with activated network access</string>
  <string name="prefsShowType">Méthode d\'affichage des réseaux</string>
  <string name="prefsShowTypeText">Configure quelles informations des réseaux sont affichés</string>
- <string name="prefsMapType">Type de carte utilisé</string>
- <string name="prefsMapTypeText">Source et style de cartes</string>
  <string name="prefsScreenLight">Eclairage de l\'écran et veille</string>
  <string name="prefsScreenLightText">Specifie le comportement de l\'écran quand l\'appareil se met en veille (redémarrage de l\'appli requis)</string>
- <string name="prefsTelemetry">Données telemetriques</string>
- <string name="prefsTelemetryText">Specifie l\'usage des données telemetriques   (il s\'agit de : l\'acceleration, la vitesse, la position, l\'angle et l\'orientation)</string>
  <string name="prefsTag">Score Tag</string>
  <string name="prefsTagText">Tagger votre entrée ans la liste officielle des scores avec un text non-unique</string>
  <string name="prefsTeam">Identifiant d\'équipe</string>
@@ -81,8 +77,6 @@
  <string name="prefsPublishText">Rend mes données disponibles au public au téléchargement depuis openwlanmap.org</string>
  <string name="prefsTrack">Track ma propre position</string>
  <string name="prefsTrackText">Track la position de cet appareil en ligne</string>
- <string name="prefsAutoUpload">Upload automatique via wifi</string>
- <string name="prefsAutoUploadText">Upload les PA collectés via la connexion wifi (redémarrage de l\'appli requis)</string>
 
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>

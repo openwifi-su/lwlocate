@@ -20,16 +20,6 @@
   <item>2</item> 
   <item>3</item> 
  </string-array> 
- <string-array name="prefsMapTypeEntries">         
-  <item>OpenStreetMap</item> 
-  <item>Google Map</item> 
-  <item>Google Satellite/Map</item> 
- </string-array>    
- <string-array name="prefsMapTypeValues">         
-  <item>1</item> 
-  <item>2</item> 
-  <item>3</item> 
- </string-array> 
  <string-array name="prefsScreenLightEntries">         
   <item>Turn Off</item> 
   <item>Dim</item> 
@@ -39,17 +29,5 @@
   <item>1</item> 
   <item>2</item> 
   <item>3</item> 
- </string-array> 
- <string-array name="prefsTelemetryEntries">         
-  <item>Off</item> 
-  <item>Show</item> 
-  <item>Store</item> 
-  <item>Show and Store</item> 
- </string-array>    
- <string-array name="prefsTelemetryValues">         
-  <item>1</item> 
-  <item>2</item> 
-  <item>3</item> 
-  <item>4</item> 
  </string-array> 
 </resources>

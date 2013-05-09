@@ -315,12 +315,14 @@ public class LiveMapView extends View implements Runnable
             double x1,y1;
             
             x=66; y=useHeight+75;         
-            ang=(float)((telemetryData.orientX+90)*Math.PI/180.0);
-            x1=x+48.0*Math.cos(ang);
-            y1=y+48.0*Math.sin(ang);
-
+            if (telemetryData.cog>0)
+            {
+               ang=(float)((telemetryData.cog+90)*Math.PI/180.0);
+               x1=x+48.0*Math.cos(ang);
+               y1=y+48.0*Math.sin(ang);
+               c.drawLine(x,y,(float)x1,(float)y1,instInner2);
+            }
             c.drawCircle(x,y,51,instInner2);
-            c.drawLine(x,y,(float)x1,(float)y1,instInner2);            
             
             fac=110/50.0f;
             val=telemetryData.orientY*fac;
