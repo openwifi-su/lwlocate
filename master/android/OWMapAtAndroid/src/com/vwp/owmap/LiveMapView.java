@@ -21,7 +21,7 @@ public class LiveMapView extends View implements Runnable
 {
    private Bitmap    wlanBitmap,openWlanBitmap,freifunkWlanBitmap;
    private double    m_lat,m_lon;
-   private Paint     wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG;
+   private Paint     wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG,pWhite,pRed,pBlack;
    public  final int m_zoom=17;
    private Thread    tilesThread;
    private boolean   allowThread=false;
@@ -77,8 +77,21 @@ public class LiveMapView extends View implements Runnable
       instInner2.setStrokeWidth(7);
             
       teleBG=new Paint();
-      teleBG.setARGB(255,130,130,140);
+      teleBG.setARGB(255,120,120,140);
       teleBG.setStyle(Paint.Style.FILL);
+            
+      pWhite=new Paint();
+      pWhite.setARGB(210,250,250,255);
+      pWhite.setStyle(Paint.Style.FILL);
+            
+      pRed=new Paint();
+      pRed.setARGB(190,255,0,0);
+      pRed.setStyle(Paint.Style.STROKE);
+      pRed.setStrokeWidth(26);
+            
+      pBlack=new Paint();
+      pBlack.setARGB(200,0,0,5);
+      pBlack.setStyle(Paint.Style.FILL);
             
       updateScreenOrientation();      
    }
@@ -224,12 +237,19 @@ public class LiveMapView extends View implements Runnable
    public void onDraw (Canvas c)
    {
       WMapEntry entry;
-      int       x,y,i;
+      int       x,y,i,lOffset=0;
       float     cx,cy,val,fac;
       double    tileLat1,tileLon1,tileLat2,tileLon2,ang;
 
       super.onDraw(c);
-      c.drawRect(0,0,this.getWidth(),this.getHeight(),teleBG);
+      
+      if (((m_lat!=0.0) && (m_lon!=0.0) && (OWMapAtAndroid.showMap)) ||
+    	  (OWMapAtAndroid.showTele) ||
+          (OWMapAtAndroid.showSLimit>0))
+      {
+         c.drawRect(0,0,this.getWidth(),this.getHeight(),teleBG);
+      }
+      
       if ((m_lat!=0.0) && (m_lon!=0.0) && (OWMapAtAndroid.showMap))
       {
          lock.lock();
@@ -291,6 +311,7 @@ public class LiveMapView extends View implements Runnable
          c.drawRect(10,10,40,useHeight,instColour);
          c.drawRect(50,10,80,useHeight,instColour);
          c.drawRect(90,10,120,useHeight,instColour);
+         lOffset=125;
 
          c.drawRect(10,useHeight+20,120,useHeight+130,instColour);      
       
@@ -342,6 +363,14 @@ public class LiveMapView extends View implements Runnable
          c.drawLine(5,10+cy,125,10+cy,instColour);
          c.drawLine(12,useHeight+75,120,useHeight+75,instColour);
          c.drawLine(65,useHeight+21,65,useHeight+129,instColour);
-      } // 0o9ilokpop´ß0poizu7u8iop
+      }
+      if (OWMapAtAndroid.showSLimit>0)
+      {
+    	 if (OWMapAtAndroid.currSLimit>0)
+    	 {
+            c.drawCircle(lOffset+120,120,97,pRed);
+            c.drawCircle(lOffset+120,120,84,pWhite);
+    	 }
+      }
    }
 }
