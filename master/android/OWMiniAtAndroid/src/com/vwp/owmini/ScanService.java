@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 
 import com.vwp.libwlocate.*;
+import com.vwp.libwlocate.map.GeoUtils;
 import com.vwp.owmini.OWMiniAtAndroid.*;
 
 import android.app.*;
@@ -169,26 +170,14 @@ public class ScanService extends Service implements Runnable
          {
             if (radius<OWMiniAtAndroid.MAX_RADIUS)
             {
-//               stopGoogleLocation();
-               posValid=true;
+               if (GeoUtils.latlon2dist(lat,lon,lastLat,lastLon)<10)
+               {
+            	  posValid=true; // use the position only when there is no too big jump in distance- elsewhere it could be a GPS bug
+                  ScanService.scanData.setLatLon(lastLat,lastLon);
+               }
                lastLat=lat;
                lastLon=lon;
-               ScanService.scanData.setLatLon(lat, lon);
-               posState=2;         
-               scanThread.interrupt();
             }
-/*            else if ((scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0)
-            {
-               startGoogleLocation();               
-               if (System.currentTimeMillis()-lastLocationMillis<1000)
-               {
-                  lastRadius=m_radius;
-                  lastLat=m_lat;
-                  lastLon=m_lon;
-                  posState=100;
-                  scanThread.interrupt();
-               }
-            }*/
             lastRadius=radius;
          }
          else

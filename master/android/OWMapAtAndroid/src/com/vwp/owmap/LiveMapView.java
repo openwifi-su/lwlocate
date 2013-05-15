@@ -19,22 +19,24 @@ class LiveMapData
 
 public class LiveMapView extends View implements Runnable
 {
-   private Bitmap    wlanBitmap,openWlanBitmap,freifunkWlanBitmap;
-   private double    m_lat,m_lon;
-   private Paint     wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG,pWhite,pRed,pBlack;
-   public  final int m_zoom=17;
-   private Thread    tilesThread;
-   private boolean   allowThread=false;
-   private LiveMapData[] mapData=new LiveMapData[2];
-   private int           currMap=0;
-   private GeoUtils      geoUtils=new GeoUtils(GeoUtils.MODE_GSMAP);
-   private Lock          lock=new ReentrantLock();
-           TelemetryData telemetryData=null;
-   private int           useHeight;
+   private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap;
+   private double         m_lat,m_lon;
+   private Paint          wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG,pWhite,pRed,pBlack;
+   public  final int      m_zoom=17;
+   private Thread         tilesThread;
+   private boolean        allowThread=false;
+   private LiveMapData[]  mapData=new LiveMapData[2];
+   private int            currMap=0;
+   private GeoUtils       geoUtils=new GeoUtils(GeoUtils.MODE_GSMAP);
+   private Lock           lock=new ReentrantLock();
+           TelemetryData  telemetryData=null;
+   private int            useHeight;
+   private OWMapAtAndroid m_ctx;
    
-   public LiveMapView(Context ctx)
+   public LiveMapView(OWMapAtAndroid ctx)
    {
       super(ctx);
+      m_ctx=ctx;
       mapData[0]=new LiveMapData();
       mapData[1]=new LiveMapData();
       setWillNotDraw(false);
@@ -364,12 +366,12 @@ public class LiveMapView extends View implements Runnable
          c.drawLine(12,useHeight+75,120,useHeight+75,instColour);
          c.drawLine(65,useHeight+21,65,useHeight+129,instColour);
       }
-      if (OWMapAtAndroid.showSLimit>0)
+      if ((OWMapAtAndroid.showSLimit>0) && (m_ctx!=null) && (!m_ctx.noNetAccCB.isChecked()))
       {
-    	 if (OWMapAtAndroid.currSLimit>0)
+//    	 if (OWMapAtAndroid.currSLimit>0)
     	 {
-            c.drawCircle(lOffset+120,120,97,pRed);
-            c.drawCircle(lOffset+120,120,84,pWhite);
+            c.drawCircle(lOffset+110,110,87,pRed);
+            c.drawCircle(lOffset+110,110,74,pWhite);
     	 }
       }
    }

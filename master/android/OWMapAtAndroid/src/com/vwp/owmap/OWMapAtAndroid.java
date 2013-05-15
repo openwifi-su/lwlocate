@@ -51,7 +51,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
 //   private SensorManager          mSensorManager=null;
 //   private Sensor                 mAccelerometer=null;
 //   private EditText               accXField,accYField,accZField,accuracyField;
-   private CheckBox              noNetAccCB;
+           CheckBox              noNetAccCB;
    private OWMapAtAndroid        ctx;
    static  boolean               showMap=false,showTele=false,doTrack=true,hasPosLock=false;
    static  byte                  showSLimit=0,currSLimit=0;
