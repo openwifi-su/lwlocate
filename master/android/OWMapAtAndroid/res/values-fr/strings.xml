@@ -43,7 +43,8 @@
  <string name="ap_count">Compteur de PA WiFi</string>
  <string name="credits">Credits</string>
  <string name="help">Aide</string>
- <string name="calib_tele">Calibrater les capteurs</string>
+ <string name="calib_tele">Calibrater les capteurs télémétrie</string>
+ <string name="calib_orient">Calibrater le capteur orientation</string>
  <string name="help_txt">Couleur du gros compteur de réseau wifi:\nrouge - pas de localisation et pas de tracage wifi\njaune - localisation à partir du wifi\nblanc - GPS verouillé\n\nCouleur des réseaux wifi listés:\nrouge - _nomap-marked opt-out-network\nbleu - réseau ouvert non chiffré\nvert - réseau ouvert Freifunk\nblanc - autre réseau privé</string>
  <string name="do_scan">Active le scan</string>
  <string name="map_dl_failure">Impossible de télécharger la carte. Peut-être que vous n\'avez pas de connection internet ou vous n\'avez pas encore uploadé de données?</string>

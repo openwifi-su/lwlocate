@@ -44,6 +44,7 @@
  <string name="credits">Credits</string>
  <string name="help">Help</string>
  <string name="calib_tele">Calibrate Telemetry Sensors</string>    
+ <string name="calib_orient">Calibrate Orientation Sensor</string>    
  <string name="help_txt">Colours of big WLAN-counters:\nred - no localisation and no WLAN tracing\nyellow - WLAN-based localisation\nwhite - GPS lock\n\nColours of listed WLANs:\nred - _nomap-marked opt-out-network\nblue - open, unencrypted network\ngreen - open Freifunk network\nwhite - other private network</string>
  <string name="do_scan">Enable scanning</string>
  <string name="map_dl_failure">Could not download map. Maybe you don\'t have a network connection or have not uploaded any data yet?</string>

@@ -17,10 +17,9 @@ public class ScanData
    private int               freifunkWLANs=0;
            boolean           isActive=true,scanningEnabled=true,hudCounter=false,appVisible=false,storeTele=false;
            int               viewMode=OWMapAtAndroid.VIEW_MODE_MAIN,threadMode=OWMapAtAndroid.THREAD_MODE_SCAN,
-                             uploadedCount=0,uploadedRank=0,uploadThres=0;
+                             uploadedCount=0,uploadedRank=0,uploadThres=0,currSLimit=0;
            WifiManager       wifiManager;
    private double            lat,lon;
-   private float             cog;
            TextView          bigCntTextHud;
            String            ownBSSID;
            HUDView           mView;
@@ -59,15 +58,13 @@ public class ScanData
    }
 
    
-   void setLatLonCog(double lat,double lon,float cog)
+   void setLatLon(double lat,double lon)
    {
       lock.lock();
       this.lat=lat;
       this.lon=lon;
-      this.cog=cog;
       lock.unlock();
    }
-   
    
    
    double getLat()
@@ -92,16 +89,6 @@ public class ScanData
    }
 
    
-   float getCog()
-   {
-      float f;
-      
-      lock.lock();
-      f=cog;
-      lock.unlock();
-      return f;
-   }
-
       
    int getFlags()
    {

@@ -43,6 +43,7 @@
  <string name="ap_count">Anzahl WiFi APs</string>
  <string name="credits">Danksagung</string>    
  <string name="calib_tele">Kalibriere Telemetriesensoren</string>    
+ <string name="calib_orient">Kalibriere Orientierungssensor</string>    
  <string name="help">Hilfe</string>    
  <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - offenes Freifunk-Netzwerk\nweiß - anderes, privates Netzwerk</string>
  <string name="do_scan">Scan aktivieren</string>

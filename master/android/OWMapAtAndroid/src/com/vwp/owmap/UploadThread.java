@@ -8,7 +8,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import com.vwp.libwlocate.map.*;
 import com.vwp.owmap.OWMapAtAndroid.*;
 
 class UploadThread extends Thread

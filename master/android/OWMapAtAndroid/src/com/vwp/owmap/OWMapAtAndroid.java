@@ -54,7 +54,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
            CheckBox              noNetAccCB;
    private OWMapAtAndroid        ctx;
    static  boolean               showMap=false,showTele=false,doTrack=true,hasPosLock=false;
-   static  byte                  showSLimit=0,currSLimit=0;
+   static  byte                  showSLimit=0;
    private TextView              rankText;
    private TableRow              mapTableRow;
            ScannerHandler        scannerHandler=null;
@@ -770,10 +770,15 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       if (scannerHandler.liveMapView.telemetryData==null)
        prefsMenuItem.setEnabled(false);
      
-      prefsMenuItem = pMenu.add(0, 8, Menu.NONE,R.string.help);
+      prefsMenuItem = pMenu.add(0, 8, Menu.NONE,R.string.calib_orient);
+      prefsMenuItem.setIcon(android.R.drawable.ic_menu_directions);
+      if (scannerHandler.liveMapView.telemetryData==null)
+       prefsMenuItem.setEnabled(false);
+     
+      prefsMenuItem = pMenu.add(0, 9, Menu.NONE,R.string.help);
       prefsMenuItem.setIcon(android.R.drawable.ic_menu_help);
       
-      prefsMenuItem = pMenu.add(0, 9, Menu.NONE,R.string.credits);
+      prefsMenuItem = pMenu.add(0, 10, Menu.NONE,R.string.credits);
       prefsMenuItem.setIcon(android.R.drawable.ic_menu_info_details);
       
       return super.onCreateOptionsMenu(pMenu);  
@@ -844,9 +849,16 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
             }
             break;
          case 8:
+             if ((scannerHandler.liveMapView!=null) && (scannerHandler.liveMapView.telemetryData!=null))
+             {
+                ScanService.scanData.telemetryData.corrCoG(scannerHandler.liveMapView.telemetryData.CoG);
+                ScanService.scanData.service.storeConfig();
+             }
+             break;
+         case 9:
             simpleAlert(getResources().getText(R.string.help_txt).toString(),null,ALERT_OK);
             break;
-         case 9:
+         case 10:
             simpleAlert("Credits go to: XcinnaY, Tobias, Volker, Keith and Christian\n...for translations, help, ideas, testing and detailed feedback\nThe OpenStreetMap team for map data",null,ALERT_OK);
             break;
          default:
@@ -874,7 +886,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
          ScanService.scanData.telemetryData.corrAccelX=in.readFloat();
          ScanService.scanData.telemetryData.corrAccelY=in.readFloat();
          ScanService.scanData.telemetryData.corrAccelZ=in.readFloat();
-         in.readFloat();
+         ScanService.scanData.telemetryData.corrCoG=in.readFloat();
          ScanService.scanData.telemetryData.corrOrientY=in.readFloat();
          ScanService.scanData.telemetryData.corrOrientZ=in.readFloat();
          in.close();
@@ -1154,33 +1166,4 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       super.onPause();      
    }
 
-   
-   
-/*   public void onAccuracyChanged(Sensor sensor, int accuracy) 
-   {
-   }
-
-   
-   
-   public void onSensorChanged(SensorEvent event) 
-   {
-      Sensor sensor;
-      
-      sensor=event.sensor;
-      if (sensor.getType()==Sensor.TYPE_ACCELEROMETER)
-      {
-         if (event.accuracy==SensorManager.SENSOR_STATUS_UNRELIABLE)
-         {
-            accXField.setText("---");
-            accYField.setText("---");
-            accZField.setText("---");            
-         }
-         else
-         {
-            accXField.setText(""+event.values[0]);
-            accYField.setText(""+event.values[1]);
-            accZField.setText(""+event.values[2]);
-         }
-      }
-   }*/
 }

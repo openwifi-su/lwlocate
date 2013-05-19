@@ -4,6 +4,7 @@ import java.util.concurrent.locks.*;
 
 import android.content.*;
 import android.graphics.*;
+import android.graphics.Paint.Align;
 import android.view.*;
 
 import com.vwp.libwlocate.map.*;
@@ -31,12 +32,10 @@ public class LiveMapView extends View implements Runnable
    private Lock           lock=new ReentrantLock();
            TelemetryData  telemetryData=null;
    private int            useHeight;
-   private OWMapAtAndroid m_ctx;
    
-   public LiveMapView(OWMapAtAndroid ctx)
+   public LiveMapView(Context ctx)
    {
       super(ctx);
-      m_ctx=ctx;
       mapData[0]=new LiveMapData();
       mapData[1]=new LiveMapData();
       setWillNotDraw(false);
@@ -94,6 +93,10 @@ public class LiveMapView extends View implements Runnable
       pBlack=new Paint();
       pBlack.setARGB(200,0,0,5);
       pBlack.setStyle(Paint.Style.FILL);
+      pBlack.setStrokeWidth(3);
+      pBlack.setTextSize(86);
+      pBlack.setTextAlign(Align.CENTER);
+      pBlack.setTextScaleX(0.90f);
             
       updateScreenOrientation();      
    }
@@ -338,13 +341,10 @@ public class LiveMapView extends View implements Runnable
             double x1,y1;
             
             x=66; y=useHeight+75;         
-            if (telemetryData.cog>0)
-            {
-               ang=(float)((telemetryData.cog+90)*Math.PI/180.0);
-               x1=x+48.0*Math.cos(ang);
-               y1=y+48.0*Math.sin(ang);
-               c.drawLine(x,y,(float)x1,(float)y1,instInner2);
-            }
+            ang=(float)((telemetryData.CoG)*Math.PI/180.0);
+            x1=x+48.0*Math.cos(ang);
+            y1=y+48.0*Math.sin(ang);
+            c.drawLine(x,y,(float)x1,(float)y1,instInner2);
             c.drawCircle(x,y,51,instInner2);
             
             fac=110/50.0f;
@@ -366,12 +366,14 @@ public class LiveMapView extends View implements Runnable
          c.drawLine(12,useHeight+75,120,useHeight+75,instColour);
          c.drawLine(65,useHeight+21,65,useHeight+129,instColour);
       }
-      if ((OWMapAtAndroid.showSLimit>0) && (m_ctx!=null) && (!m_ctx.noNetAccCB.isChecked()))
+      if ((OWMapAtAndroid.showSLimit>0) && ((ScanService.scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0))
       {
-//    	 if (OWMapAtAndroid.currSLimit>0)
+    	 if (ScanService.scanData.currSLimit!=0)
     	 {
             c.drawCircle(lOffset+110,110,87,pRed);
             c.drawCircle(lOffset+110,110,74,pWhite);
+            if (ScanService.scanData.currSLimit>0) c.drawText(""+ScanService.scanData.currSLimit,lOffset+110,138,pBlack);
+            else c.drawText("???",lOffset+110,138,pBlack);
     	 }
       }
    }
