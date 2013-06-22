@@ -54,7 +54,6 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
            CheckBox              noNetAccCB;
    private OWMapAtAndroid        ctx;
    static  boolean               showMap=false,showTele=false,doTrack=true,hasPosLock=false;
-   static  byte                  showSLimit=0;
    private TextView              rankText;
    private TableRow              mapTableRow;
            ScannerHandler        scannerHandler=null;
@@ -1126,19 +1125,6 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       
 //       mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
       if (wl!=null) wl.acquire();
-      {
-         String sLimitPath;
-         File   sLimitFile;
-         
-         sLimitPath=Environment.getExternalStorageDirectory().getPath()+"/com.vwp.geoutils/";
-         sLimitFile=new File(sLimitPath+"kmh");
-         if (sLimitFile.exists()) OWMapAtAndroid.showSLimit=1;
-         else
-         {
-            sLimitFile=new File(sLimitPath+"mph");
-            if (sLimitFile.exists()) OWMapAtAndroid.showSLimit=2;
-         }
-      }
    }
 
    

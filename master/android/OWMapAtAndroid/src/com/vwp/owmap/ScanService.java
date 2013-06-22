@@ -34,7 +34,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    private MyWLocate             myWLocate=null;
    private boolean               posValid;
    private int                   posState=0,saveCnt=1000000;
-   private double                lastLat=0.0,lastLon=0.0,lastSLat=0.0,lastSLon=0.0,lastValidSLat=0.0,lastValidSLon=0.0,lastRadius;
+   private double                lastLat=0.0,lastLon=0.0,lastRadius;
    private Thread                scanThread;
    private PowerManager.WakeLock wl=null;
    private PowerManager          pm;
@@ -48,7 +48,6 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    private float                 m_lastSpeed;
    private UploadThread          m_uploadThread;
    private Notification          notification;
-   private SpeedLimitTask        slTask=null;
 
 	@Override
 	public IBinder onBind(Intent arg) 
@@ -287,18 +286,6 @@ public class ScanService extends Service implements Runnable, SensorEventListene
             {
                if (GeoUtils.latlon2dist(lat,lon,lastLat,lastLon)<10)
                {
-            	  if (GeoUtils.latlon2dist(lat,lon,lastSLat,lastSLon)>0.100)
-            	  {
-            	     if ((slTask==null) &&
-            	         ((scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0) &&
-            	         (scanData.isActive))
-            	     {
-                        lastSLat=lat;
-                        lastSLon=lon;
-            	        slTask=new SpeedLimitTask();
-            	        slTask.execute(lat,lon,scanData.telemetryData.getCoG());
-            	     }
-            	  }
                   posValid=true; // use the position only when there is no too big jump in distance- elsewhere it could be a GPS bug
                   ScanService.scanData.setLatLon(lastLat,lastLon);
                }
@@ -558,11 +545,18 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         }
                         if (!foundExisting)
                         {
+                           String lowerSSID;
+                           
                            storedValues=scanData.incStoredValues();
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           if (result.SSID.endsWith("_nomap")) currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
+                           lowerSSID=result.SSID.toLowerCase();
+                           if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
+                        	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
+                        	   currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else if (isFreifunkWLAN(result)) currEntry.flags|=(WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_OPEN);                                          
                            else if (isOpenWLAN(result)) currEntry.flags|=WMapEntry.FLAG_IS_OPEN;                                          
                            if ((currEntry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0) scanData.incFreifunkWLANs();
@@ -750,105 +744,4 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    }      
 
    
-   private class SpeedLimitTask extends AsyncTask<Double,Void,Void>
-   {
-      protected Void doInBackground(Double... params) 
-      {
-/*    	 String url;
-    	 int    minCoG=1000,minMPH=0,minKPH=0,currCoG=1000,currMPH=0,currKPH=0;
-    	 
-    	 url="http://www.wikispeedia.org/a/marks_bb2.php?name=all&nelat="+(params[0]+0.00035)+
-    	     "&swlat="+(params[0]-0.00035)+
-    	     "&nelng="+(params[1]+0.00035)+
-    	     "&swlng="+(params[1]-0.00035); // 0.00045
-    	 
-    	 InputStream content = null;
-    	 try 
-    	 {
-    	    HttpClient httpclient = new DefaultHttpClient();
-    	    HttpResponse response = httpclient.execute(new HttpGet(url));
-    	    content = response.getEntity().getContent();
-    	    
-    	    XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XmlPullParser xpp = factory.newPullParser();
-            xpp.setInput(content,"UTF-8");
-            int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) 
-            {
-               if(eventType == XmlPullParser.START_TAG) 
-               {
-                  if (xpp.getName().equalsIgnoreCase("marker"))
-                  {
-                     for (int i=0; i<xpp.getAttributeCount(); i++)
-                     {
-                        if (xpp.getAttributeName(i).equalsIgnoreCase("kph"))
-                        {
-                           try
-                           {
-                              currKPH=Integer.valueOf(xpp.getAttributeValue(i)).intValue();
-                           }
-                           catch (NumberFormatException nfe)
-                           {                        	   
-                           }
-                        }
-                        else if (xpp.getAttributeName(i).equalsIgnoreCase("mph"))
-                        {
-                           try
-                           {
-                              currMPH=Integer.valueOf(xpp.getAttributeValue(i)).intValue();
-                           }
-                           catch (NumberFormatException nfe)
-                           {                         	   
-                           }                        	
-                        }
-                        else if (xpp.getAttributeName(i).equalsIgnoreCase("cog"))
-                        {
-                           try
-                           {
-                              currCoG=Integer.valueOf(xpp.getAttributeValue(i)).intValue();
-                           }
-                           catch (NumberFormatException nfe)
-                           {                         	   
-                           }                        	                        	
-                        }
-                     }
-                  }
-               }
-               else if(eventType == XmlPullParser.END_TAG) 
-               {
-                  if ((xpp.getName().equalsIgnoreCase("marker")) && (Math.abs(currCoG-params[2])<minCoG) && (Math.abs(currCoG-params[2])<=90))
-                  {
-                     minCoG=currCoG;
-                     minKPH=currKPH;
-                     minMPH=currMPH;
-                  }
-               }
-               eventType = xpp.next();
-            }
-         } 
-    	 catch (Exception e) 
-    	 {
-         }
-    	 if ((currKPH>0) || (currMPH>0))
-    	 {
-    		if (minKPH>0) scanData.currSLimit=minKPH;
-    		else scanData.currSLimit=(int)(minMPH*1.61);
-            lastValidSLat=params[0];
-            lastValidSLon=params[1];
-    	 }  
-    	 else
-    	 {
-    		double dist;
-    		
-    		dist=GeoUtils.latlon2dist(lastValidSLat,lastValidSLon,params[0],params[1]);
-    	    if (dist>4) scanData.currSLimit=0;
-    	    else if (dist>2) scanData.currSLimit=-1;
-    	    	
-    	 }*/
-    	 
-    	 slTask=null;
-         return null;
-      }
-   }      
 }

@@ -22,7 +22,7 @@ public class LiveMapView extends View implements Runnable
 {
    private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap;
    private double         m_lat,m_lon;
-   private Paint          wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG,pWhite,pRed,pBlack;
+   private Paint          wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG;
    public  final int      m_zoom=17;
    private Thread         tilesThread;
    private boolean        allowThread=false;
@@ -80,24 +80,7 @@ public class LiveMapView extends View implements Runnable
       teleBG=new Paint();
       teleBG.setARGB(255,120,120,140);
       teleBG.setStyle(Paint.Style.FILL);
-            
-      pWhite=new Paint();
-      pWhite.setARGB(210,250,250,255);
-      pWhite.setStyle(Paint.Style.FILL);
-            
-      pRed=new Paint();
-      pRed.setARGB(190,255,0,0);
-      pRed.setStyle(Paint.Style.STROKE);
-      pRed.setStrokeWidth(26);
-            
-      pBlack=new Paint();
-      pBlack.setARGB(200,0,0,5);
-      pBlack.setStyle(Paint.Style.FILL);
-      pBlack.setStrokeWidth(3);
-      pBlack.setTextSize(86);
-      pBlack.setTextAlign(Align.CENTER);
-      pBlack.setTextScaleX(0.90f);
-            
+                        
       updateScreenOrientation();      
    }
    
@@ -242,15 +225,14 @@ public class LiveMapView extends View implements Runnable
    public void onDraw (Canvas c)
    {
       WMapEntry entry;
-      int       x,y,i,lOffset=0;
+      int       x,y,i;
       float     cx,cy,val,fac;
       double    tileLat1,tileLon1,tileLat2,tileLon2,ang;
 
       super.onDraw(c);
       
       if (((m_lat!=0.0) && (m_lon!=0.0) && (OWMapAtAndroid.showMap)) ||
-    	  (OWMapAtAndroid.showTele) ||
-          (OWMapAtAndroid.showSLimit>0))
+    	  (OWMapAtAndroid.showTele))
       {
          c.drawRect(0,0,this.getWidth(),this.getHeight(),teleBG);
       }
@@ -297,7 +279,6 @@ public class LiveMapView extends View implements Runnable
             }
             else if ((entry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0)
             {
-               c.drawCircle(cx-0.5f, cy-1,10, freifunkWlanColour);
                c.drawBitmap(freifunkWlanBitmap,cx-7,cy-7,null);
             }
             else
@@ -316,7 +297,6 @@ public class LiveMapView extends View implements Runnable
          c.drawRect(10,10,40,useHeight,instColour);
          c.drawRect(50,10,80,useHeight,instColour);
          c.drawRect(90,10,120,useHeight,instColour);
-         lOffset=125;
 
          c.drawRect(10,useHeight+20,120,useHeight+130,instColour);      
       
@@ -365,16 +345,6 @@ public class LiveMapView extends View implements Runnable
          c.drawLine(5,10+cy,125,10+cy,instColour);
          c.drawLine(12,useHeight+75,120,useHeight+75,instColour);
          c.drawLine(65,useHeight+21,65,useHeight+129,instColour);
-      }
-      if ((OWMapAtAndroid.showSLimit>0) && ((ScanService.scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0))
-      {
-    	 if (ScanService.scanData.currSLimit!=0)
-    	 {
-            c.drawCircle(lOffset+110,110,87,pRed);
-            c.drawCircle(lOffset+110,110,74,pWhite);
-            if (ScanService.scanData.currSLimit>0) c.drawText(""+ScanService.scanData.currSLimit,lOffset+110,138,pBlack);
-            else c.drawText("???",lOffset+110,138,pBlack);
-    	 }
       }
    }
 }
