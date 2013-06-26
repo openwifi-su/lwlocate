@@ -9,13 +9,6 @@ import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
 import com.vwp.owmap.OWMapAtAndroid.*;
 
-import org.xmlpull.v1.*;
-
-import org.apache.http.*;
-import org.apache.http.impl.client.*; 
-import org.apache.http.client.*;
-import org.apache.http.client.methods.*;
-
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
@@ -556,7 +549,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
-                        	   currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
+                        	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else if (isFreifunkWLAN(result)) currEntry.flags|=(WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_OPEN);                                          
                            else if (isOpenWLAN(result)) currEntry.flags|=WMapEntry.FLAG_IS_OPEN;                                          
                            if ((currEntry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0) scanData.incFreifunkWLANs();
