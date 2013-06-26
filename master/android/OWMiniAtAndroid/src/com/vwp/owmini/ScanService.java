@@ -395,11 +395,18 @@ public class ScanService extends Service implements Runnable
                         }
                         if (!foundExisting)
                         {
+                           String lowerSSID;
+                            
                            storedValues=scanData.incStoredValues();
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           if (result.SSID.endsWith("_nomap")) currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
+                           lowerSSID=result.SSID.toLowerCase();
+                           if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
+                        	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
+                        	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else if (isFreifunkWLAN(result)) currEntry.flags|=(WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_OPEN);                                          
                            else if (isOpenWLAN(result)) currEntry.flags|=WMapEntry.FLAG_IS_OPEN;                                          
                            scanData.wmapList.add(currEntry);
