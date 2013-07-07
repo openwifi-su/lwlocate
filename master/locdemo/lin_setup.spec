@@ -9,13 +9,13 @@ Requires: wxGTK, wireless-tools
 %description
 A WLAN geolocation demonstration application that makes use of libwlocate and the data of project OpenWLANMap. It is recommended to execute this application with root privileges to get more detailed WLAN information and to get a more exact position information.
 %files
-/usr/bin/LocDemo
-/usr/bin/wlocd
-/usr/bin/lwtrace
-/usr/share/applications/fedora-locdemo.desktop
-/usr/share/icons/LocDemo-icon.png
-/usr/lib/libwlocate.so
-/etc/init.d/wlocd
+%{_bindir}/LocDemo
+%{_bindir}/wlocd
+%{_bindir}/lwtrace
+%{_datadir}/icons/LocDemo-icon.png
+%{_datadir}/applications/fedora-locdemo.desktop
+%{_libdir}/libwlocate.so
+%{_initrddir}/wlocd
 
 %pre
 if [ -x /sbin/LocDemo ]; then
