@@ -1,6 +1,6 @@
 Summary: LocDemo libwlocate demo application
 Name: LocDemo
-Version: 1.1
+Version: 1.2
 Release: 1
 License: GPL
 Packager: http://www.openwlanmap.org
@@ -9,8 +9,14 @@ Requires: wxGTK, wireless-tools
 %description
 A WLAN geolocation demonstration application that makes use of libwlocate and the data of project OpenWLANMap. It is recommended to execute this application with root privileges to get more detailed WLAN information and to get a more exact position information.
 %files
-/etc/init.d/*
-/usr/*
+/usr/bin/LocDemo
+/usr/bin/wlocd
+/usr/bin/lwtrace
+/usr/share/applications/fedora-locdemo.desktop
+/usr/share/icons/LocDemo-icon.png
+/usr/lib/libwlocate.so
+/etc/init.d/wlocd
+
 %pre
 if [ -x /sbin/LocDemo ]; then
    rm -f /sbin/LocDemo
@@ -31,3 +37,4 @@ ln -s /etc/init.d/wlocd /etc/rc3.d/S99wlocd 1>/dev/null 2>/dev/null
 ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd 1>/dev/null 2>/dev/null
 ldconfig
 /etc/init.d/wlocd start 1>/dev/null 2>/dev/null
+
