@@ -16,7 +16,7 @@ endif
 CXXSOURCES = LocDemoApp.cpp LocDemoWin.cpp
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
-CXXFLAGS = -Wall -DESRI_UNIX -DENV_LINUX $(INCLUDEDIRS) $(DBGFLAGS)
+CXXFLAGS = -Wall -Wno-unused-local-typedefs -DESRI_UNIX -DENV_LINUX $(INCLUDEDIRS) $(DBGFLAGS)
 CXX = g++
 
 LDFLAGS = $(LIBDIRS) $(LIBS)
