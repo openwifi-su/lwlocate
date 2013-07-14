@@ -6,7 +6,7 @@ public class MapOverlay
 {
    protected int m_zoom,tileX,tileY; // static to keep previous values
    
-   public void onDraw (Canvas canvas,double lonMin,double lonMax,double latMin,double latMax,Bitmap drawMap)
+   public void doDraw(Canvas canvas,double lonMin,double lonMax,double latMin,double latMax,Bitmap drawMap)
    {
 
    }

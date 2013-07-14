@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<resources> 
+ <string-array name="prefsTextSizeEntries">         
+  <item>Klein</item> 
+  <item>Mittel</item> 
+  <item>Groß</item> 
+ </string-array>    
+ <string-array name="prefsTextSizeValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array> 
+ <string-array name="prefsShowTypeEntries">         
+  <item>Nur BSSID / MAC-Addresse</item> 
+  <item>Nur SSID / Netzwerkname</item> 
+  <item>BSSID und SSID zusammen</item> 
+ </string-array>    
+ <string-array name="prefsShowTypeValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array>    
+ <string-array name="prefsScreenLightEntries">         
+  <item>Ausschalten</item> 
+  <item>Abdunkeln</item> 
+  <item>Volle Helligkeit halten</item> 
+ </string-array>    
+ <string-array name="prefsScreenLightValues">         
+  <item>1</item> 
+  <item>2</item> 
+  <item>3</item> 
+ </string-array> 
+</resources>

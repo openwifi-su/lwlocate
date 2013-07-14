@@ -18,7 +18,7 @@ public class GeoUtils
    public static final int MODE_GSMAP=3;
       
    private String     cachePath=null;
-   private int        mode=MODE_OSM;
+   private int        mode=MODE_OSM,mirrorCnt=1;
    
    public GeoUtils(int mode)
    {
@@ -130,6 +130,18 @@ public class GeoUtils
             tilePath=tilePath+"/"+z+"/"+x+"/";
             pathFile=new File(tilePath);
             pathFile.mkdirs();
+            
+            File nomediaFile=new File(cachePath+".nomedia");
+            try
+            {
+               nomediaFile.createNewFile();
+               nomediaFile.renameTo(new File(cachePath+".nomedia"));
+            }
+            catch (IOException ioe)
+            {
+          	  
+            }
+            
             tilePath=tilePath+y+".png";
             fin=new FileInputStream(tilePath);
          }
@@ -142,9 +154,25 @@ public class GeoUtils
          tile=null;
          if (allowDownload)
          {
-            if (useMode==MODE_OSM) tile=downloadTile("http://tiles.virtualworlds.de/tile.php?z="+z+"&x="+x+"&y="+y,x,y,z,ctx,tilePath,true);
-            else if (useMode==MODE_GMAP) tile=downloadTile("http://mt3.google.com/vt/v=w2.97&z="+z+"&x="+x+"&y="+y,x,y,z,ctx,tilePath,true);
-            else tile=downloadTile("http://khm3.google.com/kh/v=99&z="+z+"&x="+x+"&y="+y,x,y,z,ctx,tilePath,true);
+            if (useMode==MODE_OSM)
+            {
+               switch (mirrorCnt)
+               {
+                  case 1:
+                     tile=downloadTile("http://a.tile.openstreetmap.org/"+z+"/"+x+"/"+y+".png",x,y,z,ctx,tilePath,true);
+                     break;
+                  case 2:
+                      tile=downloadTile("http://b.tile.openstreetmap.org/"+z+"/"+x+"/"+y+".png",x,y,z,ctx,tilePath,true);
+                      break;
+                  case 3:
+                      tile=downloadTile("http://c.tile.openstreetmap.org/"+z+"/"+x+"/"+y+".png",x,y,z,ctx,tilePath,true);
+                      break;
+               }
+            }
+            else if (useMode==MODE_GMAP) tile=downloadTile("http://mt"+mirrorCnt+".google.com/vt/v=w2.97&z="+z+"&x="+x+"&y="+y,x,y,z,ctx,tilePath,true);
+            else tile=downloadTile("http://khm"+mirrorCnt+".google.com/kh/v=99&z="+z+"&x="+x+"&y="+y,x,y,z,ctx,tilePath,true);
+            mirrorCnt++;
+            if (mirrorCnt>3) mirrorCnt=1;
          }
       }
       return tile;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+ package="com.vwp.owmap"
+ android:versionCode="92"
+ android:versionName="0.92">
+
+ <uses-sdk android:minSdkVersion="8" 
+  android:targetSdkVersion="10" />
+ <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+ <uses-permission android:name="android.permission.INTERNET" />
+ <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+ <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+ <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+ <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+ <uses-permission android:name="android.permission.WAKE_LOCK" />
+ <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+ <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+ <application
+  android:allowBackup="true"
+  android:icon="@drawable/ic_launcher"
+  android:label="@string/app_name" 
+  android:persistent="true">
+  <activity
+   android:name="com.vwp.owmap.OWMapAtAndroid"
+   android:label="@string/app_name"
+   android:launchMode="singleInstance" >
+   <intent-filter>
+    <action android:name="android.intent.action.MAIN" />
+    <category android:name="android.intent.category.LAUNCHER" />
+   </intent-filter>   
+  </activity>
+  <activity android:name="com.vwp.owmap.OWLMapPrefs" />
+  <service android:enabled="true" android:name="com.vwp.owmap.ScanService" />
+  <receiver android:enabled="true" android:name="com.vwp.owmap.BootUpReceiver"
+   android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+   <intent-filter>
+    <action android:name="android.intent.action.BOOT_COMPLETED" />
+    <category android:name="android.intent.category.DEFAULT" />
+   </intent-filter>
+  </receiver> 
+ </application>
+</manifest>
