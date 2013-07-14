@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import com.vwp.owmap.OWMapAtAndroid.*;
+import com.vwp.owmini.OWMiniAtAndroid.*;
 
 class UploadThread extends Thread
 {

@@ -25,7 +25,6 @@
  <string name="track_info">You have enabled (theft)tracking of your device. This requires network access to submit your position from time to time. To find the current position you have to enter these tracking numbers at the projects website</string>
  <string name="track_info2">Write down these numbers and keep them at a secure place for later usage!</string>    
  <string name="ok">OK</string>    
- <string name="yes">Yes</string>    
  <string name="no">No</string>    
  <string name="exit">Exit</string>    
  <string name="bssid">ID</string>    
@@ -38,7 +37,6 @@
  <string name="credits">Credits</string>
  <string name="help">Help</string>
  <string name="help_txt">Colours of big WLAN-counters:\nred - no localisation and no WLAN tracing\nyellow - WLAN-based localisation\nwhite - GPS lock\n\nColours of listed WLANs:\nred - _nomap-marked opt-out-network\nblue - open, unencrypted network\ngreen - open Freifunk network\nwhite - other private network</string>
- <string name="do_scan">Enable scanning</string>
  <string name="waitGPS">Waiting for GPS fix&#8230;</string>
  
  <string name="prefsAutoStart">Automatically start on boot-up</string>

@@ -2,6 +2,7 @@ package com.vwp.owmini;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
@@ -391,7 +392,7 @@ public class ScanService extends Service implements Runnable
                         ScanResult result;
 
                         result=locationInfo.wifiScanResult.get(i);                     
-                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase();
+                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
                         if (bssid.equalsIgnoreCase("000000000000")) break;
                         foundExisting=false;
                         scanData.lock.lock();
@@ -413,7 +414,7 @@ public class ScanService extends Service implements Runnable
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           lowerSSID=result.SSID.toLowerCase();
+                           lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
                         	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
@@ -423,7 +424,7 @@ public class ScanService extends Service implements Runnable
                            if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
                            scanData.wmapList.add(currEntry);
                         }
-                        result.capabilities=result.capabilities.toUpperCase();
+                        result.capabilities=result.capabilities.toUpperCase(Locale.US);
                         scanData.lock.unlock();
                      }
                   }

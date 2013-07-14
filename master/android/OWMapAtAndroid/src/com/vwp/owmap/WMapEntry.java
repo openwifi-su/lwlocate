@@ -1,5 +1,7 @@
 package com.vwp.owmap;
 
+import com.vwp.owmini.R;
+
 import android.preference.PreferenceManager;
 import android.view.*;
 import android.widget.*;
@@ -59,6 +61,7 @@ public class WMapEntry
       
       ImageView img=new ImageView(ctx);
       if ((flags & FLAG_IS_FREIFUNK)!=0) img.setImageResource(R.drawable.wifi_frei);
+      else if ((flags & FLAG_IS_FREEHOTSPOT)!=0) img.setImageResource(R.drawable.wifi_freehotspot);
       else if ((flags & FLAG_IS_OPEN)!=0) img.setImageResource(R.drawable.wifi_open);
       else img.setImageResource(R.drawable.wifi);
       row.addView(img);
@@ -94,7 +97,7 @@ public class WMapEntry
          latView.setTextColor(0xFFFFAAAA);      
          lonView.setTextColor(0xFFFFAAAA);         
       }
-      else if ((flags & FLAG_IS_FREIFUNK)!=0)
+      else if ((flags & (FLAG_IS_FREIFUNK|FLAG_IS_FREEHOTSPOT))!=0)
       {
          cntText.setTextColor(0xFFAAFFAA);      
          bssidView.setTextColor(0xFFAAFFAA);      

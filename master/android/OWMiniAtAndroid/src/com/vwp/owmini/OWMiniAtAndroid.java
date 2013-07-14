@@ -50,7 +50,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
            ScannerHandler        scannerHandler=null;
    private PowerManager          pm=null;
    private PowerManager.WakeLock wl=null;
-   private Vector<WMapSlimEntry> freifunkList;
+   private Vector<WMapSlimEntry> freeHotspotList;
    private ListView              ffLv;
 
    private static int            textSizeVal=1;
@@ -136,6 +136,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
 
       public static final int MSG_TOAST=17;
       public static final int MSG_GET_FREEHOTSPOT_POS_DL=18;
+      public static final int MSG_GET_FREEHOTSPOT_POS_DL2=19;
       
       private Lock lock=new ReentrantLock();
 
@@ -529,7 +530,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
    private void setupInitial()
    {
       WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
-      if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase();
+      if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase(Locale.US);
       else ScanService.scanData.ownBSSID="00DEADBEEF00";
       updateRank();      
    }
@@ -607,7 +608,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       prefsMenuItem = pMenu.add(0, 2, Menu.NONE,R.string.upload_data);
       prefsMenuItem.setIcon(android.R.drawable.ic_menu_upload);
                   
-      prefsMenuItem = pMenu.add(0, 3, Menu.NONE,R.string.freifunk);
+      prefsMenuItem = pMenu.add(0, 3, Menu.NONE,R.string.freehotspot);
       prefsMenuItem.setIcon(android.R.drawable.ic_menu_search);
       prefsMenuItem.setEnabled(hasPosLock & ((ScanService.scanData.getFlags() & FLAG_NO_NET_ACCESS)==0));
       
@@ -648,7 +649,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
             }
             break;
          case 3:            
-            scannerHandler.sendEmptyMessage(OWMiniAtAndroid.ScannerHandler.MSG_GET_FREIFUNK_POS_DL);
+            scannerHandler.sendEmptyMessage(OWMiniAtAndroid.ScannerHandler.MSG_GET_FREEHOTSPOT_POS_DL);
             break;
          case 4:
             Intent intent = new Intent(this,com.vwp.owmini.OWLMapPrefs.class);

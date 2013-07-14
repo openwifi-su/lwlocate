@@ -10,13 +10,8 @@
  <string name="gpsdisabled_warn">Attention! Le GPS est désactivé! La localisation par GPS doit être activée pour pouvoir utiliser cette application!</string>
  <string name="upload_data">Uploader les données maintenant</string>
  <string name="upload_in_progress">Upload déjà en cours!</string>
- <string name="show_map">Affiche la carte générale</string>
  <string name="freehotspot">Cherche le prochain réseau hotspot graduite</string>
- <string name="save_map">Enregistrer la carte sur le disque</string>
- <string name="map_saved_as">Enregistrer la carte sous</string>
- <string name="map_not_saved">La carte n\'a pas pu être Enregistré!</string>
  <string name="prefs">Preferences</string>
- <string name="loading_map">Téléchargement de la carte&#8230;</string>
  <string name="loading_data">Téléchargement de la carte&#8230;</string>
  <string name="preparing_data">Preparation des données&#8230;</string>
  <string name="uploading_data">Upload des données&#8230;</string>
@@ -26,7 +21,6 @@
  <string name="http_error">Erreur HTTP</string>
  <string name="new_version_available">Une nouvelle version de OpenWLANMap@Android est disponible. Vous pouvez le télécharger sur le site http://www.openwlanmap.org .</string>
  <string name="really_exit_app">Etes-vous sure de vouloir quitter l\'application?</string>
- <string name="really_show_map">La connexion internet est désactivée, seulement les cartes mises en cache seront visibles. Voulez-vous continuer?</string>
  <string name="track_info">Vous avez activé le tracking (en cas de vol) de votre appareil. Vous avez besoin d\'un accès internet pour envoyer votre position de temps en temps. Pour trouver la position courrante, vous devez entrer ces identifiants de tracking sur le site web du projet.</string>
  <string name="track_info2">Ecrivez ces identifiants et gardez les dans un endroit sure pour pouvoir les utiliser plus tard!</string>
  <string name="ok">OK</string>
@@ -36,18 +30,14 @@
  <string name="bssid">ID</string>
  <string name="lat">Latitude</string>
  <string name="lon">Longitude</string>
- <string name="info">Info</string>
  <string name="rank">Classement</string>
  <string name="points">points</string>
  <string name="your_new_rank">Votre nouveau Classement</string>
  <string name="ap_count">Compteur de PA WiFi</string>
  <string name="credits">Credits</string>
  <string name="help">Aide</string>
- <string name="calib_tele">Calibrater les capteurs télémétrie</string>
- <string name="calib_orient">Calibrater le capteur orientation</string>
  <string name="help_txt">Couleur du gros compteur de réseau wifi:\nrouge - pas de localisation et pas de tracage wifi\njaune - localisation à partir du wifi\nblanc - GPS verouillé\n\nCouleur des réseaux wifi listés:\nrouge - _nomap-marked opt-out-network\nbleu - réseau ouvert non chiffré\nvert - réseau ouvert hotspot graduite\nblanc - autre réseau privé</string>
  <string name="do_scan">Active le scan</string>
- <string name="map_dl_failure">Impossible de télécharger la carte. Peut-être que vous n\'avez pas de connection internet ou vous n\'avez pas encore uploadé de données?</string>
  <string name="waitGPS">Attente du GPS&#8230;</string>
 
  <string name="prefsAutoConnect">Connexion auto aux réseaux wifi Freifunk</string>
@@ -62,8 +52,6 @@
  <string name="prefsBigCounterText">Le nombre de réseaux wifi scannés est affiché dans le coin en haut a gauche de cet application en utilisant d\'énormes nombres facile à lire.</string>
  <string name="prefsHudCounter">Show always on-top WLAN counters</string>
  <string name="prefsHudCounterText">The current number of scanned and open WLAN networks is always shown on upper left corner</string>
- <string name="prefsShowMap">Show live-map instead of coordinates</string>
- <string name="prefsShowMapText">Instead of the coordinates a map is shown where the detected WLANs are shown into; this function works only with activated network access</string>
  <string name="prefsShowType">Méthode d\'affichage des réseaux</string>
  <string name="prefsShowTypeText">Configure quelles informations des réseaux sont affichés</string>
  <string name="prefsScreenLight">Eclairage de l\'écran et veille</string>
