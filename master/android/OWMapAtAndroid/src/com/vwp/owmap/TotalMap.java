@@ -60,7 +60,7 @@ public class TotalMap extends MapOverlay
       int               rc;
             
       outString=ownBSSID.replace(":","").replace(".","");
-      outString=outString.toUpperCase()+"\n";
+      outString=outString.toUpperCase(Locale.US)+"\n";
       try
       {
          URL connectURL = new URL("http://www.openwlanmap.org/android/map.php");    

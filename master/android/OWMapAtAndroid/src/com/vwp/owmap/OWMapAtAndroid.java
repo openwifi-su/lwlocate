@@ -165,6 +165,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       public static final int MSG_TELEMETRY=16;
       public static final int MSG_TOAST=17;
       public static final int MSG_GET_FREEHOTSPOT_POS_DL=18;
+      public static final int MSG_GET_FREEHOTSPOT_POS_DL2=19;
       
       private Lock lock=new ReentrantLock();
 
@@ -814,7 +815,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
             }
             break;
          case 4:            
-            scannerHandler.sendEmptyMessage(OWMapAtAndroid.ScannerHandler.MSG_GET_FREEHOTSPOT_DL);
+            scannerHandler.sendEmptyMessage(OWMapAtAndroid.ScannerHandler.MSG_GET_FREEHOTSPOT_POS_DL);
             break;
          case 5:
             Intent intent = new Intent(this,com.vwp.owmap.OWLMapPrefs.class);

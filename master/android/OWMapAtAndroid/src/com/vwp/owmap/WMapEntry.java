@@ -1,7 +1,5 @@
 package com.vwp.owmap;
 
-import com.vwp.owmini.R;
-
 import android.preference.PreferenceManager;
 import android.view.*;
 import android.widget.*;

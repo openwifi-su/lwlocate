@@ -507,7 +507,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            ScanResult result;
                         
                            result=locationInfo.wifiScanResult.get(i);
-                           result.capabilities=result.capabilities.toUpperCase();
+                           result.capabilities=result.capabilities.toUpperCase(Locale.US);
                            if ((isFreeHotspot(result) & WMapEntry.FLAG_IS_FREIFUNK)!=0)
                            {
                               // auto-connect to this open network
@@ -536,7 +536,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         ScanResult result;
 
                         result=locationInfo.wifiScanResult.get(i);                     
-                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase();
+                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
                         if (bssid.equalsIgnoreCase("000000000000")) break;
                         foundExisting=false;
                         scanData.lock.lock();
@@ -558,7 +558,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           lowerSSID=result.SSID.toLowerCase();
+                           lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
                         	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
@@ -578,7 +578,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                               }                              
                            }                           
                         }
-                        result.capabilities=result.capabilities.toUpperCase();
+                        result.capabilities=result.capabilities.toUpperCase(Locale.US);
                         scanData.lock.unlock();
                      }
                   }

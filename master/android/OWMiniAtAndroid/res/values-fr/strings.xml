@@ -24,7 +24,6 @@
  <string name="track_info">Vous avez activé le tracking (en cas de vol) de votre appareil. Vous avez besoin d\'un accès internet pour envoyer votre position de temps en temps. Pour trouver la position courrante, vous devez entrer ces identifiants de tracking sur le site web du projet.</string>
  <string name="track_info2">Ecrivez ces identifiants et gardez les dans un endroit sure pour pouvoir les utiliser plus tard!</string>
  <string name="ok">OK</string>
- <string name="yes">Oui</string>
  <string name="no">Non</string>
  <string name="exit">Sortie</string>
  <string name="bssid">ID</string>
@@ -37,7 +36,6 @@
  <string name="credits">Credits</string>
  <string name="help">Aide</string>
  <string name="help_txt">Couleur du gros compteur de réseau wifi:\nrouge - pas de localisation et pas de tracage wifi\njaune - localisation à partir du wifi\nblanc - GPS verouillé\n\nCouleur des réseaux wifi listés:\nrouge - _nomap-marked opt-out-network\nbleu - réseau ouvert non chiffré\nvert - réseau ouvert hotspot graduite\nblanc - autre réseau privé</string>
- <string name="do_scan">Active le scan</string>
  <string name="waitGPS">Attente du GPS&#8230;</string>
 
  <string name="prefsAutoConnect">Connexion auto aux réseaux wifi Freifunk</string>

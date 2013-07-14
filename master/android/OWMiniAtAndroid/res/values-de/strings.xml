@@ -25,7 +25,6 @@
  <string name="ok">OK</string>    
  <string name="track_info">Die (Diebstahls-)Verfolgungsfunktion wurde aktiviert. Diese Funktion greift auf das Netz zu, um die aktuelle Position in größeren Abständen zu übertragen. Um die aktuelle Position des Gerätes festzustellen, muss diese Trackingnummer auf der Webseite des Projektes eingegeben werden</string>
  <string name="track_info2">Diese Nummer sollte für die spätere Verwendung aufgeschrieben und an einem sicheren Platz aufbewahrt werden!</string>    
- <string name="yes">Ja</string>    
  <string name="no">Nein</string>    
  <string name="exit">Beenden</string>    
  <string name="bssid">ID</string>    
@@ -38,7 +37,6 @@
  <string name="credits">Danksagung</string>    
  <string name="help">Hilfe</string>    
  <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - offenes Freifunk-Netzwerk\nweiß - anderes, privates Netzwerk</string>
- <string name="do_scan">Scan aktivieren</string>
  <string name="waitGPS">Warte auf GPS-Signal&#8230;</string>
  
  <string name="prefsAutoStart">Automatisch nach dem Booten starten</string>
