@@ -14,7 +14,7 @@ public class ScanData
            Vector<WMapEntry> wmapList=new Vector<WMapEntry>();
            OWMapAtAndroid    ctx;
    private int               flags=OWMapAtAndroid.FLAG_NO_NET_ACCESS,storedValues;
-   private int               freifunkWLANs=0;
+   private int               freeHotspotWLANs=0;
            boolean           isActive=true,scanningEnabled=true,hudCounter=false,appVisible=false,storeTele=false;
            int               viewMode=OWMapAtAndroid.VIEW_MODE_MAIN,threadMode=OWMapAtAndroid.THREAD_MODE_SCAN,
                              uploadedCount=0,uploadedRank=0,uploadThres=0,currSLimit=0;
@@ -109,7 +109,7 @@ public class ScanData
    {
 	   storedValues++;
 
-	   OWMapAtAndroid.sendMessage(OWMapAtAndroid.ScannerHandler.MSG_UPD_AP_COUNT,storedValues,freifunkWLANs,null);
+	   OWMapAtAndroid.sendMessage(OWMapAtAndroid.ScannerHandler.MSG_UPD_AP_COUNT,storedValues,freeHotspotWLANs,null);
 	   return storedValues;
    }
 
@@ -122,21 +122,21 @@ public class ScanData
 
       
    
-   void setFreifunkWLANs(int freifunkWLANs)
+   void setFreeHotspotWLANs(int freeHotspotWLANs)
    {
-      this.freifunkWLANs=freifunkWLANs;
+      this.freeHotspotWLANs=freeHotspotWLANs;
    }
 
-   int incFreifunkWLANs()
+   int incFreeHotspotWLANs()
    {
-      freifunkWLANs++;
-      return freifunkWLANs;
+      freeHotspotWLANs++;
+      return freeHotspotWLANs;
    }
 
    
-   int getFreifunkWLANs()
+   int getFreeHotspotWLANs()
    {
-      return freifunkWLANs;
+      return freeHotspotWLANs;
    }
 
 

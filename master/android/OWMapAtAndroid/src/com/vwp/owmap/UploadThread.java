@@ -327,7 +327,7 @@ class UploadThread extends Thread
          ctx.deleteFile(OWMapAtAndroid.WFREI_FILE);
 ctx.deleteFile("wopendata");
          ScanService.scanData.setStoredValues(0);
-         ScanService.scanData.setFreifunkWLANs(0);
+         ScanService.scanData.setFreeHotspotWLANs(0);
          ctx.storeConfig();
          if (!silent)
          {

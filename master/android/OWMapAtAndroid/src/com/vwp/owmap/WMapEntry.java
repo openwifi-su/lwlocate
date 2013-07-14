@@ -20,12 +20,13 @@ public class WMapEntry
            int      listPos=0;
            int      flags=0;
 
-   static final int FLAG_UI_USED    =0x0001;
-   static final int FLAG_IS_VISIBLE =0x0002;
-   static final int FLAG_POS_CHANGED=0x0004;
-   static final int FLAG_IS_OPEN    =0x0008;
-   static final int FLAG_IS_NOMAP   =0x0010;   
-   static final int FLAG_IS_FREIFUNK=0x0020;   
+   static final int FLAG_UI_USED       =0x0001;
+   static final int FLAG_IS_VISIBLE    =0x0002;
+   static final int FLAG_POS_CHANGED   =0x0004;
+   static final int FLAG_IS_OPEN       =0x0008;
+   static final int FLAG_IS_NOMAP      =0x0010;   
+   static final int FLAG_IS_FREIFUNK   =0x0020;   
+   static final int FLAG_IS_FREEHOTSPOT=0x0040;   
    
    public WMapEntry(String BSSID,String SSID,double lat,double lon,int listPos)
    {

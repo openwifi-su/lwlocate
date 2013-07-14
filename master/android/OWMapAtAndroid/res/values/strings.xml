@@ -11,7 +11,7 @@
  <string name="upload_data">Upload data now</string>
  <string name="upload_in_progress">Upload is already in progress!</string>
  <string name="show_map">Show overall map</string>
- <string name="freifunk">Find next Freifunk network</string>
+ <string name="freehotspot">Find next free hotspot</string>
  <string name="save_map">Save map to disk</string>
  <string name="map_saved_as">Map saved as</string>
  <string name="map_not_saved">Map could not be saved!</string>
@@ -36,7 +36,6 @@
  <string name="bssid">ID</string>    
  <string name="lat">Latitude</string>    
  <string name="lon">Longitude</string>    
- <string name="info">Info</string>    
  <string name="rank">Rank</string>    
  <string name="points">points</string>    
  <string name="your_new_rank">Your new rank</string>    
@@ -45,8 +44,7 @@
  <string name="help">Help</string>
  <string name="calib_tele">Calibrate Telemetry Sensors</string>    
  <string name="calib_orient">Calibrate Orientation Sensor</string>    
- <string name="help_txt">Colours of big WLAN-counters:\nred - no localisation and no WLAN tracing\nyellow - WLAN-based localisation\nwhite - GPS lock\n\nColours of listed WLANs:\nred - _nomap-marked opt-out-network\nblue - open, unencrypted network\ngreen - open Freifunk network\nwhite - other private network</string>
- <string name="do_scan">Enable scanning</string>
+ <string name="help_txt">Colours of big WLAN-counters:\nred - no localisation and no WLAN tracing\nyellow - WLAN-based localisation\nwhite - GPS lock\n\nColours of listed WLANs:\nred - _nomap-marked opt-out-network\nblue - open, unencrypted network\ngreen - free hotspot\nwhite - other private network</string>
  <string name="map_dl_failure">Could not download map. Maybe you don\'t have a network connection or have not uploaded any data yet?</string>
  <string name="waitGPS">Waiting for GPS fix&#8230;</string>
  

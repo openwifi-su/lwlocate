@@ -4,7 +4,6 @@ import java.util.concurrent.locks.*;
 
 import android.content.*;
 import android.graphics.*;
-import android.graphics.Paint.Align;
 import android.view.*;
 
 import com.vwp.libwlocate.map.*;
@@ -18,11 +17,12 @@ class LiveMapData
    int    m_tileX=0,m_tileY=0;   
 }
 
+
 public class LiveMapView extends View implements Runnable
 {
-   private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap;
+   private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap,freeHotspotWlanBitmap;
    private double         m_lat,m_lon;
-   private Paint          wlanColour,openWlanColour,freifunkWlanColour,instColour,instInner,instInner2,teleBG;
+   private Paint          wlanColour,openWlanColour,instColour,instInner,instInner2,teleBG;
    public  final int      m_zoom=17;
    private Thread         tilesThread;
    private boolean        allowThread=false;
@@ -47,7 +47,7 @@ public class LiveMapView extends View implements Runnable
       wlanColour.setStyle(Paint.Style.STROKE);
       wlanColour.setStrokeWidth(2);
       
-      wlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi);
+      wlanBitmap=BitmapFactory.decodeResource(getResources(),R.drawable.wifi);
 
       openWlanColour=new Paint();
       openWlanColour.setARGB(255,0,0,200);
@@ -55,13 +55,9 @@ public class LiveMapView extends View implements Runnable
       openWlanColour.setStrokeWidth(2);
       
       openWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_open);
-
-      freifunkWlanColour=new Paint();
-      freifunkWlanColour.setARGB(255,0,200,0);
-      freifunkWlanColour.setStyle(Paint.Style.STROKE);
-      freifunkWlanColour.setStrokeWidth(2);
       
-      freifunkWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_frei);
+      freifunkWlanBitmap=BitmapFactory.decodeResource(getResources(),R.drawable.wifi_frei);
+      freeHotspotWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_freehotspot);
 
       instColour=new Paint();
       instColour.setARGB(200,15,15,40);
@@ -280,6 +276,10 @@ public class LiveMapView extends View implements Runnable
             else if ((entry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0)
             {
                c.drawBitmap(freifunkWlanBitmap,cx-7,cy-7,null);
+            }
+            else if ((entry.flags & WMapEntry.FLAG_IS_FREEHOTSPOT)!=0)
+            {
+               c.drawBitmap(freeHotspotWlanBitmap,cx-7,cy-7,null);
             }
             else
             {

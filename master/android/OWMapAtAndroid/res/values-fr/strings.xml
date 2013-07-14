@@ -11,7 +11,7 @@
  <string name="upload_data">Uploader les données maintenant</string>
  <string name="upload_in_progress">Upload déjà en cours!</string>
  <string name="show_map">Affiche la carte générale</string>
- <string name="freifunk">Cherche le prochain réseau Freifunk</string>
+ <string name="freehotspot">Cherche le prochain réseau hotspot graduite</string>
  <string name="save_map">Enregistrer la carte sur le disque</string>
  <string name="map_saved_as">Enregistrer la carte sous</string>
  <string name="map_not_saved">La carte n\'a pas pu être Enregistré!</string>
@@ -45,7 +45,7 @@
  <string name="help">Aide</string>
  <string name="calib_tele">Calibrater les capteurs télémétrie</string>
  <string name="calib_orient">Calibrater le capteur orientation</string>
- <string name="help_txt">Couleur du gros compteur de réseau wifi:\nrouge - pas de localisation et pas de tracage wifi\njaune - localisation à partir du wifi\nblanc - GPS verouillé\n\nCouleur des réseaux wifi listés:\nrouge - _nomap-marked opt-out-network\nbleu - réseau ouvert non chiffré\nvert - réseau ouvert Freifunk\nblanc - autre réseau privé</string>
+ <string name="help_txt">Couleur du gros compteur de réseau wifi:\nrouge - pas de localisation et pas de tracage wifi\njaune - localisation à partir du wifi\nblanc - GPS verouillé\n\nCouleur des réseaux wifi listés:\nrouge - _nomap-marked opt-out-network\nbleu - réseau ouvert non chiffré\nvert - réseau ouvert hotspot graduite\nblanc - autre réseau privé</string>
  <string name="do_scan">Active le scan</string>
  <string name="map_dl_failure">Impossible de télécharger la carte. Peut-être que vous n\'avez pas de connection internet ou vous n\'avez pas encore uploadé de données?</string>
  <string name="waitGPS">Attente du GPS&#8230;</string>

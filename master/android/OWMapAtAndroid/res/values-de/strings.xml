@@ -11,7 +11,7 @@
  <string name="upload_data">Daten hochladen</string>
  <string name="upload_in_progress">Datenupload ist bereits aktiv!</string>
  <string name="show_map">Vollständige Karte zeigen</string>
- <string name="freifunk">Nächstes Freifunknetzwerk finden</string>
+ <string name="freehotspot">Nächsten freien Hotspot finden</string>
  <string name="save_map">Karte abspeichern</string>
  <string name="map_saved_as">Karte abgespeichert unter</string>
  <string name="map_not_saved">Karte konnte nicht gespeichert werden!</string>
@@ -45,7 +45,7 @@
  <string name="calib_tele">Kalibriere Telemetriesensoren</string>    
  <string name="calib_orient">Kalibriere Orientierungssensor</string>    
  <string name="help">Hilfe</string>    
- <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - offenes Freifunk-Netzwerk\nweiß - anderes, privates Netzwerk</string>
+ <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - freier WLAN-Hotspot\nweiß - anderes, privates Netzwerk</string>
  <string name="do_scan">Scan aktivieren</string>
  <string name="map_dl_failure">Die Karte konnte nicht heruntergeladen werden. Möglicherweise besteht keine Internetverbindung oder es wurden noch keine Daten hochgeladen?</string>
  <string name="waitGPS">Warte auf GPS-Signal&#8230;</string>

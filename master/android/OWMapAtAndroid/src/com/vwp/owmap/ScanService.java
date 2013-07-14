@@ -362,11 +362,25 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       return false;
    }   
    
-   private boolean isFreifunkWLAN(ScanResult result)
+   
+   private int isFreeHotspot(ScanResult result)
    {
-      if (!result.SSID.toLowerCase().contains("freifunk")) return false;
-      return isOpenWLAN(result);
+	  if (isOpenWLAN(result))
+	  {
+         if (result.SSID.toLowerCase().contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase().compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase().compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
+         return WMapEntry.FLAG_IS_OPEN;
+	  }
+	  return 0;
    }   
+   
+   
+   private boolean isFreeHotspot(int flags)
+   {
+	   return (((flags & WMapEntry.FLAG_IS_FREIFUNK)==WMapEntry.FLAG_IS_FREIFUNK) ||
+			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT));
+   }
    
    
    void storeConfig()
@@ -382,7 +396,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          out.writeInt(ScanService.scanData.uploadedCount);
          out.writeInt(ScanService.scanData.uploadedRank);
          out.writeInt(0); // Open WLANs, no longer used
-         out.writeInt(ScanService.scanData.getFreifunkWLANs());
+         out.writeInt(ScanService.scanData.getFreeHotspotWLANs());
          out.writeFloat(ScanService.scanData.telemetryData.corrAccelX);
          out.writeFloat(ScanService.scanData.telemetryData.corrAccelY);
          out.writeFloat(ScanService.scanData.telemetryData.corrAccelZ);
@@ -494,7 +508,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         
                            result=locationInfo.wifiScanResult.get(i);
                            result.capabilities=result.capabilities.toUpperCase();
-                           if (isFreifunkWLAN(result))
+                           if ((isFreeHotspot(result) & WMapEntry.FLAG_IS_FREIFUNK)!=0)
                            {
                               // auto-connect to this open network
                             
@@ -550,9 +564,8 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
-                           else if (isFreifunkWLAN(result)) currEntry.flags|=(WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_OPEN);                                          
-                           else if (isOpenWLAN(result)) currEntry.flags|=WMapEntry.FLAG_IS_OPEN;                                          
-                           if ((currEntry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0) scanData.incFreifunkWLANs();
+                           else currEntry.flags|=isFreeHotspot(result);                                          
+                           if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
                            scanData.wmapList.add(currEntry);
                            if ((scanData.uploadThres>0) && (storedValues>scanData.uploadThres))
                            {
