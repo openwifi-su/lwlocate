@@ -643,7 +643,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
    private void setupInitial()
    {
       WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
-      if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase();
+      if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase(Locale.US);
       else ScanService.scanData.ownBSSID="00DEADBEEF00";
       updateRank();      
    }

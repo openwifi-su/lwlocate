@@ -367,9 +367,9 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    {
 	  if (isOpenWLAN(result))
 	  {
-         if (result.SSID.toLowerCase().contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
-         if (result.SSID.toLowerCase().compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
-         if (result.SSID.toLowerCase().compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
+         if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
          return WMapEntry.FLAG_IS_OPEN;
 	  }
 	  return 0;

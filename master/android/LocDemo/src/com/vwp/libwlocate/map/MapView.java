@@ -124,15 +124,15 @@ public class MapView extends View implements Runnable
                }
                if ((mActivePointerId!=INVALID_POINTER_ID) && (mActivePointerId2!=INVALID_POINTER_ID))
                {
-                  float d1,d2;
+                  double d1,d2;
                      
                   pointerIndex = ev.findPointerIndex(mActivePointerId2);
                   if (pointerIndex<0) return false;
                   float x2 = ev.getX(pointerIndex);
                   float y2 = ev.getY(pointerIndex);
                                     
-                  d1=android.util.FloatMath.sqrt((x-x2)*(x-x2)+(y-y2)*(y-y2));
-                  d2=android.util.FloatMath.sqrt((mLastTouchX-mLastTouchX2)*(mLastTouchX-mLastTouchX2)+
+                  d1=java.lang.Math.sqrt((x-x2)*(x-x2)+(y-y2)*(y-y2));
+                  d2=java.lang.Math.sqrt((mLastTouchX-mLastTouchX2)*(mLastTouchX-mLastTouchX2)+
                                       (mLastTouchY-mLastTouchY2)*(mLastTouchY-mLastTouchY2));
 
 /*                  if ((Math.abs(d1)>300) || (Math.abs(d2)>300))
@@ -146,7 +146,7 @@ public class MapView extends View implements Runnable
                   {
                      float w,h,s;
                      
-                     s=d1/d2;                     
+                     s=(float)(d1/d2);                     
                      mScaleFactor*=s;
                      matrix.postScale(s,s);
                      w=scrWidth/2.0f;
@@ -162,12 +162,6 @@ public class MapView extends View implements Runnable
                }
                else if (mScaleFactor==1.0)
                {
-                  if ((Math.abs(x-mLastTouchX)>100) || (Math.abs(y-mLastTouchY)>100))
-                  {
-                     int i=0;
-                     i=i;
-                  }
-                  
                   mScaleFactor=1.0f;
                   imgOffsetX+=(x-mLastTouchX);
                   imgOffsetY+=(y-mLastTouchY);

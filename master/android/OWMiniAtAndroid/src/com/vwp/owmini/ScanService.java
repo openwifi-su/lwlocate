@@ -257,10 +257,15 @@ public class ScanService extends Service implements Runnable
       return false;
    }   
    
+   
    private boolean isFreifunkWLAN(ScanResult result)
    {
-      if (!result.SSID.toLowerCase().contains("freifunk")) return false;
-      return isOpenWLAN(result);
+	  if (isOpenWLAN(result))
+	  {
+         if (result.SSID.toLowerCase().contains("freifunk")) return true;
+         if (result.SSID.toLowerCase().compareTo("mesh")==0) return true;
+	  }
+	  return false;
    }   
    
    

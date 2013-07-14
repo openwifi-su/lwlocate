@@ -36,7 +36,6 @@
  <string name="bssid">ID</string>    
  <string name="lat">Breitengrad</string>    
  <string name="lon">Längengrad</string>    
- <string name="info">Info</string>    
  <string name="rank">Rang</string>    
  <string name="points">Punkte</string>    
  <string name="your_new_rank">Neu erreichter Rang</string>
@@ -46,7 +45,6 @@
  <string name="calib_orient">Kalibriere Orientierungssensor</string>    
  <string name="help">Hilfe</string>    
  <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - freier WLAN-Hotspot\nweiß - anderes, privates Netzwerk</string>
- <string name="do_scan">Scan aktivieren</string>
  <string name="map_dl_failure">Die Karte konnte nicht heruntergeladen werden. Möglicherweise besteht keine Internetverbindung oder es wurden noch keine Daten hochgeladen?</string>
  <string name="waitGPS">Warte auf GPS-Signal&#8230;</string>
  

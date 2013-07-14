@@ -218,8 +218,7 @@ public class WLocate implements Runnable
    {
       public void onReceive(Context c, Intent intent) 
       {
-         int           netCnt=0,ret=WLOC_LOCATION_ERROR;
-         wloc_position pos=null;
+         int           netCnt=0;
          
          if (!scanStarted) return;
          scanStarted=false;
@@ -231,7 +230,7 @@ public class WLocate implements Runnable
          {            
             String bssidStr[];
 
-            config.BSSID=config.BSSID.toUpperCase().replace(".",":"); // some strange devices use a dot instead of :
+            config.BSSID=config.BSSID.toUpperCase(Locale.US).replace(".",":"); // some strange devices use a dot instead of :
             bssidStr=config.BSSID.split(":");
             locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
             locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
