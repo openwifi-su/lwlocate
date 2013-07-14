@@ -14,6 +14,7 @@ public class ScanData
            Vector<WMapEntry> wmapList=new Vector<WMapEntry>();
            OWMiniAtAndroid    ctx;
    private int               flags=OWMiniAtAndroid.FLAG_NO_NET_ACCESS,storedValues;
+   private int               freeHotspotWLANs=0;
            boolean           isActive=true,scanningEnabled=true,hudCounter=false,appVisible=false;
            int               viewMode=OWMiniAtAndroid.VIEW_MODE_MAIN,threadMode=OWMiniAtAndroid.THREAD_MODE_SCAN,
                              uploadedCount=0,uploadedRank=0,uploadThres=0;
@@ -65,7 +66,6 @@ public class ScanData
    }
    
    
-   
    double getLat()
    {
       double d;
@@ -76,7 +76,6 @@ public class ScanData
       return d;
    }
 
-   
    
    double getLon()
    {
@@ -89,7 +88,7 @@ public class ScanData
    }
 
    
-   
+      
    int getFlags()
    {
 	   int val;
@@ -119,5 +118,25 @@ public class ScanData
    {
       return storedValues;
    }
+
+      
+   
+   void setFreeHotspotWLANs(int freeHotspotWLANs)
+   {
+      this.freeHotspotWLANs=freeHotspotWLANs;
+   }
+
+   int incFreeHotspotWLANs()
+   {
+      freeHotspotWLANs++;
+      return freeHotspotWLANs;
+   }
+
+   
+   int getFreeHotspotWLANs()
+   {
+      return freeHotspotWLANs;
+   }
+
 
 }

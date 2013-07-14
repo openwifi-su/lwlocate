@@ -10,7 +10,8 @@
  <string name="gpsdisabled_warn">Achtung! GPS ist deaktiviert! Die Standortbestimmung per GPS sollte aktiviert sein, um diese App benutzen zu können!</string>
  <string name="upload_data">Daten hochladen</string>
  <string name="upload_in_progress">Datenupload ist bereits aktiv!</string>
- <string name="freifunk">Nächstes Freifunknetzwerk finden</string>
+ <string name="freehotspot">Nächsten freien Hotspot finden</string>
+
  <string name="prefs">Einstellungen</string>
  <string name="loading_data">Lade Daten herunter&#8230;</string>
  <string name="preparing_data">Bereite Daten vor&#8230;</string>
@@ -30,7 +31,6 @@
  <string name="bssid">ID</string>    
  <string name="lat">Breitengrad</string>    
  <string name="lon">Längengrad</string>    
- <string name="info">Info</string>    
  <string name="rank">Rang</string>    
  <string name="points">Punkte</string>    
  <string name="your_new_rank">Neu erreichter Rang</string>

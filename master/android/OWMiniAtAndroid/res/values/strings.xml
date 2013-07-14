@@ -10,7 +10,8 @@
  <string name="gpsdisabled_warn">Warning! GPS is deactivated! Location evaluation via GPS should be enabled in order to use this App!</string>
  <string name="upload_data">Upload data now</string>
  <string name="upload_in_progress">Upload is already in progress!</string>
- <string name="freifunk">Find next Freifunk network</string>
+ <string name="freehotspot">Find next free hotspot</string>
+
  <string name="prefs">Preferences</string>
  <string name="loading_data">Downloading data&#8230;</string>
  <string name="preparing_data">Preparing data&#8230;</string>
@@ -30,7 +31,6 @@
  <string name="bssid">ID</string>    
  <string name="lat">Latitude</string>    
  <string name="lon">Longitude</string>    
- <string name="info">Info</string>    
  <string name="rank">Rank</string>    
  <string name="points">points</string>    
  <string name="your_new_rank">Your new rank</string>    

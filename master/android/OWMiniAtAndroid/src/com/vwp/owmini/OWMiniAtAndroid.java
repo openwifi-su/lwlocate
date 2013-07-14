@@ -128,13 +128,14 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       public static final int MSG_UPD_POS=3;
       public static final int MSG_OPEN_PRG_DLG=4;
       public static final int MSG_CLOSE_PRG_DLG=5;
-      public static final int MSG_GET_FREIFUNK_POS_DL2=6;
+      public static final int MSG_GET_FREEHOTSPOT_S_DL2=6;
+
       public static final int MSG_SIMPLE_ALERT=10;
       public static final int MSG_UPD_LOC_STATE=11;
       public static final int MSG_UPD_AP_COUNT=12;
-//      public static final int MSG_GET_FREIFUNK_POS=15;
+
       public static final int MSG_TOAST=17;
-      public static final int MSG_GET_FREIFUNK_POS_DL=18;
+      public static final int MSG_GET_FREEHOTSPOT_POS_DL=18;
       
       private Lock lock=new ReentrantLock();
 
@@ -228,7 +229,8 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       }
       
       
-      private class DownloadFreifunkDataTask extends AsyncTask<Void,Void,Void>
+      private class DownloadFreeHotspotDataTask extends AsyncTask<Void,Void,Void>
+
       {
          protected Void doInBackground(Void... params) 
          {
@@ -258,7 +260,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
 	           os.close();
 	           is=new DataInputStream(c.getInputStream());
                outString=is.readLine();
-	           owmp.freifunkList=new Vector<WMapSlimEntry>();
+	           owmp.freeHotspotList=new Vector<WMapSlimEntry>();
 	           if (outString.equalsIgnoreCase("0"))
 	           {                            
 	              try
@@ -266,7 +268,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
 	                 while (is.available()>0)
 	                 {
 	                    WMapSlimEntry entry=new WMapSlimEntry(is.readLine(),is.readLine());
-                        owmp.freifunkList.add(entry);
+                        owmp.freeHotspotList.add(entry);
 	                 }
 	              }
 	              catch (NumberFormatException nfe)
@@ -293,7 +295,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
 	              ioe.printStackTrace();
 	           } 
             }      
-  	        owmp.scannerHandler.sendEmptyMessage(OWMiniAtAndroid.ScannerHandler.MSG_GET_FREIFUNK_POS_DL2);
+  	        owmp.scannerHandler.sendEmptyMessage(OWMiniAtAndroid.ScannerHandler.MSG_GET_FREEHOTSPOT_POS_DL2);
   	        return null;
          }
       }
@@ -310,22 +312,22 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
             case MSG_TOAST:
                Toast.makeText(owmp,(String)msg.obj,Toast.LENGTH_SHORT).show();
                break;
-            case MSG_GET_FREIFUNK_POS_DL:
+            case MSG_GET_FREEHOTSPOT_POS_DL:
             {
                msg.obj=owmp.getResources().getText(R.string.loading_data).toString();
                openPrgDlg(msg);
-               new DownloadFreifunkDataTask().execute(null,null,null);
+               new DownloadFreeHotspotDataTask().execute(null,null,null);
                break;
             }
-            case MSG_GET_FREIFUNK_POS_DL2:
+            case MSG_GET_FREEHOTSPOT_POS_DL2:
             {
-       	       if ((owmp.freifunkList!=null) && (owmp.freifunkList.size()>0))
+      	       if ((owmp.freeHotspotList!=null) && (owmp.freeHotspotList.size()>0))
     	       {
     	          owmp.ffLv = new ListView(owmp);
                   ArrayAdapter<String> adapter = new ArrayAdapter<String>(owmp,R.layout.listviewitem,R.id.listViewItemText);
-    	          for (int i=0; i<owmp.freifunkList.size(); i++)
+    	          for (int i=0; i<owmp.freeHotspotList.size(); i++)
     	          {
-                     WMapSlimEntry entry=owmp.freifunkList.elementAt(i);
+                     WMapSlimEntry entry=owmp.freeHotspotList.elementAt(i);
     	            
     	             String text=""+GeoUtils.latlon2dist(ScanService.scanData.getLat(),ScanService.scanData.getLon(),entry.lat,entry.lon);
     	             text=text.substring(0,8);
@@ -588,7 +590,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
    {
       WMapSlimEntry entry;
          
-      entry=freifunkList.elementAt(position);
+      entry=freeHotspotList.elementAt(position);
       Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+entry.lat+","+entry.lon)); 
       ctx.startActivity(i);
       onBackPressed();

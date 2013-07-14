@@ -183,12 +183,10 @@ public class ScanService extends Service implements Runnable
          else
          {
             lastRadius=-1;
-}
-            posState=2;         
-            scanThread.interrupt();
-//         }
-      }   
-      
+         }
+         posState=2;         
+         scanThread.interrupt();
+      }         
    }	
 
 /*   private class GoogleLocationListener implements LocationListener 
@@ -258,15 +256,24 @@ public class ScanService extends Service implements Runnable
    }   
    
    
-   private boolean isFreifunkWLAN(ScanResult result)
+   private int isFreeHotspot(ScanResult result)
    {
 	  if (isOpenWLAN(result))
 	  {
-         if (result.SSID.toLowerCase().contains("freifunk")) return true;
-         if (result.SSID.toLowerCase().compareTo("mesh")==0) return true;
+         if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
+         return WMapEntry.FLAG_IS_OPEN;
 	  }
-	  return false;
+	  return 0;
    }   
+   
+   
+   private boolean isFreeHotspot(int flags)
+   {
+	   return (((flags & WMapEntry.FLAG_IS_FREIFUNK)==WMapEntry.FLAG_IS_FREIFUNK) ||
+			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT));
+   }
    
    
    void storeConfig()
@@ -363,7 +370,7 @@ public class ScanService extends Service implements Runnable
                }
                if ((posState==2) || (posState==100))
                {
-                  loc_info    locationInfo; //bussi
+                  loc_info    locationInfo;
                   
                   locationInfo=myWLocate.last_location_info();
                   if (lastLocMethod!=locationInfo.lastLocMethod)
@@ -401,7 +408,7 @@ public class ScanService extends Service implements Runnable
                         if (!foundExisting)
                         {
                            String lowerSSID;
-                            
+                           
                            storedValues=scanData.incStoredValues();
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
@@ -412,8 +419,8 @@ public class ScanService extends Service implements Runnable
                         	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
-                           else if (isFreifunkWLAN(result)) currEntry.flags|=(WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_OPEN);                                          
-                           else if (isOpenWLAN(result)) currEntry.flags|=WMapEntry.FLAG_IS_OPEN;                                          
+                           else currEntry.flags|=isFreeHotspot(result);                                          
+                           if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
                            scanData.wmapList.add(currEntry);
                         }
                         result.capabilities=result.capabilities.toUpperCase();
@@ -429,7 +436,7 @@ public class ScanService extends Service implements Runnable
                         scanData.wmapList.remove(j);
                         if (currEntry.posIsValid())
                         {
-                           int padBytes=0,k; //  huggeidimörps
+                           int padBytes=0,k;
                            
                            try                           
                            {                                                      
@@ -527,58 +534,64 @@ public class ScanService extends Service implements Runnable
          if ((trackCnt>500000) && (lastLat!=0) && (lastLon!=0)) 
          {
             if (SP.getBoolean("track", false))
-             uploadPosition();
+             new UploadPositionTask().execute(null,null,null);
             trackCnt=0;
          }
       }
       onDestroy(); // remove all resources (in case the thread was stopped due to some other reason
    }
 
-   protected synchronized void uploadPosition()
+   
+   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
    {
-      String                        outString;
-      HttpURLConnection             c=null;
-      DataOutputStream              os=null;
-      
-      outString=scanData.ownBSSID;
-      outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
+      protected Void doInBackground(Void... params) 
+      {
+         String                        outString;
+         HttpURLConnection             c=null;
+         DataOutputStream              os=null;
+          
+         outString=scanData.ownBSSID;
+         outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
 
-      try
-      {
-         URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
-         c= (HttpURLConnection) connectURL.openConnection();
-         if (c==null)
+         try
          {
-            return;
-         }
-        
-         c.setDoOutput(true); // enable POST
-         c.setRequestMethod("POST");
-         c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-         c.addRequestProperty("Content-Length",""+outString.length());
-         os = new DataOutputStream(c.getOutputStream());
-         os.write(outString.getBytes());
-         os.flush();
-         c.getResponseCode();
-         os.close();
-         outString=null;
-         os=null;
-      }
-      catch (IOException ioe)
-      {
-      }
-      finally
-      {
-         try 
-         {
-            if (os != null) os.close();
-            if (c != null) c.disconnect();
+            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
+            c= (HttpURLConnection) connectURL.openConnection();
+            if (c==null)
+            {
+               return null;
+            }
+            
+            c.setDoOutput(true); // enable POST
+            c.setRequestMethod("POST");
+            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+            c.addRequestProperty("Content-Length",""+outString.length());
+            os = new DataOutputStream(c.getOutputStream());
+            os.write(outString.getBytes());
+            os.flush();
+            c.getResponseCode();
+            os.close();
+            outString=null;
+            os=null;
          }
          catch (IOException ioe)
          {
-            ioe.printStackTrace();
-         } 
+         }
+         finally
+         {
+            try 
+            {
+               if (os != null) os.close();
+               if (c != null) c.disconnect();
+            }
+            catch (IOException ioe)
+            {
+               ioe.printStackTrace();
+            } 
+         }
+         return null;
       }
-   }
-      
+   }      
+
+   
 }

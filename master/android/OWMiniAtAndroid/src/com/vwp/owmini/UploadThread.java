@@ -8,8 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import com.vwp.libwlocate.map.*;
-import com.vwp.owmini.OWMiniAtAndroid.*;
+import com.vwp.owmap.OWMapAtAndroid.*;
 
 class UploadThread extends Thread
 {
@@ -327,6 +326,7 @@ class UploadThread extends Thread
          ctx.deleteFile(OWMiniAtAndroid.WSCAN_FILE);
          ctx.deleteFile(OWMiniAtAndroid.WFREI_FILE);
          ScanService.scanData.setStoredValues(0);
+         ScanService.scanData.setFreeHotspotWLANs(0);
          ctx.storeConfig();
          if (!silent)
          {
