@@ -37,6 +37,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    static  ScanData              scanData=new ScanData();
    private SensorManager         sensorManager;
    private long                  lastTelemetryTime;
+   private long                  lastGPSTime=System.currentTimeMillis();
    private String                telemetryDir; 
    private float                 m_lastSpeed;
    private UploadThread          m_uploadThread;
@@ -94,6 +95,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       try
       {
          scanData.uploadThres=Integer.parseInt(SP.getString("autoUpload","0"));
+      }
+      catch (NumberFormatException nfe)
+      {
+      }               
+      try
+      {
+         scanData.noGPSExit=Integer.parseInt(SP.getString("noGPSExit","0"))*60*1000;
       }
       catch (NumberFormatException nfe)
       {
@@ -275,6 +283,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          posValid=false;
          if (ret==WLocate.WLOC_OK)
          {
+        	lastGPSTime=System.currentTimeMillis();
             if (radius<OWMapAtAndroid.MAX_RADIUS)
             {
                if (GeoUtils.latlon2dist(lat,lon,lastLat,lastLon)<10)
@@ -424,6 +433,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       {
          try
          {
+        	if (scanData.noGPSExit>0)
+        	{
+       		   if (System.currentTimeMillis()>lastGPSTime+scanData.noGPSExit)
+       		   {
+        	      break;	
+               }
+        	}
             if (ScanService.scanData.threadMode==OWMapAtAndroid.THREAD_MODE_UPLOAD) 
             {
                if ((m_uploadThread!=null) && (m_uploadThread.isUploading()))

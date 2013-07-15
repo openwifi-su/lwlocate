@@ -36,6 +36,16 @@
   android:layout_height="fill_parent"
   />
  <ListPreference
+  android:title="@string/prefsNoGPSExit"
+  android:summary="@string/prefsNoGPSExitText"
+  android:key="noGPSExit"
+  android:defaultValue="0"
+  android:entries="@array/prefsNoGPSExitEntries"
+  android:entryValues="@array/prefsNoGPSExitValues"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  />
+ <ListPreference
   android:title="@string/prefsTextSize"
   android:summary="@string/prefsTextSizeText"
   android:key="textSize"

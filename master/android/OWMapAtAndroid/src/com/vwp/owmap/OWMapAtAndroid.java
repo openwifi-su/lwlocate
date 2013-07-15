@@ -1092,6 +1092,14 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       catch (NumberFormatException nfe)
       {
       }               
+      try
+      {
+         ScanService.scanData.noGPSExit=Integer.parseInt(SP.getString("noGPSExit","0"))*60*1000;
+      }
+      catch (NumberFormatException nfe)
+      {
+      }               
+      
       getTelemetryConfig(SP);
       if ((!doTrack) && (SP.getBoolean("track",false)))
       {

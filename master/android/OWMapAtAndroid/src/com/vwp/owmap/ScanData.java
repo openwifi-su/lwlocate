@@ -17,7 +17,7 @@ public class ScanData
    private int               freeHotspotWLANs=0;
            boolean           isActive=true,scanningEnabled=true,hudCounter=false,appVisible=false,storeTele=false;
            int               viewMode=OWMapAtAndroid.VIEW_MODE_MAIN,threadMode=OWMapAtAndroid.THREAD_MODE_SCAN,
-                             uploadedCount=0,uploadedRank=0,uploadThres=0,currSLimit=0;
+                             uploadedCount=0,uploadedRank=0,uploadThres=0,currSLimit=0,noGPSExit=0;
            WifiManager       wifiManager;
    private double            lat,lon;
            TextView          bigCntTextHud;
