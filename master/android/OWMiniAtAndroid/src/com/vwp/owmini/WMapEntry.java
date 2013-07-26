@@ -39,7 +39,7 @@ public class WMapEntry
       lastUpdate=System.currentTimeMillis();
       flags|=FLAG_POS_CHANGED;
    }
-
+//--.
       
    
    void createUIData(Context ctx)

@@ -36,9 +36,11 @@
  <string name="ap_count">WiFi-AP count</string>
  <string name="credits">Credits</string>
  <string name="help">Help</string>
- <string name="help_txt">Colours of big WLAN-counters:\nred - no localisation and no WLAN tracing\nyellow - WLAN-based localisation\nwhite - GPS lock\n\nColours of listed WLANs:\nred - _nomap-marked opt-out-network\nblue - open, unencrypted network\ngreen - open Freifunk network\nwhite - other private network</string>
+ <string name="help_txt">Colours of big WLAN-counters:\nred - no localisation and no WLAN tracing\nyellow - WLAN-based localisation\nwhite - GPS lock\n\nColours of listed WLANs:\nred - _nomap-marked opt-out-network\nblue - open, unencrypted network\ngreen - free hotspot\nwhite - other private network</string>
  <string name="waitGPS">Waiting for GPS fix&#8230;</string>
  
+ <string name="prefsAutoConnect">Auto-Connect to Freifunk WLANs</string>
+ <string name="prefsAutoConnectText">ATTENTION! This option is dangerous and should be used only with completely secured devices!</string>
  <string name="prefsAutoStart">Automatically start on boot-up</string>
  <string name="prefsAutoStartText">Start this app automatically as soon as the device was started</string>
  <string name="prefsAdaptiveScanning">Adaptive Scanning</string>
