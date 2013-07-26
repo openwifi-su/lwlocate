@@ -268,18 +268,18 @@ public class LiveMapView extends View implements Runnable
             entry=ScanService.scanData.wmapList.elementAt(i);
             cy=(float)((mapData[currMap].shiftY*256+256.0*(entry.getLat()-tileLat1)/(tileLat2-tileLat1)));
             cx=(float)((mapData[currMap].shiftX*256+256.0*(entry.getLon()-tileLon1)/(tileLon2-tileLon1)));
-            if ((entry.flags & WMapEntry.FLAG_IS_OPEN)==0)
-            {
-               c.drawCircle(cx-0.5f, cy-1,10, wlanColour);
-               c.drawBitmap(wlanBitmap,cx-7,cy-7,null);
-            }
-            else if ((entry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0)
+            if ((entry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0)
             {
                c.drawBitmap(freifunkWlanBitmap,cx-7,cy-7,null);
             }
             else if ((entry.flags & WMapEntry.FLAG_IS_FREEHOTSPOT)!=0)
             {
                c.drawBitmap(freeHotspotWlanBitmap,cx-7,cy-7,null);
+            }
+            else if ((entry.flags & WMapEntry.FLAG_IS_OPEN)==0)
+            {
+               c.drawCircle(cx-0.5f, cy-1,10, wlanColour);
+               c.drawBitmap(wlanBitmap,cx-7,cy-7,null);
             }
             else
             {
