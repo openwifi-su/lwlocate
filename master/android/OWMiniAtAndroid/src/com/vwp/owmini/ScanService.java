@@ -58,7 +58,7 @@ public class ScanService extends Service implements Runnable
       if (screenLightVal==1) flags=PowerManager.PARTIAL_WAKE_LOCK; 
       else if (screenLightVal==3) flags=PowerManager.FULL_WAKE_LOCK;
       else flags=PowerManager.SCREEN_DIM_WAKE_LOCK;
-      wl = pm.newWakeLock(flags,"OpenWLANMapMini");
+      wl = pm.newWakeLock(flags,"OpenWLANMini");
       wl.acquire();
       while (myWLocate==null)
       {
@@ -326,9 +326,9 @@ public class ScanService extends Service implements Runnable
                   if (scanData.getFlags()!=lastFlags)
                   {
                      if ((scanData.getFlags() & OWMiniAtAndroid.FLAG_NO_NET_ACCESS)==0)
-                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL,"OpenWLANMapMini");
+                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL,"OpenWLANMini");
                      else
-                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY,"OpenWLANMapMini");
+                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY,"OpenWLANMini");
                      lastFlags=scanData.getFlags();        
                   }
                   if ((scanData.getFlags() & OWMiniAtAndroid.FLAG_NO_NET_ACCESS)==0)
@@ -416,6 +416,8 @@ public class ScanService extends Service implements Runnable
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
+                           	   (lowerSSID.endsWith("deinbus.de")) ||  // WLAN network on board of German bus
+                           	   (lowerSSID.endsWith("meinfernbus")) || // WLAN network on board of German bus
                         	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
