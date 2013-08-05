@@ -379,6 +379,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
          if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
          if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
+         if (result.SSID.toLowerCase(Locale.US).contains("the cloud")) return WMapEntry.FLAG_IS_THECLOUD;
          return WMapEntry.FLAG_IS_OPEN;
 	  }
 	  return 0;
@@ -388,7 +389,9 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    private boolean isFreeHotspot(int flags)
    {
 	   return (((flags & WMapEntry.FLAG_IS_FREIFUNK)==WMapEntry.FLAG_IS_FREIFUNK) ||
-			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT));
+			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT) ||
+			   ((flags & WMapEntry.FLAG_IS_THECLOUD)==WMapEntry.FLAG_IS_THECLOUD)
+			   );
    }
    
    
@@ -576,11 +579,11 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
-                           	   (lowerSSID.endsWith("deinbus.de")) ||  // WLAN network on board of German bus
-                          	   (lowerSSID.endsWith("meinfernbus")) || // WLAN network on board of German bus
-                        	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
-                        	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
-                        	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
+                           	   (lowerSSID.contains("deinbus.de")) ||  // WLAN network on board of German bus
+                          	   (lowerSSID.contains("fernbus")) || // WLAN network on board of German bus
+                        	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.contains("nsb_interakti"))) // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else currEntry.flags|=isFreeHotspot(result);                                          
                            if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
