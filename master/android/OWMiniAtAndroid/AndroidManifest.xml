@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
  package="com.vwp.owmini"
- android:versionCode="90"
- android:versionName="0.90">
+ android:versionCode="94"
+ android:versionName="0.94">
 
  <uses-sdk android:minSdkVersion="8" 
   android:targetSdkVersion="10" />
+ <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+ <uses-permission android:name="android.permission.INTERNET" />
+ <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+ <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+ <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+ <uses-permission android:name="android.permission.WAKE_LOCK" />
+ <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
  <application
+  android:allowBackup="true"
   android:icon="@drawable/ic_launcher"
   android:label="@string/app_name" 
   android:persistent="true">
@@ -28,12 +36,5 @@
     <category android:name="android.intent.category.DEFAULT" />
    </intent-filter>
   </receiver> 
-  </application>
- <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
- <uses-permission android:name="android.permission.INTERNET" />
- <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
- <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
- <uses-permission android:name="android.permission.WAKE_LOCK" />
- <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+ </application>
 </manifest>

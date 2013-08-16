@@ -10,7 +10,8 @@
  <string name="gpsdisabled_warn">Achtung! GPS ist deaktiviert! Die Standortbestimmung per GPS sollte aktiviert sein, um diese App benutzen zu können!</string>
  <string name="upload_data">Daten hochladen</string>
  <string name="upload_in_progress">Datenupload ist bereits aktiv!</string>
- <string name="freifunk">Nächstes Freifunknetzwerk finden</string>
+ <string name="freehotspot">Nächsten freien Hotspot finden</string>
+
  <string name="prefs">Einstellungen</string>
  <string name="loading_data">Lade Daten herunter&#8230;</string>
  <string name="preparing_data">Bereite Daten vor&#8230;</string>
@@ -24,23 +25,22 @@
  <string name="ok">OK</string>    
  <string name="track_info">Die (Diebstahls-)Verfolgungsfunktion wurde aktiviert. Diese Funktion greift auf das Netz zu, um die aktuelle Position in größeren Abständen zu übertragen. Um die aktuelle Position des Gerätes festzustellen, muss diese Trackingnummer auf der Webseite des Projektes eingegeben werden</string>
  <string name="track_info2">Diese Nummer sollte für die spätere Verwendung aufgeschrieben und an einem sicheren Platz aufbewahrt werden!</string>    
- <string name="yes">Ja</string>    
  <string name="no">Nein</string>    
  <string name="exit">Beenden</string>    
  <string name="bssid">ID</string>    
  <string name="lat">Breitengrad</string>    
  <string name="lon">Längengrad</string>    
- <string name="info">Info</string>    
  <string name="rank">Rang</string>    
  <string name="points">Punkte</string>    
  <string name="your_new_rank">Neu erreichter Rang</string>
  <string name="ap_count">Anzahl WiFi APs</string>
  <string name="credits">Danksagung</string>    
  <string name="help">Hilfe</string>    
- <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - offenes Freifunk-Netzwerk\nweiß - anderes, privates Netzwerk</string>
- <string name="do_scan">Scan aktivieren</string>
+ <string name="help_txt">Farben der großen WLAN-Zähler:\nrot - keine Lokalisierung und keine WLAN-Datenaufzeichnung\ngelb - WLAN-basierte Lokalisierung\nweiß - GPS-Lock\n\nFarben der aufgelisteten WLANs:\nrot - _nomap-markiertes Opt-Out-Netzwerk\nblau - offenes, unverschlüsseltes Netzwerk\ngrün - freier WLAN-Hotspot\nweiß - anderes, privates Netzwerk</string>
  <string name="waitGPS">Warte auf GPS-Signal&#8230;</string>
  
+ <string name="prefsAutoConnect">Auto-Connect zu Freifunk-WLANs</string>
+ <string name="prefsAutoConnectText">WARNUNG! Diese Option ist gefährlich und sollte nur bei einem abgesicherten Gerät verwendet werden!</string>
  <string name="prefsAutoStart">Automatisch nach dem Booten starten</string>
  <string name="prefsAutoStartText">Führt die App automatisch aus, sobald das Gerät gestartet wird</string>
  <string name="prefsAdaptiveScanning">Adaptives Scanning</string>

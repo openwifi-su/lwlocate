@@ -20,12 +20,14 @@ public class WMapEntry
            int      listPos=0;
            int      flags=0;
 
-   static final int FLAG_UI_USED    =0x0001;
-   static final int FLAG_IS_VISIBLE =0x0002;
-   static final int FLAG_POS_CHANGED=0x0004;
-   static final int FLAG_IS_OPEN    =0x0008;
-   static final int FLAG_IS_NOMAP   =0x0010;   
-   static final int FLAG_IS_FREIFUNK=0x0020;   
+   static final int FLAG_UI_USED       =0x0001;
+   static final int FLAG_IS_VISIBLE    =0x0002;
+   static final int FLAG_POS_CHANGED   =0x0004;
+   static final int FLAG_IS_OPEN       =0x0008;
+   static final int FLAG_IS_NOMAP      =0x0010;   
+   static final int FLAG_IS_FREIFUNK   =0x0020;   
+   static final int FLAG_IS_FREEHOTSPOT=0x0040;   
+   static final int FLAG_IS_THECLOUD   =0x0080;   
    
    public WMapEntry(String BSSID,String SSID,double lat,double lon,int listPos)
    {
@@ -38,7 +40,7 @@ public class WMapEntry
       lastUpdate=System.currentTimeMillis();
       flags|=FLAG_POS_CHANGED;
    }
-
+//--.
       
    
    void createUIData(Context ctx)
@@ -58,6 +60,8 @@ public class WMapEntry
       
       ImageView img=new ImageView(ctx);
       if ((flags & FLAG_IS_FREIFUNK)!=0) img.setImageResource(R.drawable.wifi_frei);
+      else if ((flags & FLAG_IS_FREEHOTSPOT)!=0) img.setImageResource(R.drawable.wifi_freehotspot);
+      else if ((flags & FLAG_IS_THECLOUD)!=0) img.setImageResource(R.drawable.wifi_cloud);
       else if ((flags & FLAG_IS_OPEN)!=0) img.setImageResource(R.drawable.wifi_open);
       else img.setImageResource(R.drawable.wifi);
       row.addView(img);
@@ -93,7 +97,7 @@ public class WMapEntry
          latView.setTextColor(0xFFFFAAAA);      
          lonView.setTextColor(0xFFFFAAAA);         
       }
-      else if ((flags & FLAG_IS_FREIFUNK)!=0)
+      else if ((flags & (FLAG_IS_FREIFUNK|FLAG_IS_FREEHOTSPOT|FLAG_IS_THECLOUD))!=0)
       {
          cntText.setTextColor(0xFFAAFFAA);      
          bssidView.setTextColor(0xFFAAFFAA);      

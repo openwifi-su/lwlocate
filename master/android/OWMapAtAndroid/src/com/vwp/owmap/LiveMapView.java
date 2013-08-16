@@ -20,9 +20,9 @@ class LiveMapData
 
 public class LiveMapView extends View implements Runnable
 {
-   private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap,freeHotspotWlanBitmap;
+   private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap,freeHotspotWlanBitmap,theCloudWlanBitmap;
    private double         m_lat,m_lon;
-   private Paint          wlanColour,openWlanColour,instColour,instInner,instInner2,teleBG;
+   private Paint          wlanColour,instColour,instInner,instInner2,teleBG;
    public  final int      m_zoom=17;
    private Thread         tilesThread;
    private boolean        allowThread=false;
@@ -48,16 +48,12 @@ public class LiveMapView extends View implements Runnable
       wlanColour.setStrokeWidth(2);
       
       wlanBitmap=BitmapFactory.decodeResource(getResources(),R.drawable.wifi);
-
-      openWlanColour=new Paint();
-      openWlanColour.setARGB(255,0,0,200);
-      openWlanColour.setStyle(Paint.Style.STROKE);
-      openWlanColour.setStrokeWidth(2);
       
       openWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_open);
       
       freifunkWlanBitmap=BitmapFactory.decodeResource(getResources(),R.drawable.wifi_frei);
       freeHotspotWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_freehotspot);
+      theCloudWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_cloud);
 
       instColour=new Paint();
       instColour.setARGB(200,15,15,40);
@@ -268,12 +264,7 @@ public class LiveMapView extends View implements Runnable
             entry=ScanService.scanData.wmapList.elementAt(i);
             cy=(float)((mapData[currMap].shiftY*256+256.0*(entry.getLat()-tileLat1)/(tileLat2-tileLat1)));
             cx=(float)((mapData[currMap].shiftX*256+256.0*(entry.getLon()-tileLon1)/(tileLon2-tileLon1)));
-            if ((entry.flags & WMapEntry.FLAG_IS_OPEN)==0)
-            {
-               c.drawCircle(cx-0.5f, cy-1,10, wlanColour);
-               c.drawBitmap(wlanBitmap,cx-7,cy-7,null);
-            }
-            else if ((entry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0)
+            if ((entry.flags & WMapEntry.FLAG_IS_FREIFUNK)!=0)
             {
                c.drawBitmap(freifunkWlanBitmap,cx-7,cy-7,null);
             }
@@ -281,9 +272,17 @@ public class LiveMapView extends View implements Runnable
             {
                c.drawBitmap(freeHotspotWlanBitmap,cx-7,cy-7,null);
             }
+            else if ((entry.flags & WMapEntry.FLAG_IS_THECLOUD)!=0)
+            {
+               c.drawBitmap(theCloudWlanBitmap,cx-7,cy-7,null);
+            }
+            else if ((entry.flags & WMapEntry.FLAG_IS_OPEN)==0)
+            {
+            	if ((entry.flags & WMapEntry.FLAG_IS_NOMAP)!=0) c.drawCircle(cx-0.5f, cy-1,10, wlanColour);
+               c.drawBitmap(wlanBitmap,cx-7,cy-7,null);
+            }
             else
             {
-               c.drawCircle(cx-0.5f, cy-1,10, openWlanColour);
                c.drawBitmap(openWlanBitmap,cx-7,cy-7,null);            
             }
          }      

@@ -66,4 +66,16 @@
   <item>20000</item> 
   <item>50000</item> 
  </string-array>    
+ <string-array name="prefsNoGPSExitEntries">         
+  <item>Nie</item> 
+  <item>Nach 10 Minuten</item> 
+  <item>Nach 20 Minuten</item> 
+  <item>Nach 50 Minuten</item> 
+ </string-array>    
+ <string-array name="prefsNoGPSExitValues">         
+  <item>0</item> 
+  <item>10</item> 
+  <item>20</item> 
+  <item>50</item> 
+ </string-array>    
 </resources>

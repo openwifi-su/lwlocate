@@ -82,4 +82,6 @@
  <string name="prefsTrackText">Position dieses Gerätes online verfolgen</string>
  <string name="prefsAutoUpload">Via WLAN automatisch hochladen</string>
  <string name="prefsAutoUploadText">Gesammelte APs automatisch per WLAN-Verbindung hochladen (erfordert Neustart der App)</string>
- </resources>
+ <string name="prefsNoGPSExit">App beenden wenn kein GPS vorhanden ist</string>
+ <string name="prefsNoGPSExitText">Beendet die App nach einer einstellbaren Zeit ohne GPS-Empfang</string>
+</resources>

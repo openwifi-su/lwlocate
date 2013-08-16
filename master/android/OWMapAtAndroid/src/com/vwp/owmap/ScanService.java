@@ -37,6 +37,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    static  ScanData              scanData=new ScanData();
    private SensorManager         sensorManager;
    private long                  lastTelemetryTime;
+   private long                  lastGPSTime=System.currentTimeMillis();
    private String                telemetryDir; 
    private float                 m_lastSpeed;
    private UploadThread          m_uploadThread;
@@ -94,6 +95,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       try
       {
          scanData.uploadThres=Integer.parseInt(SP.getString("autoUpload","0"));
+      }
+      catch (NumberFormatException nfe)
+      {
+      }               
+      try
+      {
+         scanData.noGPSExit=Integer.parseInt(SP.getString("noGPSExit","0"))*60*1000;
       }
       catch (NumberFormatException nfe)
       {
@@ -275,6 +283,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          posValid=false;
          if (ret==WLocate.WLOC_OK)
          {
+        	lastGPSTime=System.currentTimeMillis();
             if (radius<OWMapAtAndroid.MAX_RADIUS)
             {
                if (GeoUtils.latlon2dist(lat,lon,lastLat,lastLon)<10)
@@ -370,6 +379,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
          if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
          if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
+         if (result.SSID.toLowerCase(Locale.US).contains("the cloud")) return WMapEntry.FLAG_IS_THECLOUD;
          return WMapEntry.FLAG_IS_OPEN;
 	  }
 	  return 0;
@@ -379,7 +389,9 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    private boolean isFreeHotspot(int flags)
    {
 	   return (((flags & WMapEntry.FLAG_IS_FREIFUNK)==WMapEntry.FLAG_IS_FREIFUNK) ||
-			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT));
+			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT) ||
+			   ((flags & WMapEntry.FLAG_IS_THECLOUD)==WMapEntry.FLAG_IS_THECLOUD)
+			   );
    }
    
    
@@ -424,6 +436,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       {
          try
          {
+        	if (scanData.noGPSExit>0)
+        	{
+       		   if (System.currentTimeMillis()>lastGPSTime+scanData.noGPSExit)
+       		   {
+        	      break;	
+               }
+        	}
             if (ScanService.scanData.threadMode==OWMapAtAndroid.THREAD_MODE_UPLOAD) 
             {
                if ((m_uploadThread!=null) && (m_uploadThread.isUploading()))
@@ -507,7 +526,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            ScanResult result;
                         
                            result=locationInfo.wifiScanResult.get(i);
-                           result.capabilities=result.capabilities.toUpperCase();
+                           result.capabilities=result.capabilities.toUpperCase(Locale.US);
                            if ((isFreeHotspot(result) & WMapEntry.FLAG_IS_FREIFUNK)!=0)
                            {
                               // auto-connect to this open network
@@ -536,7 +555,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         ScanResult result;
 
                         result=locationInfo.wifiScanResult.get(i);                     
-                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase();
+                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
                         if (bssid.equalsIgnoreCase("000000000000")) break;
                         foundExisting=false;
                         scanData.lock.lock();
@@ -558,11 +577,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           lowerSSID=result.SSID.toLowerCase();
+                           lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
-                        	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
-                        	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
-                        	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
+                           	   (lowerSSID.contains("deinbus.de")) ||  // WLAN network on board of German bus
+                          	   (lowerSSID.contains("fernbus")) || // WLAN network on board of German bus
+                        	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
+                        	   (lowerSSID.contains("nsb_interakti"))) // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else currEntry.flags|=isFreeHotspot(result);                                          
                            if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
@@ -578,7 +599,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                               }                              
                            }                           
                         }
-                        result.capabilities=result.capabilities.toUpperCase();
+                        result.capabilities=result.capabilities.toUpperCase(Locale.US);
                         scanData.lock.unlock();
                      }
                   }

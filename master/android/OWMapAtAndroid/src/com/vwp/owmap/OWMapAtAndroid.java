@@ -3,8 +3,7 @@ package com.vwp.owmap;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.*;
 
 import android.app.*; 
 import android.content.*;
@@ -155,7 +154,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       public static final int MSG_UPD_POS=3;
       public static final int MSG_OPEN_PRG_DLG=4;
       public static final int MSG_CLOSE_PRG_DLG=5;
-      public static final int MSG_GET_FREEHOTSPOT_POS_DL2=6;
+      public static final int MSG_GET_FREEHOTSPOT_S_DL2=6;
       public static final int MSG_SHOW_MAP2=7;
       public static final int MSG_SHOW_MAP=8;
       public static final int MSG_DL_FAILURE=9;
@@ -166,6 +165,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       public static final int MSG_TELEMETRY=16;
       public static final int MSG_TOAST=17;
       public static final int MSG_GET_FREEHOTSPOT_POS_DL=18;
+      public static final int MSG_GET_FREEHOTSPOT_POS_DL2=19;
       
       private Lock lock=new ReentrantLock();
 
@@ -815,7 +815,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
             }
             break;
          case 4:            
-            scannerHandler.sendEmptyMessage(OWMapAtAndroid.ScannerHandler.MSG_GET_FREEHOTSPOT_DL);
+            scannerHandler.sendEmptyMessage(OWMapAtAndroid.ScannerHandler.MSG_GET_FREEHOTSPOT_POS_DL);
             break;
          case 5:
             Intent intent = new Intent(this,com.vwp.owmap.OWLMapPrefs.class);
@@ -1092,6 +1092,14 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       catch (NumberFormatException nfe)
       {
       }               
+      try
+      {
+         ScanService.scanData.noGPSExit=Integer.parseInt(SP.getString("noGPSExit","0"))*60*1000;
+      }
+      catch (NumberFormatException nfe)
+      {
+      }               
+      
       getTelemetryConfig(SP);
       if ((!doTrack) && (SP.getBoolean("track",false)))
       {

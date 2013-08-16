@@ -2,6 +2,7 @@ package com.vwp.owmini;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
@@ -57,7 +58,7 @@ public class ScanService extends Service implements Runnable
       if (screenLightVal==1) flags=PowerManager.PARTIAL_WAKE_LOCK; 
       else if (screenLightVal==3) flags=PowerManager.FULL_WAKE_LOCK;
       else flags=PowerManager.SCREEN_DIM_WAKE_LOCK;
-      wl = pm.newWakeLock(flags,"OpenWLANMapMini");
+      wl = pm.newWakeLock(flags,"OpenWLANMini");
       wl.acquire();
       while (myWLocate==null)
       {
@@ -183,12 +184,10 @@ public class ScanService extends Service implements Runnable
          else
          {
             lastRadius=-1;
-}
-            posState=2;         
-            scanThread.interrupt();
-//         }
-      }   
-      
+         }
+         posState=2;         
+         scanThread.interrupt();
+      }         
    }	
 
 /*   private class GoogleLocationListener implements LocationListener 
@@ -258,15 +257,27 @@ public class ScanService extends Service implements Runnable
    }   
    
    
-   private boolean isFreifunkWLAN(ScanResult result)
+   private int isFreeHotspot(ScanResult result)
    {
 	  if (isOpenWLAN(result))
 	  {
-         if (result.SSID.toLowerCase().contains("freifunk")) return true;
-         if (result.SSID.toLowerCase().compareTo("mesh")==0) return true;
+         if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
+         if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
+         if (result.SSID.toLowerCase(Locale.US).contains("the cloud")) return WMapEntry.FLAG_IS_THECLOUD;
+         return WMapEntry.FLAG_IS_OPEN;
 	  }
-	  return false;
+	  return 0;
    }   
+   
+   
+   private boolean isFreeHotspot(int flags)
+   {
+	   return (((flags & WMapEntry.FLAG_IS_FREIFUNK)==WMapEntry.FLAG_IS_FREIFUNK) ||
+			   ((flags & WMapEntry.FLAG_IS_FREEHOTSPOT)==WMapEntry.FLAG_IS_FREEHOTSPOT) ||
+			   ((flags & WMapEntry.FLAG_IS_THECLOUD)==WMapEntry.FLAG_IS_THECLOUD)
+			   );
+   }
    
    
    void storeConfig()
@@ -318,9 +329,9 @@ public class ScanService extends Service implements Runnable
                   if (scanData.getFlags()!=lastFlags)
                   {
                      if ((scanData.getFlags() & OWMiniAtAndroid.FLAG_NO_NET_ACCESS)==0)
-                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL,"OpenWLANMapMini");
+                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL,"OpenWLANMini");
                      else
-                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY,"OpenWLANMapMini");
+                      scanData.wifiManager.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY,"OpenWLANMini");
                      lastFlags=scanData.getFlags();        
                   }
                   if ((scanData.getFlags() & OWMiniAtAndroid.FLAG_NO_NET_ACCESS)==0)
@@ -363,7 +374,7 @@ public class ScanService extends Service implements Runnable
                }
                if ((posState==2) || (posState==100))
                {
-                  loc_info    locationInfo; //bussi
+                  loc_info    locationInfo;
                   
                   locationInfo=myWLocate.last_location_info();
                   if (lastLocMethod!=locationInfo.lastLocMethod)
@@ -384,7 +395,7 @@ public class ScanService extends Service implements Runnable
                         ScanResult result;
 
                         result=locationInfo.wifiScanResult.get(i);                     
-                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase();
+                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
                         if (bssid.equalsIgnoreCase("000000000000")) break;
                         foundExisting=false;
                         scanData.lock.lock();
@@ -401,22 +412,24 @@ public class ScanService extends Service implements Runnable
                         if (!foundExisting)
                         {
                            String lowerSSID;
-                            
+                           
                            storedValues=scanData.incStoredValues();
                            scanData.mView.setValue(storedValues);
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           lowerSSID=result.SSID.toLowerCase();
+                           lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
-                        	   (lowerSSID.endsWith("guest@ms ")) ||   // WLAN network on Hurtigruten ships
-                        	   (lowerSSID.endsWith("admin@ms ")) ||   // WLAN network on Hurtigruten ships
-                        	   (lowerSSID.endsWith("nsb_interakti"))) // WLAN network in NSB trains
+                           	   (lowerSSID.contains("deinbus.de")) ||  // WLAN network on board of German bus
+                           	   (lowerSSID.contains("fernbus")) || // WLAN network on board of German bus
+                           	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
+                           	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
+                           	   (lowerSSID.contains("nsb_interakti"))) // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
-                           else if (isFreifunkWLAN(result)) currEntry.flags|=(WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_OPEN);                                          
-                           else if (isOpenWLAN(result)) currEntry.flags|=WMapEntry.FLAG_IS_OPEN;                                          
+                           else currEntry.flags|=isFreeHotspot(result);                                          
+                           if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
                            scanData.wmapList.add(currEntry);
                         }
-                        result.capabilities=result.capabilities.toUpperCase();
+                        result.capabilities=result.capabilities.toUpperCase(Locale.US);
                         scanData.lock.unlock();
                      }
                   }
@@ -429,7 +442,7 @@ public class ScanService extends Service implements Runnable
                         scanData.wmapList.remove(j);
                         if (currEntry.posIsValid())
                         {
-                           int padBytes=0,k; //  huggeidimörps
+                           int padBytes=0,k;
                            
                            try                           
                            {                                                      
@@ -527,58 +540,64 @@ public class ScanService extends Service implements Runnable
          if ((trackCnt>500000) && (lastLat!=0) && (lastLon!=0)) 
          {
             if (SP.getBoolean("track", false))
-             uploadPosition();
+             new UploadPositionTask().execute(null,null,null);
             trackCnt=0;
          }
       }
       onDestroy(); // remove all resources (in case the thread was stopped due to some other reason
    }
 
-   protected synchronized void uploadPosition()
+   
+   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
    {
-      String                        outString;
-      HttpURLConnection             c=null;
-      DataOutputStream              os=null;
-      
-      outString=scanData.ownBSSID;
-      outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
+      protected Void doInBackground(Void... params) 
+      {
+         String                        outString;
+         HttpURLConnection             c=null;
+         DataOutputStream              os=null;
+          
+         outString=scanData.ownBSSID;
+         outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
 
-      try
-      {
-         URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
-         c= (HttpURLConnection) connectURL.openConnection();
-         if (c==null)
+         try
          {
-            return;
-         }
-        
-         c.setDoOutput(true); // enable POST
-         c.setRequestMethod("POST");
-         c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-         c.addRequestProperty("Content-Length",""+outString.length());
-         os = new DataOutputStream(c.getOutputStream());
-         os.write(outString.getBytes());
-         os.flush();
-         c.getResponseCode();
-         os.close();
-         outString=null;
-         os=null;
-      }
-      catch (IOException ioe)
-      {
-      }
-      finally
-      {
-         try 
-         {
-            if (os != null) os.close();
-            if (c != null) c.disconnect();
+            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
+            c= (HttpURLConnection) connectURL.openConnection();
+            if (c==null)
+            {
+               return null;
+            }
+            
+            c.setDoOutput(true); // enable POST
+            c.setRequestMethod("POST");
+            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+            c.addRequestProperty("Content-Length",""+outString.length());
+            os = new DataOutputStream(c.getOutputStream());
+            os.write(outString.getBytes());
+            os.flush();
+            c.getResponseCode();
+            os.close();
+            outString=null;
+            os=null;
          }
          catch (IOException ioe)
          {
-            ioe.printStackTrace();
-         } 
+         }
+         finally
+         {
+            try 
+            {
+               if (os != null) os.close();
+               if (c != null) c.disconnect();
+            }
+            catch (IOException ioe)
+            {
+               ioe.printStackTrace();
+            } 
+         }
+         return null;
       }
-   }
-      
+   }      
+
+   
 }
