@@ -25,7 +25,23 @@ public class GeoUtils
       this.mode=mode;
       String state = Environment.getExternalStorageState();
       if(state.equals(Environment.MEDIA_MOUNTED))
-       cachePath=Environment.getExternalStorageDirectory().getPath()+"/com.vwp.geoutils/";
+      {         
+         File nomedia;
+         
+         cachePath=Environment.getExternalStorageDirectory().getPath()+"/com.vwp.geoutils/";
+         nomedia=new File(cachePath+".nomedia");
+         if (!nomedia.exists()) try
+         {
+            FileOutputStream out;
+            
+            out=new FileOutputStream(nomedia);
+            out.flush();
+            out.close();
+         }
+         catch (IOException ioe)
+         {
+         }
+      }
    }
 
    public void setMode(int mode)
