@@ -579,8 +579,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
+                               (lowerSSID.contains("iphone")) ||      // mobile AP
+                               (lowerSSID.contains("android")) ||     // mobile AP
+                               (lowerSSID.contains("motorola")) ||    // mobile AP
                            	   (lowerSSID.contains("deinbus.de")) ||  // WLAN network on board of German bus
-                          	   (lowerSSID.contains("fernbus")) || // WLAN network on board of German bus
+                          	   (lowerSSID.contains("fernbus")) ||     // WLAN network on board of German bus
+                          	   (lowerSSID.contains("flixbus")) ||     // WLAN network on board of German bus
+                          	   (lowerSSID.contains("ecolines")) || // WLAN network on board of German bus
                           	   (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
                         	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
