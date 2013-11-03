@@ -64,7 +64,9 @@
  <string name="prefsPublishText">Rend mes données disponibles au public au téléchargement depuis openwlanmap.org</string>
  <string name="prefsTrack">Track ma propre position</string>
  <string name="prefsTrackText">Track la position de cet appareil en ligne</string>
-
+ <string name="prefsAutoUpload">Upload automatique via wifi</string>
+ <string name="prefsAutoUploadText">Upload les PA collectés via la connexion wifi (redémarrage de l\'appli requis)</string>
+ 
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>
 

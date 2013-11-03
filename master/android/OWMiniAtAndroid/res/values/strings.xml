@@ -65,6 +65,8 @@
  <string name="prefsPublishText">Make own data available to the public through download from openwlanmap.org</string>
  <string name="prefsTrack">Track own position</string>
  <string name="prefsTrackText">Track position of this device online</string>
+ <string name="prefsAutoUpload">Upload via WLAN automatically</string>
+ <string name="prefsAutoUploadText">Upload collected APs automatically via WLAN-connection (requires restart of app)</string>
  
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>

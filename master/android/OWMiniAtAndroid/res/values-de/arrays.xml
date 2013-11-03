@@ -30,4 +30,18 @@
   <item>2</item> 
   <item>3</item> 
  </string-array> 
+ <string-array name="prefsAutoUploadEntries">         
+  <item>Aus</item> 
+  <item>Nach 5000 APs</item> 
+  <item>Nach 10000 APs</item> 
+  <item>Nach 20000 APs</item> 
+  <item>Nach 50000 APs</item> 
+ </string-array>    
+ <string-array name="prefsAutoUploadValues">         
+  <item>0</item> 
+  <item>5000</item> 
+  <item>10000</item> 
+  <item>20000</item> 
+  <item>50000</item> 
+ </string-array>    
 </resources>

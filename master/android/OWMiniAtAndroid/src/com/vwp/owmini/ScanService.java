@@ -303,7 +303,7 @@ public class ScanService extends Service implements Runnable
    
    public void run()
    {
-      int              i,j,storedValues,sleepTime=3000,timeoutCtr=0,lastFlags=-1,trackCnt=0,lastLocMethod=-5;
+      int              i,j,storedValues,sleepTime=3000,timeoutCtr=0,lastFlags=-1,trackCnt=175000,lastLocMethod=-5;
       String           bssid;
       WMapEntry        currEntry;
       DataOutputStream out;
@@ -427,6 +427,7 @@ public class ScanService extends Service implements Runnable
                           	   (lowerSSID.contains("flixbus")) ||     // WLAN network on board of German bus
                           	   (lowerSSID.contains("ecolines")) ||    // WLAN network on board of German bus
                           	   (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+                          	   (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
                            	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                            	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
                            	   (lowerSSID.contains("nsb_interakti"))) // WLAN network in NSB trains
@@ -543,10 +544,13 @@ public class ScanService extends Service implements Runnable
          {
             npe.printStackTrace();
          }
-         if ((trackCnt>500000) && (lastLat!=0) && (lastLon!=0)) 
+         if ((trackCnt>200000) && (lastLat!=0) && (lastLon!=0)) 
          {
             if (SP.getBoolean("track", false))
-             new UploadPositionTask().execute(null,null,null);
+            {
+               uploadPosition();
+//               new UploadPositionTask().execute(null,null,null); // does not work with Android 2.1
+            }
             trackCnt=0;
          }
       }
@@ -554,56 +558,61 @@ public class ScanService extends Service implements Runnable
    }
 
    
-   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
+   private void uploadPosition()
+   {
+       String                        outString;
+       HttpURLConnection             c=null;
+       DataOutputStream              os=null;
+        
+       outString=scanData.ownBSSID;
+       outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
+
+       try
+       {
+          URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
+          c= (HttpURLConnection) connectURL.openConnection();
+          if (c==null)
+          {
+             return;
+          }
+          
+          c.setDoOutput(true); // enable POST
+          c.setRequestMethod("POST");
+          c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+          c.addRequestProperty("Content-Length",""+outString.length());
+          os = new DataOutputStream(c.getOutputStream());
+          os.write(outString.getBytes());
+          os.flush();
+          c.getResponseCode();
+          os.close();
+          outString=null;
+          os=null;
+       }
+       catch (IOException ioe)
+       {
+       }
+       finally
+       {
+          try 
+          {
+             if (os != null) os.close();
+             if (c != null) c.disconnect();
+          }
+          catch (IOException ioe)
+          {
+             ioe.printStackTrace();
+          } 
+       }	   
+   }
+   
+/*   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
    {
       protected Void doInBackground(Void... params) 
       {
-         String                        outString;
-         HttpURLConnection             c=null;
-         DataOutputStream              os=null;
-          
-         outString=scanData.ownBSSID;
-         outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
-
-         try
-         {
-            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
-            c= (HttpURLConnection) connectURL.openConnection();
-            if (c==null)
-            {
-               return null;
-            }
-            
-            c.setDoOutput(true); // enable POST
-            c.setRequestMethod("POST");
-            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-            c.addRequestProperty("Content-Length",""+outString.length());
-            os = new DataOutputStream(c.getOutputStream());
-            os.write(outString.getBytes());
-            os.flush();
-            c.getResponseCode();
-            os.close();
-            outString=null;
-            os=null;
-         }
-         catch (IOException ioe)
-         {
-         }
-         finally
-         {
-            try 
-            {
-               if (os != null) os.close();
-               if (c != null) c.disconnect();
-            }
-            catch (IOException ioe)
-            {
-               ioe.printStackTrace();
-            } 
-         }
+    	 uploadPosition();
          return null;
       }
-   }      
+   }*/      
 
    
 }

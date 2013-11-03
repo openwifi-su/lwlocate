@@ -18,7 +18,16 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   />
-
+ <ListPreference
+  android:title="@string/prefsAutoUpload"
+  android:summary="@string/prefsAutoUploadText"
+  android:key="autoUpload"
+  android:defaultValue="0"
+  android:entries="@array/prefsAutoUploadEntries"
+  android:entryValues="@array/prefsAutoUploadValues"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  />
  <CheckBoxPreference android:title="@string/prefsAdaptiveScanning"
   android:defaultValue="true"
   android:summary="@string/prefsAdaptiveScanningText"
