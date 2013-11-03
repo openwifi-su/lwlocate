@@ -587,6 +587,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                           	   (lowerSSID.contains("flixbus")) ||     // WLAN network on board of German bus
                           	   (lowerSSID.contains("ecolines")) || // WLAN network on board of German bus
                           	   (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+                          	   (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
                         	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
                         	   (lowerSSID.contains("nsb_interakti"))) // WLAN network in NSB trains
