@@ -67,6 +67,9 @@
  <string name="prefsTrackText">Track position of this device online</string>
  <string name="prefsAutoUpload">Upload via WLAN automatically</string>
  <string name="prefsAutoUploadText">Upload collected APs automatically via WLAN-connection (requires restart of app)</string>
+ <string name="prefsStartupURL">Load URL on start-up</string>
+ <string name="prefsStartupURLText">This URL is loaded in background every time the application is started</string>
+ <string name="prefsStartupURLTitle">Enter URL</string>
  
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>

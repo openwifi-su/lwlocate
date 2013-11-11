@@ -29,8 +29,7 @@ public class MapView extends View implements Runnable
 
       this.allowNetAccess=allowNetAccess;
             
-      if (mode==GeoUtils.MODE_OSM) geoUtils=new GeoUtils(GeoUtils.MODE_OSM);
-      else geoUtils=new GeoUtils(GeoUtils.MODE_GMAP);
+      geoUtils=new GeoUtils(mode);
       
       setBackgroundColor(0xFF555570);
       display=((WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 

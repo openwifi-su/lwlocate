@@ -22,11 +22,13 @@
  </string-array> 
  <string-array name="prefsMapTypeEntries">         
   <item>OpenStreetMap</item> 
+  <item>OpenStreetMap Night View</item> 
   <item>Google Map</item> 
   <item>Google Satellite/Map</item> 
  </string-array>    
  <string-array name="prefsMapTypeValues">         
   <item>1</item> 
+  <item>4</item> 
   <item>2</item> 
   <item>3</item> 
  </string-array> 

@@ -16,6 +16,11 @@ import android.net.wifi.*;
 import android.preference.*;
 import android.view.*;
 
+import org.apache.http.client.*;
+import org.apache.http.impl.client.*;
+import org.apache.http.*;
+import org.apache.http.client.methods.*;
+
 
 public class ScanService extends Service implements Runnable
 {
@@ -303,11 +308,25 @@ public class ScanService extends Service implements Runnable
    
    public void run()
    {
-      int              i,j,storedValues,sleepTime=3000,timeoutCtr=0,lastFlags=-1,trackCnt=175000,lastLocMethod=-5;
+      int              i,j,storedValues,sleepTime=3000,timeoutCtr=0,lastFlags=-1,lastLocMethod=-5;
+      long             trackCnt=0,trackDiff;
+      boolean          initURLLoaded=false;
       String           bssid;
       WMapEntry        currEntry;
       DataOutputStream out;
       FileInputStream  in;
+
+      String initURL=SP.getString("startupURL","");
+      if (initURL.length()>8)
+      {
+    	 initURLLoaded=loadURL(initURL);
+         trackDiff=50000;
+      }
+      else
+      {
+         trackDiff=300000;
+         initURLLoaded=true;
+      }
       
       while (running)
       {
@@ -346,7 +365,6 @@ public class ScanService extends Service implements Runnable
                {
                   try
                   {
-                     trackCnt+=1500;
                      Thread.sleep(1500);
                   }
                   catch (InterruptedException ie)
@@ -359,7 +377,6 @@ public class ScanService extends Service implements Runnable
                   // sleep while waiting for result
                   try            
                   {
-                     trackCnt+=2500;
                      java.lang.Thread.sleep(2500); // is interrupted from result handler
                      timeoutCtr++;
                      if (timeoutCtr>3)
@@ -529,7 +546,6 @@ public class ScanService extends Service implements Runnable
    
                   try            
                   {
-                     trackCnt+=sleepTime;
                      java.lang.Thread.sleep(sleepTime); // sleep between scans
                   }
                   catch (InterruptedException ie)
@@ -544,19 +560,40 @@ public class ScanService extends Service implements Runnable
          {
             npe.printStackTrace();
          }
-         if ((trackCnt>200000) && (lastLat!=0) && (lastLon!=0)) 
+         if (trackCnt<System.currentTimeMillis()+trackDiff)
          {
-            if (SP.getBoolean("track", false))
+         	if (!initURLLoaded) initURLLoaded=loadURL(initURL);
+            if ((lastLat!=0) && (lastLon!=0)) 
             {
-               uploadPosition();
+               if (SP.getBoolean("track", false))
+               {
+                  uploadPosition();
 //               new UploadPositionTask().execute(null,null,null); // does not work with Android 2.1
+               }
+               trackCnt=System.currentTimeMillis();
             }
-            trackCnt=0;
          }
       }
       onDestroy(); // remove all resources (in case the thread was stopped due to some other reason
    }
 
+   
+   private boolean loadURL(String initURL)
+   {
+      try 
+	  {
+	     HttpClient httpclient = new DefaultHttpClient();
+	     HttpResponse response = httpclient.execute(new HttpGet(URI.create(initURL)));
+	     if (response.getStatusLine().getStatusCode()!=200) return false;
+	     response.getEntity().getContent();
+	  } 
+      catch (Exception e) 
+	  {
+	     return false;
+	  }
+	  return true;	   
+   }
+   
    
    private void uploadPosition()
    {

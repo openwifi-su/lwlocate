@@ -16,6 +16,7 @@ public class GeoUtils
    public static final int MODE_OSM=1;
    public static final int MODE_GMAP=2;
    public static final int MODE_GSMAP=3;
+   public static final int MODE_OSM_NIGHT=4;
       
    private String     cachePath=null;
    private int        mode=MODE_OSM,mirrorCnt=1;
@@ -108,6 +109,7 @@ public class GeoUtils
       return tile;
    }   
    
+   
    private Bitmap loadMapTile(Context ctx,int x, int y, int z,boolean allowDownload,int useMode)
    {
       FileInputStream fin;
@@ -125,6 +127,7 @@ public class GeoUtils
             File   pathFile;
             
             if (useMode==MODE_OSM) tilePath=cachePath+"o";
+            else if (useMode==MODE_OSM_NIGHT) tilePath=cachePath+"on";
             else if (useMode==MODE_GMAP) tilePath=cachePath+"g";
             else tilePath=cachePath+"s";
             tilePath=tilePath+"/"+z+"/"+x+"/";
@@ -151,6 +154,27 @@ public class GeoUtils
       }
       catch (IOException ioe)
       {         
+         if (useMode==MODE_OSM_NIGHT)
+         {
+            tile=loadMapTile(ctx,x,y,z,allowDownload,MODE_OSM);
+            if (tile!=null)
+            {
+               ColorMatrix negativeMatrix =new ColorMatrix();
+          	   float[] negMat={-1, 0, 0, 0, 255, 0, -1, 0, 0, 255, 0, 0, -1, 0, 255, 0, 0, 0, 1, 0 };
+          	  
+          	   negativeMatrix.set(negMat);
+          	   final ColorMatrixColorFilter colorFilter= new ColorMatrixColorFilter(negativeMatrix);
+          	   Bitmap rTile=tile.copy(Bitmap.Config.ARGB_8888, true);
+          	   Paint paint=new Paint();
+          	   paint.setColorFilter(colorFilter);
+          	   Canvas myCanvas =new Canvas(rTile);
+          	   myCanvas.drawBitmap(rTile, 0, 0, paint);
+          	   return rTile;            	
+            }
+            return null;
+         }
+
+    	  
          tile=null;
          if (allowDownload)
          {

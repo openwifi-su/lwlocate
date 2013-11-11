@@ -22,7 +22,7 @@ public class LiveMapView extends View implements Runnable
 {
    private Bitmap         wlanBitmap,openWlanBitmap,freifunkWlanBitmap,freeHotspotWlanBitmap,theCloudWlanBitmap;
    private double         m_lat,m_lon;
-   private Paint          wlanColour,instColour,instInner,instInner2,teleBG;
+   private Paint          wlanColour,instColour,instInner,instInner2,teleBG,posColour;
    public  final int      m_zoom=17;
    private Thread         tilesThread;
    private boolean        allowThread=false;
@@ -42,6 +42,11 @@ public class LiveMapView extends View implements Runnable
       this.setMinimumWidth(50);
       this.setMinimumHeight(50);
 
+      posColour=new Paint();
+      posColour.setARGB(255,25,0,255);
+      posColour.setStyle(Paint.Style.STROKE);
+      posColour.setStrokeWidth(3);
+      
       wlanColour=new Paint();
       wlanColour.setARGB(255,200,0,0);
       wlanColour.setStyle(Paint.Style.STROKE);
@@ -56,7 +61,7 @@ public class LiveMapView extends View implements Runnable
       theCloudWlanBitmap=BitmapFactory.decodeResource(getResources(), R.drawable.wifi_cloud);
 
       instColour=new Paint();
-      instColour.setARGB(200,15,15,40);
+      instColour.setARGB(200,30,30,80);
       instColour.setStyle(Paint.Style.STROKE);
       instColour.setStrokeWidth(3);
       
@@ -70,7 +75,7 @@ public class LiveMapView extends View implements Runnable
       instInner2.setStrokeWidth(7);
             
       teleBG=new Paint();
-      teleBG.setARGB(255,120,120,140);
+      teleBG.setARGB(255,90,90,110);
       teleBG.setStyle(Paint.Style.FILL);
                         
       updateScreenOrientation();      
@@ -87,6 +92,7 @@ public class LiveMapView extends View implements Runnable
    void setMapMode(String mode)
    {
       if (mode.equalsIgnoreCase("1")) geoUtils.setMode(GeoUtils.MODE_OSM);
+      else if (mode.equalsIgnoreCase("4")) geoUtils.setMode(GeoUtils.MODE_OSM_NIGHT);
       else if (mode.equalsIgnoreCase("2")) geoUtils.setMode(GeoUtils.MODE_GMAP);
       else geoUtils.setMode(GeoUtils.MODE_GSMAP);
    }
@@ -255,8 +261,8 @@ public class LiveMapView extends View implements Runnable
          
          cy=(float)((mapData[currMap].shiftY*256+256.0*(m_lat-tileLat1)/(tileLat2-tileLat1)));
          cx=(float)((mapData[currMap].shiftX*256+256.0*(m_lon-tileLon1)/(tileLon2-tileLon1)));
-         c.drawLine(cx-10,cy,cx+10,cy,wlanColour);
-         c.drawLine(cx,cy-10,cx,cy+10,wlanColour);
+         c.drawLine(cx-20,cy,cx+20,cy,posColour);
+         c.drawLine(cx,cy-20,cx,cy+20,posColour);
          
          ScanService.scanData.lock.lock();
          for (i=0; i<ScanService.scanData.wmapList.size(); i++)

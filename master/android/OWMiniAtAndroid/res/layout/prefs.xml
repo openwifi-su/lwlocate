@@ -115,4 +115,12 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   />
+ <EditTextPreference
+  android:title="@string/prefsStartupURL"
+  android:summary="@string/prefsStartupURLText"
+  android:key="startupURL"
+  android:dialogTitle="@string/prefsStartupURLTitle"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  />
 </PreferenceScreen>

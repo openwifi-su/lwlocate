@@ -502,6 +502,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
                 
                SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(owmp);      
                if (SP.getString("mapType","2").equalsIgnoreCase("1")) mode=GeoUtils.MODE_OSM;
+               else if (SP.getString("mapType","4").equalsIgnoreCase("1")) mode=GeoUtils.MODE_OSM_NIGHT;
                else mode=GeoUtils.MODE_GMAP;
 
                mapView=new MapView(owmp,((ScanService.scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0),mode);

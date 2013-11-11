@@ -67,4 +67,7 @@
  <string name="prefsTrackText">Position dieses Gerätes online verfolgen</string>
  <string name="prefsAutoUpload">Via WLAN automatisch hochladen</string>
  <string name="prefsAutoUploadText">Gesammelte APs automatisch per WLAN-Verbindung hochladen (erfordert Neustart der App)</string>
- </resources>
+ <string name="prefsStartupURL">URL beim Start laden</string>
+ <string name="prefsStartupURLText">Dieser URL wird bei jedem Start der App im Hintergrund geladen</string>
+ <string name="prefsStartupURLTitle">URL eingeben</string>
+</resources>
