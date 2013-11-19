@@ -3,9 +3,11 @@ package com.vwp.libwlocate.map;
 import android.content.*;
 import android.graphics.*;
 import android.view.*;
+import android.view.View.*;
+import android.widget.*;
 
 
-public class MapView extends View implements Runnable
+public class MapView extends LinearLayout implements Runnable, OnClickListener
 {
    private static final int INVALID_POINTER_ID = -1;   
 
@@ -20,6 +22,9 @@ public class MapView extends View implements Runnable
    private GeoUtils        geoUtils;
    private MapOverlay      useOverlay=new MapOverlay();
    private GestureDetector gestureDetector;
+   private Button          zoomInButton,zoomOutButton;
+
+   
    
    public MapView(Context ctx,boolean allowNetAccess,int mode)
    {
@@ -40,8 +45,20 @@ public class MapView extends View implements Runnable
       tileWidth=(int)Math.ceil(scrWidth/256.0)+1;
       tileHeight=(int)Math.ceil(scrHeight/256.0)+1;
       gestureDetector = new GestureDetector(ctx,new GestureListener());
+      
+      zoomOutButton = new Button(ctx);
+      zoomOutButton.setText("  -  ");
+      zoomOutButton.setOnClickListener(this);
+
+      zoomInButton = new Button(ctx);
+      zoomInButton.setText("  +  ");
+      zoomInButton.setOnClickListener(this);
+
+      updateUI(true);
+      addView(zoomOutButton);      
+      addView(zoomInButton);      
    }
-   
+      
    
    private class GestureListener extends GestureDetector.SimpleOnGestureListener 
    {
@@ -56,15 +73,77 @@ public class MapView extends View implements Runnable
          w=scrWidth/2.0f;
          h=scrHeight/2.0f;
          
-         matrix.postTranslate(w,h);
-         imgOffsetX+=w;
-         imgOffsetY+=h;                                    
+         matrix.postTranslate(-w,-h);
+         imgOffsetX-=w;
+         imgOffsetY-=h;                                    
 
          breakMapThread=true;
          restartMap();
          
          return true;
       }
+   }
+   
+   
+   private void updateUI(boolean enabled)
+   {
+      if (useOverlay.m_zoom>=17)
+      {
+	     zoomInButton.setEnabled(false);
+	     zoomOutButton.setEnabled(true & enabled);
+      }
+      else if (useOverlay.m_zoom<=3)
+      {
+	     zoomInButton.setEnabled(true & enabled);
+	     zoomOutButton.setEnabled(false);
+      }
+      else
+      {
+ 	     zoomInButton.setEnabled(enabled);
+	     zoomOutButton.setEnabled(enabled);    	  
+      }
+   }
+   
+   
+   public void onClick(View v)
+   {
+      if (v==zoomInButton)
+      {
+         if (mapThreadRunning) return; // no updates when download is running
+          
+         float w,h;
+          
+         mScaleFactor*=2.0;
+         matrix.postScale(2.0f,2.0f);
+         w=scrWidth/2.0f;
+         h=scrHeight/2.0f;
+          
+         matrix.postTranslate(-w,-h);
+         imgOffsetX-=w;
+         imgOffsetY-=h;                                    
+
+         breakMapThread=true;
+         restartMap();
+      }
+      else if (v==zoomOutButton)
+      {
+         if (mapThreadRunning) return; // no updates when download is running
+          
+         float w,h;
+           
+         mScaleFactor*=0.5;
+         matrix.postScale(0.5f,0.5f);
+         w=scrWidth*2.0f;
+         h=scrHeight*2.0f;
+           
+         matrix.postTranslate(w,h);
+         imgOffsetX+=w;
+         imgOffsetY+=h;                                    
+
+         breakMapThread=true;
+         restartMap();      
+      }
+      updateUI(true);
    }
 
    
@@ -73,6 +152,7 @@ public class MapView extends View implements Runnable
       super(ctx);
       throw new RuntimeException("Illegal construction, use MapView(Context,boolean,int) instead!");
    }
+   
    
    public void setOverlay(MapOverlay overlay)
    {
@@ -266,9 +346,9 @@ public class MapView extends View implements Runnable
       {
          mScaleFactor*=2.0f;
          useOverlay.m_zoom--;
-         if (useOverlay.m_zoom<4)
+         if (useOverlay.m_zoom<3)
          {
-            useOverlay.m_zoom=4;
+            useOverlay.m_zoom=3;
             imgOffsetX-=(scrWidth-(scrWidth*2.0))/2.0;
             imgOffsetY-=(scrHeight-(scrHeight*2.0))/2.0;            
          }
