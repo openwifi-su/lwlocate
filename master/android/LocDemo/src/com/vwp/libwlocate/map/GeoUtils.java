@@ -20,9 +20,16 @@ public class GeoUtils
       
    private String     cachePath=null;
    private int        mode=MODE_OSM,mirrorCnt=1;
+   private final      ColorMatrixColorFilter colorFilter;
    
    public GeoUtils(int mode)
    {
+      ColorMatrix negativeMatrix =new ColorMatrix();
+      float[] negMat={-1, 0, 0, 0, 240, 0, -1, 0, 0, 240, 0, 0, -1, 0, 260, 0, 0, 0, 1, 0 };  	  
+      negativeMatrix.set(negMat);
+      colorFilter= new ColorMatrixColorFilter(negativeMatrix);
+
+	   
       this.mode=mode;
       String state = Environment.getExternalStorageState();
       if(state.equals(Environment.MEDIA_MOUNTED))
@@ -159,11 +166,6 @@ public class GeoUtils
             tile=loadMapTile(ctx,x,y,z,allowDownload,MODE_OSM);
             if (tile!=null)
             {
-               ColorMatrix negativeMatrix =new ColorMatrix();
-          	   float[] negMat={-1, 0, 0, 0, 255, 0, -1, 0, 0, 255, 0, 0, -1, 0, 255, 0, 0, 0, 1, 0 };
-          	  
-          	   negativeMatrix.set(negMat);
-          	   final ColorMatrixColorFilter colorFilter= new ColorMatrixColorFilter(negativeMatrix);
           	   Bitmap rTile=tile.copy(Bitmap.Config.ARGB_8888, true);
           	   Paint paint=new Paint();
           	   paint.setColorFilter(colorFilter);
