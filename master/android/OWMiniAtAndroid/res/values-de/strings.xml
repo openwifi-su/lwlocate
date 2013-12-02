@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
- <string name="app_name">OpenWLANMap@Android</string>
+ <string name="app_name">MiniOpenWLANMap@Android</string>
  <string name="stat_newAPs">Eindeutig neue APs:</string>
  <string name="stat_updAPs">Bekannte aber aktualisierte APs:</string>
  <string name="stat_delAPs">Gelöschte APs (_nomap):</string>
