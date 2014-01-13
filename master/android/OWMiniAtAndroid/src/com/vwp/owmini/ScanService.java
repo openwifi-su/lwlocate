@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
+import com.vwp.owmap.WMapEntry;
 import com.vwp.owmini.OWMiniAtAndroid.*;
 
 import android.app.*;
@@ -435,20 +436,23 @@ public class ScanService extends Service implements Runnable
                            scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
-                           if ((lowerSSID.endsWith("_nomap")) ||      // Google unsubscibe option    
-                               (lowerSSID.contains("iphone")) ||      // mobile AP
-                               (lowerSSID.contains("android")) ||     // mobile AP
-                               (lowerSSID.contains("motorola")) ||    // mobile AP
-                           	   (lowerSSID.contains("deinbus.de")) ||  // WLAN network on board of German bus
-                           	   (lowerSSID.contains("fernbus")) ||     // WLAN network on board of German bus
-                          	   (lowerSSID.contains("flixbus")) ||     // WLAN network on board of German bus
-                          	   (lowerSSID.contains("ecolines")) ||    // WLAN network on board of German bus
-                          	   (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
-                          	   (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
-                           	   (lowerSSID.contains("guest@ms ")) ||   // WLAN network on Hurtigruten ships
-                           	   (lowerSSID.contains("admin@ms ")) ||   // WLAN network on Hurtigruten ships
-                           	   (lowerSSID.contains("nsb_interakti"))) // WLAN network in NSB trains
-                        	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
+                           if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
+                               (lowerSSID.contains("iphone")) ||         // mobile AP
+                               (lowerSSID.contains("ipad")) ||           // mobile AP
+                               (lowerSSID.contains("android")) ||        // mobile AP
+                               (lowerSSID.contains("motorola")) ||       // mobile AP
+                               (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
+                               (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
+                               (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
+                               (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
+                               (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
+                               (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+                               (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
+                               (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
+                               (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
+                               (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
+                               (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
+                               currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else currEntry.flags|=isFreeHotspot(result);                                          
                            if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
                            scanData.wmapList.add(currEntry);

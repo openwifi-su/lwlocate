@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
  package="com.vwp.owmini"
  android:versionCode="104"
- android:versionName="1.04">
+ android:versionName="1.04"
+ android:installLocation="preferExternal">
 
  <uses-sdk android:minSdkVersion="7" 
   android:targetSdkVersion="10" />
