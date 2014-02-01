@@ -583,17 +583,18 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                                (lowerSSID.contains("ipad")) ||           // mobile AP
                                (lowerSSID.contains("android")) ||        // mobile AP
                                (lowerSSID.contains("motorola")) ||       // mobile AP
-                           	 (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
-                          	    (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
-                          	    (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
+                           	   (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
+                          	   (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
+                          	   (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
-                          	    (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
-                          	    (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
-                          	    (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
-                        	    (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
-                        	    (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
+                          	   (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
+                               (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+                               (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
+                               (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
+                               (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
+                               (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
-                        	    (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
+                               (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else currEntry.flags|=isFreeHotspot(result);                                          
                            if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();

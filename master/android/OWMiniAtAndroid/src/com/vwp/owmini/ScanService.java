@@ -6,7 +6,7 @@ import java.util.*;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
-import com.vwp.owmap.WMapEntry;
+import com.vwp.owmini.WMapEntry;
 import com.vwp.owmini.OWMiniAtAndroid.*;
 
 import android.app.*;
@@ -448,6 +448,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
                                (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
                                (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
+                               (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
