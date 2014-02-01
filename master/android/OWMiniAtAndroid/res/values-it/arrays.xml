@@ -20,18 +20,6 @@
   <item>2</item> 
   <item>3</item> 
  </string-array> 
- <string-array name="prefsMapTypeEntries">         
-  <item>OpenStreetMap</item> 
-  <item>OpenStreetMap vista notturna</item> 
-  <item>Google Map</item> 
-  <item>Google Satellite/Map</item> 
- </string-array>    
- <string-array name="prefsMapTypeValues">         
-  <item>1</item> 
-  <item>4</item> 
-  <item>2</item> 
-  <item>3</item> 
- </string-array> 
  <string-array name="prefsScreenLightEntries">         
   <item>Spegni</item> 
   <item>Oscura</item> 
@@ -41,18 +29,6 @@
   <item>1</item> 
   <item>2</item> 
   <item>3</item> 
- </string-array> 
- <string-array name="prefsTelemetryEntries">         
-  <item>Disattivati</item> 
-  <item>Mostra</item> 
-  <item>Memorizza</item> 
-  <item>Mostra e memorizza</item> 
- </string-array>    
- <string-array name="prefsTelemetryValues">         
-  <item>1</item> 
-  <item>2</item> 
-  <item>3</item> 
-  <item>4</item> 
  </string-array> 
  <string-array name="prefsAutoUploadEntries">         
   <item>Mai</item> 
@@ -67,17 +43,5 @@
   <item>10000</item> 
   <item>20000</item> 
   <item>50000</item> 
- </string-array>    
- <string-array name="prefsNoGPSExitEntries">         
-  <item>Mai</item> 
-  <item>Dopo 10 minuti</item> 
-  <item>Dopo 20 minuti</item> 
-  <item>Dopo 50 minuti</item> 
- </string-array>    
- <string-array name="prefsNoGPSExitValues">         
-  <item>0</item> 
-  <item>10</item> 
-  <item>20</item> 
-  <item>50</item> 
  </string-array>    
 </resources>
