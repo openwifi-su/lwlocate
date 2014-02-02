@@ -171,13 +171,14 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       if (mManager!=null) mManager.cancel(0);
       try
       {
-         scanThread.join(1000);
+    	 if (scanThread!=null)
+          scanThread.join(1000);
       }
       catch (InterruptedException ie)
       {
          
       }
-	   System.exit(0);
+      System.exit(0);
 	}
 	
 	

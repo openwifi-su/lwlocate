@@ -262,7 +262,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
 	           is=new DataInputStream(c.getInputStream());
                outString=is.readLine();
 	           owmp.freeHotspotList=new Vector<WMapSlimEntry>();
-	           if (outString.equalsIgnoreCase("0"))
+	           if ((outString!=null) && (outString.equalsIgnoreCase("0")))
 	           {                            
 	              try
 	              {
