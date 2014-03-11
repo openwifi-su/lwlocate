@@ -1,12 +1,16 @@
 package com.vwp.owmap;
 
 import android.content.*;
-import android.net.NetworkInfo;
+import android.net.*;
 import android.app.*;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.security.*;
+import java.security.cert.*;
+import java.security.cert.Certificate;
+import javax.net.ssl.*;
 
 import com.vwp.owmap.OWMapAtAndroid.*;
 
@@ -19,7 +23,7 @@ class UploadThread extends Thread
    private Notification        notification;
    private NetworkInfo         mWifi;
 
-   private static final int    version=101;
+   private static final int    version=105;
    private static final String FILE_UPLOADSTORE="uploadstore";
  
 
@@ -258,7 +262,7 @@ class UploadThread extends Thread
    
    private boolean uploadData(String outString,boolean silent)
    {
-      HttpURLConnection    c=null;
+      HttpsURLConnection   c=null;
       BufferedOutputStream os=null;
       DataInputStream      is=null;
       int                  rc,remoteVersion=0;
@@ -272,22 +276,54 @@ class UploadThread extends Thread
       }
       
       try
-      {
-         URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
-         c= (HttpURLConnection) connectURL.openConnection();
-         if (c==null) return false;
-        
-         c.setDoOutput(true); // enable POST
-         c.setRequestMethod("POST");
-         c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-         c.addRequestProperty("Content-Length",""+outString.length());
-         os = new BufferedOutputStream(c.getOutputStream());
-         os.write(outString.getBytes(),0,outString.length());
-         os.flush();
-         os.close();
-         outString=null;
-         os=null;
-         System.gc();
+      {    	  
+    	// as described at http://developer.android.com/training/articles/security-ssl.html
+    	// Load CAs from an InputStream
+    	// (could be from a resource or ByteArrayInputStream or ...)
+    	CertificateFactory cf = CertificateFactory.getInstance("X.509");
+    	// From https://www.washington.edu/itconnect/security/ca/load-der.crt
+    	InputStream caInput = new BufferedInputStream(ctx.getResources().openRawResource(R.raw.root));
+    	Certificate ca;
+    	try 
+    	{
+    	   ca = cf.generateCertificate(caInput);
+    	} 
+    	finally 
+    	{
+    	   caInput.close();
+    	}
+
+    	// Create a KeyStore containing our trusted CAs
+    	String keyStoreType = KeyStore.getDefaultType();
+    	KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+    	keyStore.load(null, null);
+    	keyStore.setCertificateEntry("ca", ca);
+
+    	// Create a TrustManager that trusts the CAs in our KeyStore
+    	String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+    	TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+    	tmf.init(keyStore);
+
+    	// Create an SSLContext that uses our TrustManager
+    	SSLContext context = SSLContext.getInstance("TLS");
+    	context.init(null, tmf.getTrustManagers(), null);
+
+    	// Tell the URLConnection to use a SocketFactory from our SSLContext
+    	URL url = new URL("https://openwlanmap.org/android/upload.php");
+    	c =(HttpsURLConnection)url.openConnection();
+    	c.setSSLSocketFactory(context.getSocketFactory());    	
+       
+        c.setDoOutput(true); // enable POST
+        c.setRequestMethod("POST");
+        c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+        c.addRequestProperty("Content-Length",""+outString.length());
+        os = new BufferedOutputStream(c.getOutputStream());
+        os.write(outString.getBytes(),0,outString.length());
+        os.flush();
+        os.close();
+        outString=null;
+        os=null;
+        System.gc();
          
          rc = c.getResponseCode();
          if (rc != HttpURLConnection.HTTP_OK) 
@@ -335,10 +371,10 @@ ctx.deleteFile("wopendata");
              OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,ctx.getResources().getText(R.string.new_version_available));
          }
       }
-      catch (IOException ioe)
+      catch (Exception e)
       {
          if (!silent)
-          OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,ctx.getResources().getText(R.string.upload_problem));
+          OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,ctx.getResources().getText(R.string.upload_problem)+"\r\n"+e.getLocalizedMessage());
          uploadSuccess=false;
       }
       finally
