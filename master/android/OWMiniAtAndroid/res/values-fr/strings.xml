@@ -69,6 +69,8 @@
  <string name="prefsStartupURL">Load URL on start-up</string>
  <string name="prefsStartupURLText">This URL is loaded in background every time the application is started</string>
  <string name="prefsStartupURLTitle">Enter URL</string>
+ <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
+ <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
  
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>

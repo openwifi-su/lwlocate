@@ -108,6 +108,13 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   />
+ <CheckBoxPreference android:title="@string/prefsHTTPUpload"
+  android:defaultValue="false"
+  android:summary="@string/prefsHTTPUploadText"
+  android:key="httpUpload"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  />
  <CheckBoxPreference android:title="@string/prefsPublish"
   android:defaultValue="false"
   android:summary="@string/prefsPublishText"

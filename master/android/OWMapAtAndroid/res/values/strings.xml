@@ -84,6 +84,8 @@
  <string name="prefsAutoUploadText">Upload collected APs automatically via WLAN-connection (requires restart of app)</string>
  <string name="prefsNoGPSExit">Exit Application when there is no GPS fix</string>
  <string name="prefsNoGPSExitText">Exit the application after some time without GPS</string>
+ <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
+ <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
  
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>

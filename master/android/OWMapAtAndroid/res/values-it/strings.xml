@@ -84,6 +84,8 @@
  <string name="prefsAutoUploadText">Esegui automaticamente l\'upload degli AP raccolti tramite connessione WLAN (richiede riavvio dell\'applicazione)</string>
  <string name="prefsNoGPSExit">Esci dall\'applicazione quando manca il segnale GPS</string>
  <string name="prefsNoGPSExitText">L\'applicazione termina dopo un po\' di tempo senza segnale GPS</string>
+ <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
+ <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
  
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>
