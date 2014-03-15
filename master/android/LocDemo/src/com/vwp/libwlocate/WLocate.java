@@ -114,12 +114,12 @@ public class WLocate implements Runnable
       
    /**
    * Send pause-information to active WLocate object. This method should be called out of the main Activity
-   * whenever an onPause() event occurs to avoid leakted IntentReceiver exceptions caused by the receiver
+   * whenever an onPause() event occurs to avoid leaked IntentReceiver exceptions caused by the receiver
    * when it is still registered after application switched over to pause state
    */
    public void doPause()
    {
-      ctx.registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));            
+      ctx.unregisterReceiver(receiverWifi);            
    }
    
    
