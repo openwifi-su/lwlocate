@@ -427,7 +427,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    
    public void run()
    {
-      int              i,j,storedValues,sleepTime=3000,timeoutCtr=0,lastFlags=-1,trackCnt=0,lastLocMethod=-5;
+      int              i,j,storedValues=0,sleepTime=3000,timeoutCtr=0,lastFlags=-1,trackCnt=0,lastLocMethod=-5;
       String           bssid;
       WMapEntry        currEntry;
       DataOutputStream out;
@@ -547,7 +547,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         }
                      }
                   }
-                  if ((posValid) && (locationInfo.wifiScanResult!=null) && (locationInfo.wifiScanResult.size()>0))
+                  if ((locationInfo.wifiScanResult!=null) && (locationInfo.wifiScanResult.size()>0))
                   {
                      boolean   foundExisting;
                      
@@ -557,7 +557,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
 
                         result=locationInfo.wifiScanResult.get(i);                     
                         bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
-                        if (bssid.equalsIgnoreCase("000000000000")) break;
+                        if (bssid.equalsIgnoreCase("000000000000")) continue;
                         foundExisting=false;
                         scanData.lock.lock();
                         for (j=0; j<scanData.wmapList.size(); j++)
@@ -574,9 +574,6 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         {
                            String lowerSSID;
                            
-                           storedValues=scanData.incStoredValues();
-                           scanData.mView.setValue(storedValues);
-                           scanData.mView.postInvalidate();                                                   
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
@@ -599,7 +596,14 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
                            else currEntry.flags|=isFreeHotspot(result);                                          
                            if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
-                           scanData.wmapList.add(currEntry);
+                           if ((posValid) || ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)==WMapEntry.FLAG_IS_NOMAP))
+                           {
+                              storedValues=scanData.incStoredValues();
+                              scanData.mView.setValue(storedValues);
+                              scanData.mView.postInvalidate();
+                              currEntry.listPos=storedValues;
+                              scanData.wmapList.add(currEntry);
+                           }
                            if ((scanData.uploadThres>0) && (storedValues>scanData.uploadThres))
                            {
                               if ((m_uploadThread==null) || (!m_uploadThread.isUploading()))
