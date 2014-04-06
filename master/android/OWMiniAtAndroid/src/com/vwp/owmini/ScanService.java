@@ -2,7 +2,14 @@ package com.vwp.owmini;
 
 import java.io.*;
 import java.net.*;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.util.*;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
@@ -608,48 +615,121 @@ public class ScanService extends Service implements Runnable
    private void uploadPosition()
    {
        String                        outString;
-       HttpURLConnection             c=null;
        DataOutputStream              os=null;
         
        outString=scanData.ownBSSID;
        outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
 
-       try
-       {
-          URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
-          c= (HttpURLConnection) connectURL.openConnection();
-          if (c==null)
-          {
-             return;
-          }
-          
-          c.setDoOutput(true); // enable POST
-          c.setRequestMethod("POST");
-          c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-          c.addRequestProperty("Content-Length",""+outString.length());
-          os = new DataOutputStream(c.getOutputStream());
-          os.write(outString.getBytes());
-          os.flush();
-          c.getResponseCode();
-          os.close();
-          outString=null;
-          os=null;
+       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
+       if (SP.getBoolean("httpUpload",false))
+       {         
+           HttpURLConnection             c=null;
+           
+	         try
+	         {
+	            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
+	            c= (HttpURLConnection) connectURL.openConnection();
+	            if (c==null) return;
+	            
+	            c.setDoOutput(true); // enable POST
+	            c.setRequestMethod("POST");
+	            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+	            c.addRequestProperty("Content-Length",""+outString.length());
+	            os = new DataOutputStream(c.getOutputStream());
+	            os.write(outString.getBytes());
+	            os.flush();
+	            c.getResponseCode();
+	            os.close();
+	            outString=null;
+	            os=null;
+	         }
+	         catch (IOException ioe)
+	         {
+	         }
+	         finally
+	         {
+	            try 
+	            {
+	               if (os != null) os.close();
+	               if (c != null) c.disconnect();
+	            }
+	            catch (IOException ioe)
+	            {
+	               ioe.printStackTrace();
+	            } 
+	         }
        }
-       catch (IOException ioe)
+       else
        {
+           HttpsURLConnection             c=null;
+           
+	         try
+	         {
+	 	    	// as described at http://developer.android.com/training/articles/security-ssl.html
+	 	    	// Load CAs from an InputStream
+	 	    	// (could be from a resource or ByteArrayInputStream or ...)
+	 	    	CertificateFactory cf = CertificateFactory.getInstance("X.509");
+	 	    	// From https://www.washington.edu/itconnect/security/ca/load-der.crt
+	 	    	InputStream caInput = new BufferedInputStream(scanData.ctx.getResources().openRawResource(R.raw.root));
+	 	    	Certificate ca;
+	 	    	try 
+	 	    	{
+	 	    	   ca = cf.generateCertificate(caInput);
+	 	    	} 
+	 	    	finally 
+	 	    	{
+	 	    	   caInput.close();
+	 	    	}
+	 	
+	 	    	// Create a KeyStore containing our trusted CAs
+	 	    	String keyStoreType = KeyStore.getDefaultType();
+	 	    	KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+	 	    	keyStore.load(null, null);
+	 	    	keyStore.setCertificateEntry("ca", ca);
+	 	
+	 	    	// Create a TrustManager that trusts the CAs in our KeyStore
+	 	    	String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+	 	    	TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+	 	    	tmf.init(keyStore);
+	 	
+	 	    	// Create an SSLContext that uses our TrustManager
+	 	    	SSLContext context = SSLContext.getInstance("TLS");
+	 	    	context.init(null, tmf.getTrustManagers(), null);
+	 	
+	 	    	// Tell the URLConnection to use a SocketFactory from our SSLContext
+	 	    	URL url = new URL("https://openwlanmap.org/android/upload.php");
+	 	    	c =(HttpsURLConnection)url.openConnection();
+	            if (c==null) return;
+	 	    	c.setSSLSocketFactory(context.getSocketFactory());    	
+	      	            
+	            c.setDoOutput(true); // enable POST
+	            c.setRequestMethod("POST");
+	            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+	            c.addRequestProperty("Content-Length",""+outString.length());
+	            os = new DataOutputStream(c.getOutputStream());
+	            os.write(outString.getBytes());
+	            os.flush();
+	            c.getResponseCode();
+	            os.close();
+	            outString=null;
+	            os=null;
+	         }
+	         catch (Exception e)
+	         {
+	         }
+	         finally
+	         {
+	            try 
+	            {
+	               if (os != null) os.close();
+	               if (c != null) c.disconnect();
+	            }
+	            catch (IOException ioe)
+	            {
+	               ioe.printStackTrace();
+	            } 
+	         }        	 
        }
-       finally
-       {
-          try 
-          {
-             if (os != null) os.close();
-             if (c != null) c.disconnect();
-          }
-          catch (IOException ioe)
-          {
-             ioe.printStackTrace();
-          } 
-       }	   
    }
    
 /*   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
