@@ -409,6 +409,7 @@ class UploadThread extends Thread
 	    	// Tell the URLConnection to use a SocketFactory from our SSLContext
 	    	URL url = new URL("https://openwlanmap.org/android/upload.php");
 	    	c =(HttpsURLConnection)url.openConnection();
+            if (c==null) return false;
 	    	c.setSSLSocketFactory(context.getSocketFactory());    	
 	       
 	        c.setDoOutput(true); // enable POST
