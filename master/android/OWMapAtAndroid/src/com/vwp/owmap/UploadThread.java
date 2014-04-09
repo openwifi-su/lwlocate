@@ -24,7 +24,7 @@ class UploadThread extends Thread
    private Notification        notification;
    private NetworkInfo         mWifi;
 
-   private static final int    version=107;
+   private static final int    version=109;
    private static final String FILE_UPLOADSTORE="uploadstore";
  
 
