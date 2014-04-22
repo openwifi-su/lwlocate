@@ -731,8 +731,15 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          }
          if ((trackCnt>500000) && (lastLat!=0) && (lastLon!=0)) 
          {
-            if (SP.getBoolean("track", false))
-             new UploadPositionTask().execute(null,null,null);
+            try
+            {
+               if (SP.getBoolean("track", false))
+                new UploadPositionTask().execute(null,null,null);
+            }
+            catch (ExceptionInInitializerError eiie)
+            {
+            	
+            }
             trackCnt=0;
          }
       }
