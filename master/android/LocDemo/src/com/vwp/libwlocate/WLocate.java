@@ -119,7 +119,14 @@ public class WLocate implements Runnable
    */
    public void doPause()
    {
-      ctx.unregisterReceiver(receiverWifi);            
+      try
+	  {
+         ctx.unregisterReceiver(receiverWifi);
+	  }
+      catch (IllegalArgumentException iae) // just in case receiverWifi is not registered yet
+      {
+    	  
+      }
    }
    
    
