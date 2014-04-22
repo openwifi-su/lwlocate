@@ -8,7 +8,7 @@ public class wloc_req
    public static final int WLOC_MAX_NETWORKS=16;
    
    public byte     version,length;
-   public byte[][] bssids=new byte[WLOC_MAX_NETWORKS][6];  
+   public String[] bssids=new String[WLOC_MAX_NETWORKS];  
    public byte[]   signal=new byte[WLOC_MAX_NETWORKS];
    public int      cgiIP;
    

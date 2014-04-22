@@ -161,7 +161,84 @@ public class WLocate implements Runnable
    
    private int get_position(wloc_req request,wloc_position position)
    {
-      Socket wlocSocket;
+      String               pString="";
+      HttpURLConnection    c=null;
+  	  BufferedOutputStream os=null;
+      DataInputStream      is=null;
+      int                  rc;
+      
+      for (int i=0; i<wloc_req.WLOC_MAX_NETWORKS; i++)
+       if ((request.bssids[i]!=null) && (request.bssids[i].length()>0)) pString=pString+request.bssids[i]+"\r\n";
+	          
+      try
+      {
+  	     URL connectURL = new URL("http://openwlanmap.org/getpos.php");
+         c= (HttpURLConnection) connectURL.openConnection();
+  	     if (c==null) return WLOC_CONNECTION_ERROR;
+  	     c.setDoOutput(true); // enable POST
+  	     c.setRequestMethod("POST");
+  	     c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
+  	     c.addRequestProperty("Content-Length",""+pString.length());
+  	     os = new BufferedOutputStream(c.getOutputStream());
+  	     os.write(pString.getBytes(),0,pString.length());
+  	     os.flush();
+  	     os.close();
+  	     pString=null;
+  	     os=null;
+  	     rc = c.getResponseCode();
+         if (rc != HttpURLConnection.HTTP_OK) return WLOC_SERVER_ERROR;
+         is = new DataInputStream(c.getInputStream());
+         try
+  	     {
+        	while (is.available()>0)
+        	{
+  	           pString=is.readLine();
+  	           pString=pString.trim();
+  	           if (pString.contains("result=0")) return WLOC_LOCATION_ERROR;
+  	           else if (pString.contains("quality="))
+  	           {
+  	        	  pString=pString.substring(8);
+  	              position.quality=(short)Integer.parseInt(pString);
+  	           }
+  	           else if (pString.contains("lat="))
+  	           {
+  	        	  pString=pString.substring(4);
+  	              position.lat=Double.parseDouble(pString);
+  	           }
+  	           else if (pString.contains("lon="))
+  	           {
+  	        	  pString=pString.substring(4);
+  	              position.lon=Double.parseDouble(pString);
+  	           }
+        	}
+         }
+  	     catch (NumberFormatException nfe)
+  	     {
+            is.close();
+            return WLOC_SERVER_ERROR; 
+  	     }
+         is.close();
+      }
+  	  catch (IOException ioe)
+      {
+      }
+  	  finally
+      {
+         try
+         {
+  	        if (is != null) is.close();
+  	        if (os != null) os.close();
+            if (c != null) c.disconnect();
+         }
+  	     catch (IOException ioe)
+         {
+  	        ioe.printStackTrace();
+  	     }
+      }
+	  return WLOC_OK; 
+	   
+	   
+/*      Socket wlocSocket;
       DataInputStream  din;
       DataOutputStream dout;
       int              i;
@@ -211,7 +288,7 @@ public class WLocate implements Runnable
          e.printStackTrace();
          return WLOC_CONNECTION_ERROR;
       }
-      return WLOC_OK;
+      return WLOC_OK;*/
    }
 
    
@@ -230,16 +307,10 @@ public class WLocate implements Runnable
          locationInfo.requestData=new wloc_req();
          if (configs.size()>0) for (ScanResult config : configs) 
          {            
-            String bssidStr[];
-
-            config.BSSID=config.BSSID.toUpperCase(Locale.US).replace(".",":"); // some strange devices use a dot instead of :
-            bssidStr=config.BSSID.split(":");
-            locationInfo.requestData.bssids[netCnt][0]=(byte)Integer.parseInt(bssidStr[0],16);
-            locationInfo.requestData.bssids[netCnt][1]=(byte)Integer.parseInt(bssidStr[1],16);
-            locationInfo.requestData.bssids[netCnt][2]=(byte)Integer.parseInt(bssidStr[2],16);
-            locationInfo.requestData.bssids[netCnt][3]=(byte)Integer.parseInt(bssidStr[3],16);
-            locationInfo.requestData.bssids[netCnt][4]=(byte)Integer.parseInt(bssidStr[4],16);
-            locationInfo.requestData.bssids[netCnt][5]=(byte)Integer.parseInt(bssidStr[5],16);
+            config.BSSID=config.BSSID.toUpperCase(Locale.US).replace(".",""); // some strange devices use a dot instead of :
+            config.BSSID=config.BSSID.toUpperCase(Locale.US).replace(":",""); // some strange devices use a dot instead of :
+            if (config.BSSID.equalsIgnoreCase("000000000000")) continue; // invalid BSSID
+            locationInfo.requestData.bssids[netCnt]=config.BSSID;
             locationInfo.requestData.signal[netCnt]=(byte)Math.abs(config.level);               
             
             netCnt++;
