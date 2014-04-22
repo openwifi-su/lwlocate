@@ -500,7 +500,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
          m_traceMode=false;
       }
    }
-   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 1.1 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
+   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 1.2 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
 
 
