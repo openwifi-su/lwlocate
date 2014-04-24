@@ -421,6 +421,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          out.writeFloat(ScanService.scanData.telemetryData.corrCoG);
          out.writeFloat(ScanService.scanData.telemetryData.corrOrientY);
          out.writeFloat(ScanService.scanData.telemetryData.corrOrientZ);
+		 out.writeBytes(ScanService.scanData.ownBSSID);
          out.close();
       }
       catch (IOException ioe)

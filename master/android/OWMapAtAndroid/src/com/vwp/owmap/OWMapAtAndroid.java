@@ -618,11 +618,9 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
    
    private void createService(Bundle savedInstanceState)
    {
-      if ((savedInstanceState==null) || (!savedInstanceState.getBoolean("init")) /*|| (ScanService.scanData==null)*/)
+      if ((savedInstanceState==null) || (!savedInstanceState.getBoolean("init")))
       {   
-//         ScanService.scanData=new ScanData(this);
          ScanService.scanData.init(this);
-//         ScanService.scanData.ctx=this;
          loadConfig();
          startService(new Intent(this,ScanService.class));
       }
@@ -643,14 +641,16 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
    
    private void setupInitial()
    {
-      WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
-      if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase(Locale.US);
-      else ScanService.scanData.ownBSSID="00DEADBEEF00";
+      if ((ScanService.scanData.ownBSSID==null) || (ScanService.scanData.ownBSSID.length()<12))
+	  {
+         WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
+         if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase(Locale.US);
+         else ScanService.scanData.ownBSSID="00DEADBEEF00";
+      }
       updateRank();      
    }
    
-   //LKlko9ugnko9
-   //iiop,mk,ööäö
+
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) 
@@ -888,6 +888,13 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
          ScanService.scanData.telemetryData.corrCoG=in.readFloat();
          ScanService.scanData.telemetryData.corrOrientY=in.readFloat();
          ScanService.scanData.telemetryData.corrOrientZ=in.readFloat();
+
+		 byte[] b=new byte[12];
+		 in.read(b);
+		 ScanService.scanData.ownBSSID=new String(b);
+		 ScanService.scanData.ownBSSID=ScanService.scanData.ownBSSID.trim();
+		 if ((ScanService.scanData.ownBSSID.equalsIgnoreCase("00DEADBEEF00")) ||
+		     (ScanService.scanData.ownBSSID.equalsIgnoreCase("000000000000"))) ScanService.scanData.ownBSSID=null; // an invalid MAc so try to get the current one again
          in.close();
       }
       catch (IOException ioe)
