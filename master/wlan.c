@@ -94,7 +94,7 @@ static int WinMethod1(struct wloc_req *request)
 		 pBssEntry=&pBssList->wlanBssEntries[j];
 		 c=(char*)&pBssList->wlanBssEntries[j];
          memcpy(request->bssids[cnt],pBssEntry->dot11Bssid,6);
-         request->signal[cnt]=(char)pBssEntry->uLinkQuality;
+//         request->signal[cnt]=(char)pBssEntry->uLinkQuality;
          if (cnt>=WLOC_MAX_NETWORKS) break;
       }
       if (pBssList != NULL) WlanFreeMemory(pBssList); // ???
@@ -209,7 +209,7 @@ static int WinMethod2(struct wloc_req *request)
                return cnt;
             }
             memcpy(request->bssids[cnt],pBssid->MacAddress,6);
-            request->signal[cnt]=(char)((100+pBssid->Rssi)*1.6); // is this really the correct calculation for a signal strength in percent?
+//            request->signal[cnt]=(char)((100+pBssid->Rssi)*1.6); // is this really the correct calculation for a signal strength in percent?
             pBssid=(PNDIS_WLAN_BSSID)((unsigned char*)(pBssid) + pBssid->Length);
          }
          LocalFree(interface_data.rdBSSIDList.pData);

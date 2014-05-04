@@ -42,7 +42,6 @@ char notEqual(struct wloc_req *data1,struct wloc_req *data2,int num)
    
    for (i=0; i<num; i++)
    {
-      if (data1->signal[i]!=data2->signal[i]) return 1;
       for (j=0; j<6; j++)
       {
          if (data1->bssids[i][j]!=data2->bssids[i][j]) return 1;
@@ -107,7 +106,7 @@ int main(int argc,char *argv[])
                   for (i=0; i<cnt; i++)
                   {
                      fwrite(&request.bssids[i],1,sizeof(request.bssids[i]),FHandle);
-                     fwrite(&request.signal[i],1,1,FHandle);
+                     fwrite(&empty_signal,1,1,FHandle);
                   }
                   for (i=cnt; i<WLOC_MAX_NETWORKS; i++)
                   {
