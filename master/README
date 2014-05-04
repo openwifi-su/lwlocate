@@ -3,8 +3,8 @@ About
 -----
 
 libwlocate is a library that can be used to evaluate a geographical position out of the
-WLAN networks that are available near to a user. It is (c) 2010 by Oxygenic/VWP. You can
-contact me at virtual_worlds(at)gmx.de but please only in case this README and the
+WLAN networks that are available near to a user. It is (c) 2010-2014 by Oxygenic/VWP. You
+can contact me at virtual_worlds(at)gmx.de but please only in case this README and the
 included documentation does not answer your question ;-)
 Contributions, feedback and suggestion are always welcome.
 
@@ -31,20 +31,19 @@ Building and usage
 There are several possibilites provided to build the library using different operating
 systems and building environments:
 
-Makelib        - file for building the shared library libwlocate.so for Linux using
-                 standard "make"; requires wireless-tools headers and binaries
-Makefile       - file for building a Linux test and trace application using libwlocate.so
-                 and standard make; the resulting position trace file libwlocate.trace
-                 can be loaded by LocDemo for later position evaluation
-Makelib.QNX    - file for building the shared library libwlocate.so for QNX using
-                 standard "make"; here scanning of WLAN networks is currently not
-                 implemented, the compiled library will not work at the moment!
-Makefile.QNX   - file for building a QNX test and trace application using libwlocate.so
-                 and standard make
-libwlocate.dsp - project file for building the shared DLL libwlocate.dll for Windows
-                 using Microsoft Visual Studio
-libtest.dsp    - Visual Studio project file for building a test application that makes
-                 use of the formerly generated libwlocate.dll
+Makelib            - file for building the shared library libwlocate.so for Linux using
+                     standard "make"; requires wireless-tools headers and binaries
+Makefile           - file for building a Linux test and trace application using
+                     libwlocate.so and standard make; the resulting position trace file
+					 libwlocate.trace can be loaded by LocDemo for later position
+					 evaluation
+Makelib.QNX        - file for building the shared library libwlocate.so for QNX using
+                     standard "make"; here scanning of WLAN networks is currently not
+                     implemented, the compiled library will not work at the moment!
+Makefile.QNX       - file for building a QNX test and trace application using
+                     libwlocate.so and standard make
+libwlocate.dsp/    - project file for building the shared DLL libwlocate.dll for Windows
+libwlocate.vcxproj   using Microsoft Visual Studio
 
 The library provides one major function that performs the full location job:
 
