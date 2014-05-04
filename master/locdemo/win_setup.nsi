@@ -26,6 +26,9 @@ File "LocDemo.exe"
 File "..\Release\lwtrace.exe"
 File "icon.ico"
 
+File "CAcert_Root_Certificates.msi"
+ExecWait '"msiexec" /quiet /i "$INSTDIR\CAcert_Root_Certificates.msi"'
+
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "..\Release\libwlocate.dll" "$SYSDIR\libwlocate.dll" "$SYSDIR"
 
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxbase28u_net_vc_custom.dll"     "$SYSDIR\wxbase28u_net_vc_custom.dll" "$SYSDIR"
@@ -40,7 +43,6 @@ File "icon.ico"
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_media_vc_custom.dll"    "$SYSDIR\wxmsw28u_media_vc_custom.dll" "$SYSDIR"
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_richtext_vc_custom.dll" "$SYSDIR\wxmsw28u_richtext_vc_custom.dll" "$SYSDIR"
 !insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED "C:\wxWidgets-2.8\lib\vc_dll\wxmsw28u_xrc_vc_custom.dll"      "$SYSDIR\wxmsw28u_xrc_vc_custom.dll" "$SYSDIR"
-
 
 ; write out uninstaller
 WriteUninstaller "$INSTDIR\uninstall.exe"
