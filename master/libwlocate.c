@@ -1,6 +1,6 @@
 /**
  * libwlocate - WLAN-based location service
- * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
+ * Copyright (C) 2010-2014 Oxygenic/VWP virtual_worlds(at)gmx.de
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <stdio.h>
 #ifndef ENV_WINDOWS
  #include <arpa/inet.h>
+#else
+ #define snprintf _snprintf
 #endif
 
 #include "libwlocate.h"
@@ -28,42 +30,94 @@
 #include "assert.h"
 
 
-
 WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode)
 {
-   struct wloc_res result;
-   int             sock=0,ret;
-   unsigned int    uval;
+   int             sock=0,ret,i;
+   char            head[500+1];
+   char            data[500+1];
+   char            responseOK=0;
 
-   request->version=1;
-   request->length=sizeof(struct wloc_req);
-   sock=tcp_connect_to("api.openwlanmap.org",10443);
+   sock=tcp_connect_to("openwlanmap.org",80);
+   i=GetLastError();
+   i=i;
    if (sock<=0) return WLOC_SERVER_ERROR;
    tcp_set_blocking(sock,0); // set to non-blocking, we do not want to waid endless for a dead connection
-   ret=tcp_send(sock,(char*)request,sizeof(struct wloc_req),5000);
-   if (ret<(int)sizeof(struct wloc_req))
+  
+   data[0]=0;
+   for (i=0; i<WLOC_MAX_NETWORKS; i++)
+   {
+      if (request->bssids[i][0]+request->bssids[i][1]+request->bssids[i][2]+request->bssids[i][3]+request->bssids[i][4]+request->bssids[i][5]>0)
+      {
+         snprintf(data,500,"%s%02X%02X%02X%02X%02X%02X\r\n",data,
+                                                                request->bssids[i][0],request->bssids[i][1],request->bssids[i][2],
+                                                                request->bssids[i][3],request->bssids[i][4],request->bssids[i][5]);
+      }
+   }
+   snprintf(head,500,
+            "POST /getpos.php HTTP/1.0\r\nHost: openwlanmap.org\r\nContent-type: application/x-www-form-urlencoded, *.*\r\nContent-length: %d\r\n\r\n",
+            strlen(data));
+   ret=tcp_send(sock,head,strlen(head),5000);
+   ret+=tcp_send(sock,data,strlen(data),5000);
+   if (ret<(int)(strlen(head)+strlen(data)))
    {
       tcp_closesocket(sock);
       return WLOC_CONNECTION_ERROR;
    }
-   ret=tcp_recv(sock,(char*)&result,sizeof(struct wloc_res),NULL,20000); // longer receiving timeout, evaluation of the position may need some seconds in worst case
-   if (ret<(int)sizeof(struct wloc_res))
+   
+   data[0]=0;
+   for (;;)
    {
-      tcp_closesocket(sock);
-      return WLOC_CONNECTION_ERROR;
+      ret=tcp_recv(sock,head,500,NULL,100);
+      if (ret>0)
+      {
+         char *pos;
+         int   dataFound=0;
+
+         snprintf(data,500,"%s%s",data,head);
+         if (strstr(data,"\r\n"))
+         {
+            // one line received at least so check response code
+            if (!responseOK)
+            {
+               if (!strstr(data,"200 OK"))
+               {
+                  tcp_closesocket(sock);
+                  return WLOC_SERVER_ERROR;
+               }
+               responseOK=1;
+            }
+            if (strstr(data,"result=0"))
+            {
+               tcp_closesocket(sock);
+               return WLOC_LOCATION_ERROR;
+            }
+            pos=strstr(data,"quality=");
+            if (pos);
+            {
+               pos+=8;
+               *quality=atoi(pos);
+               dataFound|=0x0001;
+            }
+            pos=strstr(data,"lat=");
+            if (pos);
+            {
+               pos+=4;
+               *lat=atof(pos);
+			   if (*lat!=0.0) dataFound|=0x0002;
+            }
+            pos=strstr(data,"lon=");
+            if (pos);
+            {
+               pos+=4;
+               *lon=atof(pos);
+               if (*lon!=0.0) dataFound|=0x0004;
+            }
+            if ((dataFound & 0x0007)==0x0007) break; // all required data received
+         }
+      }
    }
+   
    tcp_closesocket(sock);
-   if (result.result!=WLOC_RESULT_OK) return WLOC_LOCATION_ERROR;
-
-   uval=ntohl(result.lat);
-   if (uval & 0x80000000) *lat=((~uval)+1)/-10000000.0;
-   else *lat=uval/10000000.0;
-
-   uval=ntohl(result.lon);
-   if (uval & 0x80000000) *lon=((~uval)+1)/-10000000.0;
-   else *lon=uval/10000000.0;
-
-   *quality=result.quality;
    
    // this should never happen, the server should send quality values in range 0..99 only
 //   assert((*quality>=0) && (*quality<=99));
@@ -71,7 +125,7 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
    else if (*quality>99) *quality=99;
    // end of this should never happen
    
-   *ccode=ntohs(result.ccode);
+   *ccode=-1;
    return WLOC_OK;
 }
 
