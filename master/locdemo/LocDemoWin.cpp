@@ -1,7 +1,7 @@
 /**
  * LocDemo - a demo GUI application that uses libwlocate to display the
  * current geographic position
- * Copyright (C) 2010-2012 Oxygenic/VWP virtual_worlds(at)gmx.de
+ * Copyright (C) 2010-2014 Oxygenic/VWP virtual_worlds(at)gmx.de
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -487,8 +487,10 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
             {
                for (i=0; i<WLOC_MAX_NETWORKS; i++)
                {
+				  char signal_unused;
+
                   fread(&requestData.bssids[i],1,sizeof(requestData.bssids[i]),FHandle);
-                  ret=fread(&requestData.signal[i],1,1,FHandle);
+                  ret=fread(&signal_unused,1,1,FHandle);
                }
                if (notEqual(&requestData,&prevData)) getLocation(true,&requestData);
                prevData=requestData;
@@ -500,7 +502,7 @@ void LocDemoWin::OnButton(wxCommandEvent &event)
          m_traceMode=false;
       }
    }
-   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 1.2 is (c) 2010 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
+   else if (event.GetId()==infoButton->GetId()) wxMessageBox(_T("LocDemo Version 2.0 is (c) 2010-2014 by Oxy/VWP\nIt demonstrates the usage of libwlocate and is available under the terms of the GNU Public License\nFor more details please refer to http://www.openwlanmap.org"),_T("Information"),wxOK|wxICON_INFORMATION);
 }
 
 
@@ -511,7 +513,7 @@ bool LocDemoWin::notEqual(struct wloc_req *data1,struct wloc_req *data2)
    
    for (i=0; i<WLOC_MAX_NETWORKS; i++)
    {
-      if (data1->signal[i]!=data2->signal[i]) return true;
+//      if (data1->signal[i]!=data2->signal[i]) return true;
       for (j=0; j<6; j++)
       {
          if (data1->bssids[i][j]!=data2->bssids[i][j]) return true;
