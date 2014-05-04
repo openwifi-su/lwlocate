@@ -64,7 +64,7 @@ struct wloc_req
 {
    unsigned char version,length;
    unsigned char bssids[WLOC_MAX_NETWORKS][6];
-   char          signal[WLOC_MAX_NETWORKS];
+   char          signal_off[WLOC_MAX_NETWORKS]; // no longer used in interface version 2 since signal strength does not provide any useful information for position calculation
    unsigned long cgiIP;
 };
 
