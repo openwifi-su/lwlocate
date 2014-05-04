@@ -96,9 +96,9 @@ print_scanning_token(struct stream_descr *	stream,	/* Stream of events */
       break;
     case IWEVQUAL:
     {
-      if (iw_range->max_qual.qual==0) g_request->signal[state->ap_num-1]=abs(event->u.qual.qual);
-      else g_request->signal[state->ap_num-1]=100.0*event->u.qual.qual/iw_range->max_qual.qual;
-      printf("                    Signal: %d\n",g_request->signal[state->ap_num-1]);
+//      if (iw_range->max_qual.qual==0) g_request->signal[state->ap_num-1]=abs(event->u.qual.qual);
+//      else g_request->signal[state->ap_num-1]=100.0*event->u.qual.qual/iw_range->max_qual.qual;
+//      printf("                    Signal: %d\n",g_request->signal[state->ap_num-1]);
       break;
     }
     default:
