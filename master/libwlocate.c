@@ -18,6 +18,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #ifndef ENV_WINDOWS
  #include <arpa/inet.h>
 #else
@@ -38,8 +39,6 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
    char            responseOK=0;
 
    sock=tcp_connect_to("openwlanmap.org",80);
-   i=GetLastError();
-   i=i;
    if (sock<=0) return WLOC_SERVER_ERROR;
    tcp_set_blocking(sock,0); // set to non-blocking, we do not want to waid endless for a dead connection
   
