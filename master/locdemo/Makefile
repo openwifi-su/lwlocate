@@ -2,7 +2,7 @@ PROGRAM = LocDemo
 
 INCLUDEDIRS = -I/usr/X11R6/include -I.. $(shell wx-config --cflags) $(shell pkg-config gtk+-2.0 --cflags)
 
-LIBDIRS = -L/usr/X11R6/lib -L/usr/lib -L..
+LIBDIRS = -L/usr/X11R6/lib -L/usr/lib
 
 LIBS = $(shell wx-config --libs) -lwlocate
 
