@@ -23,7 +23,7 @@ import com.vwp.libwlocate.map.*;
 
 public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItemClickListener, Runnable //implements SensorEventListener
 {
-   public static final int MAX_RADIUS=98;
+   public static final int MAX_RADIUS=75;
    public static final int RECV_TIMEOUT=75000;
    
    public static final int FLAG_NO_NET_ACCESS=0x0001;
