@@ -412,7 +412,7 @@ public class ScanService extends Service implements Runnable
                      lastLocMethod=locationInfo.lastLocMethod;
                   }
                   if (lastLocMethod==loc_info.LOC_METHOD_GPS) gpsFixCnt++;
-                  else if (lastLocMethod==loc_info.LOC_METHOD_LIBWLOCATE) gpsFixCnt=0;
+                  else gpsFixCnt=0;
 
                   if ((lastLocMethod==loc_info.LOC_METHOD_LIBWLOCATE) || (gpsFixCnt>5))
                   {
