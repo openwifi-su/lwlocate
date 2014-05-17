@@ -45,6 +45,8 @@ public class ScanService extends Service implements Runnable
    static  ScanData              scanData=new ScanData();
    private UploadThread          m_uploadThread;
    private Notification          notification;
+   private int                   gpsFixCnt=0;
+	  
 
 	@Override
 	public IBinder onBind(Intent arg) 
@@ -172,7 +174,6 @@ public class ScanService extends Service implements Runnable
     
    class MyWLocate extends WLocate
    {
-      
       public MyWLocate(Context ctx)
       {
          super(ctx);
@@ -198,6 +199,7 @@ public class ScanService extends Service implements Runnable
          else
          {
             lastRadius=-1;
+            gpsFixCnt=0;
          }
          posState=2;         
          scanThread.interrupt();
@@ -398,7 +400,7 @@ public class ScanService extends Service implements Runnable
                   {                                
                   }
                }
-               if ((posState==2) || (posState==100))
+               if (posState==2)
                {
                   loc_info    locationInfo;
                   
@@ -409,165 +411,171 @@ public class ScanService extends Service implements Runnable
                      scanData.mView.postInvalidate();
                      lastLocMethod=locationInfo.lastLocMethod;
                   }
-                  if (posState==100) locationInfo.lastLocMethod=-1;
-                  OWMiniAtAndroid.sendMessage(OWMiniAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
-   
-                  if ((posValid) && (locationInfo.wifiScanResult!=null) && (locationInfo.wifiScanResult.size()>0))
-                  {
-                     boolean   foundExisting;
-                     
-                     for (i=0; i<locationInfo.wifiScanResult.size(); i++)
-                     {
-                        ScanResult result;
+                  if (lastLocMethod==loc_info.LOC_METHOD_GPS) gpsFixCnt++;
+                  else if (lastLocMethod==loc_info.LOC_METHOD_LIBWLOCATE) gpsFixCnt=0;
 
-                        result=locationInfo.wifiScanResult.get(i);                     
-                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
-                        if (bssid.equalsIgnoreCase("000000000000")) continue;
-                        foundExisting=false;
-                        scanData.lock.lock();
-                        for (j=0; j<scanData.wmapList.size(); j++)
-                        {
-                           currEntry=scanData.wmapList.elementAt(j);
-                           if (currEntry.BSSID.equalsIgnoreCase(bssid))
-                           {
-                              currEntry.setPos(lastLat,lastLon);
-                              foundExisting=true;
-                              break;
-                           }                     
-                        }
-                        if (!foundExisting)
-                        {
-                           String lowerSSID;
-                           
-                           currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
-                           lowerSSID=result.SSID.toLowerCase(Locale.US);
-                           if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
-                               (lowerSSID.contains("iphone")) ||         // mobile AP
-                               (lowerSSID.contains("ipad")) ||           // mobile AP
-                               (lowerSSID.contains("android")) ||        // mobile AP
-                               (lowerSSID.contains("motorola")) ||       // mobile AP
-                               (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
-                               (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
-                               (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
-                               (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
-                               (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
-                               (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
-                               (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
-                               (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
-                               (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
-                               (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
-                               (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
-                               (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
-                               currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
-                           else currEntry.flags|=isFreeHotspot(result);                                          
-                           if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
-                           if ((posValid) || ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)==WMapEntry.FLAG_IS_NOMAP))
-                           {
-                              storedValues=scanData.incStoredValues();
-                              scanData.mView.setValue(storedValues);
-                              scanData.mView.postInvalidate();                                   
-                              currEntry.listPos=storedValues;
-                              scanData.wmapList.add(currEntry);
-                           }
-                        }
-                        result.capabilities=result.capabilities.toUpperCase(Locale.US);
-                        scanData.lock.unlock();
-                     }
-                  }
-                  scanData.lock.lock();
-                  for (j=0; j<scanData.wmapList.size(); j++)
+                  if ((lastLocMethod==loc_info.LOC_METHOD_LIBWLOCATE) || (gpsFixCnt>5))
                   {
-                     currEntry=scanData.wmapList.elementAt(j);
-                     if ((currEntry.lastUpdate+OWMiniAtAndroid.RECV_TIMEOUT<System.currentTimeMillis()) && ((currEntry.flags & WMapEntry.FLAG_IS_VISIBLE)==0))
-                     {
-                        scanData.wmapList.remove(j);
-                        if (currEntry.posIsValid())
-                        {
-                           int padBytes=0,k;
-                           
-                           try                           
-                           {                                                      
-                              in=scanData.ctx.openFileInput(OWMiniAtAndroid.WSCAN_FILE);                              
-                              padBytes=in.available() % 28;
-                              in.close();
-                              if (padBytes>0) padBytes=28-padBytes;
-                           }
-                           catch (IOException ioe)
-                           {
-                              ioe.printStackTrace();
-                           }
-                           try                           
-                           {                                                      
-                              out=new DataOutputStream(scanData.ctx.openFileOutput(OWMiniAtAndroid.WSCAN_FILE,Context.MODE_PRIVATE|Context.MODE_APPEND));
-                              if (padBytes>0) for (k=0; k<padBytes; k++) out.writeByte(0);
-                              out.write(currEntry.BSSID.getBytes(),0,12);
-                              if ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)!=0)
-                              {
-                                 out.writeDouble(0.0);
-                                 out.writeDouble(0.0);                              
-                              }
-                              else
-                              {
-                                 out.writeDouble(currEntry.getLat());
-                                 out.writeDouble(currEntry.getLon());
-                              }
-                              out.close();
-                           }
-                           catch (IOException ioe)
-                           {
-                              ioe.printStackTrace();
-                           }
-   
-                           if ((currEntry.flags & (WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_NOMAP))==WMapEntry.FLAG_IS_FREIFUNK)
-                           {
-                              padBytes=0;
-                              try                           
-                              {                                                      
-                                 in=scanData.ctx.openFileInput(OWMiniAtAndroid.WFREI_FILE);                              
-                                 padBytes=in.available() % 12;
-                                 in.close();
-                                 if (padBytes>0) padBytes=12-padBytes;
-                              }
-                              catch (IOException ioe)
-                              {
-                                 ioe.printStackTrace();
-                              }
-                              try                           
-                              {                                                      
-                                 out=new DataOutputStream(scanData.ctx.openFileOutput(OWMiniAtAndroid.WFREI_FILE,Context.MODE_PRIVATE|Context.MODE_APPEND));
-                                 if (padBytes>0) for (k=0; k<padBytes; k++) out.writeByte(0);
-                                 out.write(currEntry.BSSID.getBytes(),0,12);
-                                 out.close();
-                              }
-                              catch (IOException ioe)
-                              {
-                                 ioe.printStackTrace();
-                              }
-                           }
-                        }
-                     }                     
-      //               flushData(false);
-                  }
-                  scanData.lock.unlock();
-                  if (!SP.getBoolean("adaptiveScanning",true)) sleepTime=500;               
-                  else if (locationInfo.lastSpeed>90) sleepTime=350;
-                  else if (locationInfo.lastSpeed<0) sleepTime=1300; // no speed information, may be because of WLAN localisation
-                  else if (locationInfo.lastSpeed<6) sleepTime=2500; // user seems to walk
-                  else
-                  {
-                     double f;
-                     
-                     f=1.0-(locationInfo.lastSpeed/90.0);
-                     sleepTime=(int)((1000.0*f)+350);
-                  }
-   
-                  try            
-                  {
-                     java.lang.Thread.sleep(sleepTime); // sleep between scans
-                  }
-                  catch (InterruptedException ie)
-                  {
-                                   
+	                  OWMiniAtAndroid.sendMessage(OWMiniAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
+	   
+	                  if ((posValid) && (locationInfo.wifiScanResult!=null) && (locationInfo.wifiScanResult.size()>0))
+	                  {
+	                     boolean   foundExisting;
+	                     
+	                     for (i=0; i<locationInfo.wifiScanResult.size(); i++)
+	                     {
+	                        ScanResult result;
+	
+	                        result=locationInfo.wifiScanResult.get(i);                     
+	                        bssid=result.BSSID.replace(":","").replace(".","").toUpperCase(Locale.US);
+	                        if (bssid.equalsIgnoreCase("000000000000")) continue;
+	                        foundExisting=false;
+	                        scanData.lock.lock();
+	                        for (j=0; j<scanData.wmapList.size(); j++)
+	                        {
+	                           currEntry=scanData.wmapList.elementAt(j);
+	                           if (currEntry.BSSID.equalsIgnoreCase(bssid))
+	                           {
+	                              currEntry.setPos(lastLat,lastLon);
+	                              foundExisting=true;
+	                              break;
+	                           }                     
+	                        }
+	                        if (!foundExisting)
+	                        {
+	                           String lowerSSID;
+	                           
+	                           currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
+	                           lowerSSID=result.SSID.toLowerCase(Locale.US);
+	                           if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
+	                               (lowerSSID.contains("iphone")) ||         // mobile AP
+	                               (lowerSSID.contains("ipad")) ||           // mobile AP
+	                               (lowerSSID.contains("android")) ||        // mobile AP
+	                               (lowerSSID.contains("motorola")) ||       // mobile AP
+	                               (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
+	                          	   (lowerSSID.contains("busabout-wifi")) ||  // WLAN network on board of German bus
+	                               (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
+	                               (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
+	                               (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
+	                               (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
+	                               (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+	                               (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
+	                               (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
+	                               (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
+	                               (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
+	                               (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
+	                               (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
+	                               currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
+	                           else currEntry.flags|=isFreeHotspot(result);                                          
+	                           if (isFreeHotspot(currEntry.flags)) scanData.incFreeHotspotWLANs();
+	                           if ((posValid) || ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)==WMapEntry.FLAG_IS_NOMAP))
+	                           {
+	                              storedValues=scanData.incStoredValues();
+	                              scanData.mView.setValue(storedValues);
+	                              scanData.mView.postInvalidate();                                   
+	                              currEntry.listPos=storedValues;
+	                              scanData.wmapList.add(currEntry);
+	                           }
+	                        }
+	                        result.capabilities=result.capabilities.toUpperCase(Locale.US);
+	                        scanData.lock.unlock();
+	                     }
+	                  }
+	                  scanData.lock.lock();
+	                  for (j=0; j<scanData.wmapList.size(); j++)
+	                  {
+	                     currEntry=scanData.wmapList.elementAt(j);
+	                     if ((currEntry.lastUpdate+OWMiniAtAndroid.RECV_TIMEOUT<System.currentTimeMillis()) && ((currEntry.flags & WMapEntry.FLAG_IS_VISIBLE)==0))
+	                     {
+	                        scanData.wmapList.remove(j);
+	                        if (currEntry.posIsValid())
+	                        {
+	                           int padBytes=0,k;
+	                           
+	                           try                           
+	                           {                                                      
+	                              in=scanData.ctx.openFileInput(OWMiniAtAndroid.WSCAN_FILE);                              
+	                              padBytes=in.available() % 28;
+	                              in.close();
+	                              if (padBytes>0) padBytes=28-padBytes;
+	                           }
+	                           catch (IOException ioe)
+	                           {
+	                              ioe.printStackTrace();
+	                           }
+	                           try                           
+	                           {                                                      
+	                              out=new DataOutputStream(scanData.ctx.openFileOutput(OWMiniAtAndroid.WSCAN_FILE,Context.MODE_PRIVATE|Context.MODE_APPEND));
+	                              if (padBytes>0) for (k=0; k<padBytes; k++) out.writeByte(0);
+	                              out.write(currEntry.BSSID.getBytes(),0,12);
+	                              if ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)!=0)
+	                              {
+	                                 out.writeDouble(0.0);
+	                                 out.writeDouble(0.0);                              
+	                              }
+	                              else
+	                              {
+	                                 out.writeDouble(currEntry.getLat());
+	                                 out.writeDouble(currEntry.getLon());
+	                              }
+	                              out.close();
+	                           }
+	                           catch (IOException ioe)
+	                           {
+	                              ioe.printStackTrace();
+	                           }
+	   
+	                           if ((currEntry.flags & (WMapEntry.FLAG_IS_FREIFUNK|WMapEntry.FLAG_IS_NOMAP))==WMapEntry.FLAG_IS_FREIFUNK)
+	                           {
+	                              padBytes=0;
+	                              try                           
+	                              {                                                      
+	                                 in=scanData.ctx.openFileInput(OWMiniAtAndroid.WFREI_FILE);                              
+	                                 padBytes=in.available() % 12;
+	                                 in.close();
+	                                 if (padBytes>0) padBytes=12-padBytes;
+	                              }
+	                              catch (IOException ioe)
+	                              {
+	                                 ioe.printStackTrace();
+	                              }
+	                              try                           
+	                              {                                                      
+	                                 out=new DataOutputStream(scanData.ctx.openFileOutput(OWMiniAtAndroid.WFREI_FILE,Context.MODE_PRIVATE|Context.MODE_APPEND));
+	                                 if (padBytes>0) for (k=0; k<padBytes; k++) out.writeByte(0);
+	                                 out.write(currEntry.BSSID.getBytes(),0,12);
+	                                 out.close();
+	                              }
+	                              catch (IOException ioe)
+	                              {
+	                                 ioe.printStackTrace();
+	                              }
+	                           }
+	                        }
+	                     }                     
+	      //               flushData(false);
+	                  }
+	                  scanData.lock.unlock();
+	                  if (!SP.getBoolean("adaptiveScanning",true)) sleepTime=500;               
+	                  else if (locationInfo.lastSpeed>90) sleepTime=350;
+	                  else if (locationInfo.lastSpeed<0) sleepTime=1300; // no speed information, may be because of WLAN localisation
+	                  else if (locationInfo.lastSpeed<6) sleepTime=2500; // user seems to walk
+	                  else
+	                  {
+	                     double f;
+	                     
+	                     f=1.0-(locationInfo.lastSpeed/90.0);
+	                     sleepTime=(int)((1000.0*f)+350);
+	                  }
+	   
+	                  try            
+	                  {
+	                     java.lang.Thread.sleep(sleepTime); // sleep between scans
+	                  }
+	                  catch (InterruptedException ie)
+	                  {
+	                                   
+	                  }
                   }
                   posState=0;
                }
