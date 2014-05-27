@@ -49,8 +49,6 @@
  <string name="prefsTextSizeText">Size of the font that is used to show text - larger ones are easier to read but need more space</string>
  <string name="prefsBigCounter">Show big WLAN counters in App</string>
  <string name="prefsBigCounterText">The current number of scanned WLAN networks is shown on upper left corner of App using huge, easy to read numbers</string>
- <string name="prefsHudCounter">Show always on-top WLAN counters</string>
- <string name="prefsHudCounterText">The current number of scanned and open WLAN networks is always shown on upper left corner</string>
  <string name="prefsShowType">Display method of networks</string>
  <string name="prefsShowTypeText">Configures which information about scanned network are shown</string>
  <string name="prefsScreenLight">Screen brightness / stand-by</string>

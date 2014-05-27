@@ -48,8 +48,6 @@
  <string name="prefsTextSizeText">taille de la police utilisée pour afficher les textes - une police plus grosse est plus facile à lire mais ont besoin de plus de place.</string>
  <string name="prefsBigCounter">Affiche le gros compteur de wifi dans l\'app</string>
  <string name="prefsBigCounterText">Le nombre de réseaux wifi scannés est affiché dans le coin en haut a gauche de cet application en utilisant d\'énormes nombres facile à lire.</string>
- <string name="prefsHudCounter">Show always on-top WLAN counters</string>
- <string name="prefsHudCounterText">The current number of scanned and open WLAN networks is always shown on upper left corner</string>
  <string name="prefsShowType">Méthode d\'affichage des réseaux</string>
  <string name="prefsShowTypeText">Configure quelles informations des réseaux sont affichés</string>
  <string name="prefsScreenLight">Eclairage de l\'écran et veille</string>

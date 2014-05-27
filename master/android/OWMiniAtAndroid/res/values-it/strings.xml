@@ -48,8 +48,6 @@
  <string name="prefsTextSizeText">Dimensione del font usato per i testi - grandi sono più facili da leggere ma occupano maggior spazio</string>
  <string name="prefsBigCounter">Mostra grandi contatori di WLAN nell\'App</string>
  <string name="prefsBigCounterText">I numeri attuali di WLAN scandite vengono mostrati con grandi e facilmente leggibili caratteri sul margine in alto a sinistra dell\'App</string>
- <string name="prefsHudCounter">Mostra sempre i contatori di WLAN in sovraimpressione</string>
- <string name="prefsHudCounterText">Il numero attuale di WLAN scandite e aperte viene sempre mostrato nell\'angolo in alto a sinistra</string>
  <string name="prefsShowType">Tipo di visualizzazione delle reti</string>
  <string name="prefsShowTypeText">Configura quali informazioni visualizzare delle reti scandite</string>
  <string name="prefsScreenLight">Luminosità schermo / stand-by</string>

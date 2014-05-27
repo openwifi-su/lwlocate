@@ -49,8 +49,6 @@
  <string name="prefsTextSizeText">Größe des Zeichensatzes der für die Darstellung von Texten verwendet wird - größere Schriften sind leichter zu lesen, benötigen aber mehr Platz</string>
  <string name="prefsBigCounter">Große WLAN-Zähler in App einblenden</string>
  <string name="prefsBigCounterText">Die aktuelle Anzahl gefundener WLAN-Netzwerke wird mit großen, leicht zu erkennenden Zahlen in der linken oberen Ecke der App eingeblendet</string>
- <string name="prefsHudCounter">Große WLAN-Zähler im Vordergrund</string>
- <string name="prefsHudCounterText">Die aktuelle Anzahl gefundener WLAN-Netzwerke wird immer im Vordergrund angezeigt</string>
  <string name="prefsShowType">Angezeigte Netzwerkinformationen</string>
  <string name="prefsShowTypeText">Legt fest, welche Informationen über ein Netzwerk angezeigt werden sollen</string>
  <string name="prefsScreenLight">Bildschirmhelligkeit / Stand-By</string>
