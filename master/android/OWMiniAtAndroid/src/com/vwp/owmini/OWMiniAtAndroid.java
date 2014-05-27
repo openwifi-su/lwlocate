@@ -209,8 +209,6 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
          {
             bigCntText.setText("");
          }         
-         if (ScanService.scanData.bigCntTextHud!=null)
-          ScanService.scanData.bigCntTextHud.setText(""+msg.arg1);
       }
 
       
@@ -579,7 +577,6 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       createUI();
       
       createService(savedInstanceState);
-      ScanService.scanData.hudCounter=SP.getBoolean("hudCounter",false);
       setupInitial();
       
       sendMessage(ScannerHandler.MSG_UPD_AP_COUNT,ScanService.scanData.getStoredValues(),0,null);
@@ -854,7 +851,6 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       ScanService.scanData.isActive=true;
       super.onResume();
       ScanService.scanData.appVisible=true;
-      if (ScanService.scanData.mView!=null) ScanService.scanData.mView.postInvalidate();
       if (ScanService.scanData.watchThread!=null)
       {
          try
@@ -867,7 +863,6 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       }
       SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());      
       scannerHandler.bigCounter=SP.getBoolean("bigCounter",false);
-      ScanService.scanData.hudCounter=SP.getBoolean("hudCounter",false);
       try
       {
          ScanService.scanData.uploadThres=Integer.parseInt(SP.getString("autoUpload","0"));
@@ -917,7 +912,6 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
       if (wl!=null) wl.release();      
       ScanService.scanData.isActive=false; // try to stop the thread
       ScanService.scanData.appVisible=false;
-      if (ScanService.scanData.mView!=null) ScanService.scanData.mView.postInvalidate();
       ScanService.scanData.lock.lock();
       if (ScanService.scanData.wmapList.size()>0) for (j=0; j<ScanService.scanData.wmapList.size(); j++)
       {         
