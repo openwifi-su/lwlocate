@@ -163,7 +163,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       
       if(scanData.mView != null)
       {
-          ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(scanData.mView);
+    	  try
+    	  {
+             ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(scanData.mView);
+    	  }
+    	  catch (Exception e)
+    	  {
+    	  }
           scanData.mView = null;
       }	   
 	   try
@@ -521,14 +527,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                      scanData.mView.setMode(locationInfo.lastLocMethod);
                      scanData.mView.postInvalidate();
                      lastLocMethod=locationInfo.lastLocMethod;
+                     OWMapAtAndroid.sendMessage(OWMapAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
                   }
                   if (lastLocMethod==loc_info.LOC_METHOD_GPS) gpsFixCnt++;
                   else gpsFixCnt=0;
 
                   if ((lastLocMethod==loc_info.LOC_METHOD_LIBWLOCATE) || (gpsFixCnt>5))
-                  {
-	                  OWMapAtAndroid.sendMessage(OWMapAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
-	   
+                  {	   
 	                  if (SP.getBoolean("autoConnect",false))
 	                  {
 	                     if (!mWifi.isConnected()) 

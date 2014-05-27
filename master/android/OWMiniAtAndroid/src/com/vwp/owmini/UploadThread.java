@@ -493,6 +493,7 @@ class UploadThread extends Thread
       }
       if (uploadSuccess)
       {
+    	 OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_CLOSE_PRG_DLG,0,0,null);
          if (!silent)
           OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,
                             ctx.getResources().getText(R.string.your_new_rank).toString()+": "+scanData.uploadedRank+" ("+scanData.uploadedCount+ctx.getResources().getText(R.string.points).toString()+")\n\n"+

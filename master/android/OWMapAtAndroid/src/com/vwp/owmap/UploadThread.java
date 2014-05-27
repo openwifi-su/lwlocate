@@ -15,6 +15,7 @@ import javax.net.ssl.*;
 
 import com.vwp.owmap.OWMapAtAndroid.*;
 
+
 class UploadThread extends Thread
 {
    private ScanData            scanData;
@@ -492,7 +493,8 @@ class UploadThread extends Thread
       }
       if (uploadSuccess)
       {
-         if (!silent)
+    	 OWMapAtAndroid.sendMessage(ScannerHandler.MSG_CLOSE_PRG_DLG,0,0,null);
+    	 if (!silent)
           OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,
                             ctx.getResources().getText(R.string.your_new_rank).toString()+": "+scanData.uploadedRank+" ("+scanData.uploadedCount+ctx.getResources().getText(R.string.points).toString()+")\n\n"+
                             ctx.getResources().getText(R.string.stat_newAPs).toString()+": "+newAPs+"\n"+

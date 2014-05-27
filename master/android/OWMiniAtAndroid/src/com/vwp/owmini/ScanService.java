@@ -18,11 +18,9 @@ import com.vwp.owmini.OWMiniAtAndroid.*;
 
 import android.app.*;
 import android.content.*;
-import android.graphics.*;
 import android.os.*;
 import android.net.wifi.*;
 import android.preference.*;
-import android.view.*;
 
 import org.apache.http.client.*;
 import org.apache.http.impl.client.*;
@@ -115,16 +113,6 @@ public class ScanService extends Service implements Runnable
       startForeground(1703, notification);            
       
       scanData.service=this;
-      scanData.mView = new HUDView(this);
-      scanData.mView.setValue(scanData.incStoredValues());      
-      WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT);
-      params.gravity = Gravity.LEFT | Gravity.BOTTOM;
-      params.setTitle("Load Average");
-      WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-      wm.addView(scanData.mView, params);      
    }
 
    
@@ -136,11 +124,6 @@ public class ScanService extends Service implements Runnable
 	   
       if (myWLocate!=null) myWLocate.doPause();
       
-      if(scanData.mView != null)
-      {
-          ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(scanData.mView);
-          scanData.mView = null;
-      }	   
 	   try
 	   {
          if (wl!=null) wl.release();
@@ -407,17 +390,14 @@ public class ScanService extends Service implements Runnable
                   locationInfo=myWLocate.last_location_info();
                   if (lastLocMethod!=locationInfo.lastLocMethod)
                   {
-                     scanData.mView.setMode(locationInfo.lastLocMethod);
-                     scanData.mView.postInvalidate();
                      lastLocMethod=locationInfo.lastLocMethod;
+                     OWMiniAtAndroid.sendMessage(OWMiniAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
                   }
                   if (lastLocMethod==loc_info.LOC_METHOD_GPS) gpsFixCnt++;
                   else gpsFixCnt=0;
 
                   if ((lastLocMethod==loc_info.LOC_METHOD_LIBWLOCATE) || (gpsFixCnt>5))
-                  {
-	                  OWMiniAtAndroid.sendMessage(OWMiniAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
-	   
+                  {   
 	                  if ((posValid) && (locationInfo.wifiScanResult!=null) && (locationInfo.wifiScanResult.size()>0))
 	                  {
 	                     boolean   foundExisting;
@@ -471,8 +451,6 @@ public class ScanService extends Service implements Runnable
 	                           if ((posValid) || ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)==WMapEntry.FLAG_IS_NOMAP))
 	                           {
 	                              storedValues=scanData.incStoredValues();
-	                              scanData.mView.setValue(storedValues);
-	                              scanData.mView.postInvalidate();                                   
 	                              currEntry.listPos=storedValues;
 	                              scanData.wmapList.add(currEntry);
 	                           }
