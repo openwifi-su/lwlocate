@@ -6,7 +6,6 @@ import java.util.concurrent.locks.*;
 import android.content.*;
 import android.location.*;
 import android.net.wifi.*;
-import android.widget.TextView;
 
 public class ScanData 
 {
@@ -15,14 +14,12 @@ public class ScanData
            OWMiniAtAndroid    ctx;
    private int               flags=OWMiniAtAndroid.FLAG_NO_NET_ACCESS,storedValues;
    private int               freeHotspotWLANs=0;
-           boolean           isActive=true,scanningEnabled=true,hudCounter=false,appVisible=false;
+           boolean           isActive=true,scanningEnabled=true,appVisible=false;
            int               viewMode=OWMiniAtAndroid.VIEW_MODE_MAIN,threadMode=OWMiniAtAndroid.THREAD_MODE_SCAN,
                              uploadedCount=0,uploadedRank=0,uploadThres=0;
            WifiManager       wifiManager;
    private double            lat,lon;
-           TextView          bigCntTextHud;
            String            ownBSSID;
-           HUDView           mView;
            Thread            watchThread=null;
            ScanService       service=null;
 
