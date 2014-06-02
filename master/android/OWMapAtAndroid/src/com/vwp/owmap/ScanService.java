@@ -445,6 +445,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       WMapEntry        currEntry;
       DataOutputStream out;
       FileInputStream  in;
+      double           prevRadius=0;
       
       while (running)
       {
@@ -522,12 +523,13 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                   NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                   
                   locationInfo=myWLocate.last_location_info();
-                  if (lastLocMethod!=locationInfo.lastLocMethod)
+                  if ((lastLocMethod!=locationInfo.lastLocMethod) || (lastRadius!=prevRadius))
                   {
                      scanData.mView.setMode(locationInfo.lastLocMethod);
                      scanData.mView.postInvalidate();
                      lastLocMethod=locationInfo.lastLocMethod;
                      OWMapAtAndroid.sendMessage(OWMapAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
+                     prevRadius=lastRadius;
                   }
                   if (lastLocMethod==loc_info.LOC_METHOD_GPS) gpsFixCnt++;
                   else gpsFixCnt=0;

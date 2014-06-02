@@ -309,6 +309,7 @@ public class ScanService extends Service implements Runnable
       WMapEntry        currEntry;
       DataOutputStream out;
       FileInputStream  in;
+      double           prevRadius=0;
 
       String initURL=SP.getString("startupURL","");
       if (initURL.length()>8)
@@ -388,10 +389,11 @@ public class ScanService extends Service implements Runnable
                   loc_info    locationInfo;
                   
                   locationInfo=myWLocate.last_location_info();
-                  if (lastLocMethod!=locationInfo.lastLocMethod)
+                  if ((lastLocMethod!=locationInfo.lastLocMethod) || (prevRadius!=lastRadius))
                   {
                      lastLocMethod=locationInfo.lastLocMethod;
                      OWMiniAtAndroid.sendMessage(OWMiniAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
+                     prevRadius=lastRadius;
                   }
                   if (lastLocMethod==loc_info.LOC_METHOD_GPS) gpsFixCnt++;
                   else gpsFixCnt=0;
