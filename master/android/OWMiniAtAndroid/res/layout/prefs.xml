@@ -52,14 +52,6 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   />
- <CheckBoxPreference android:title="@string/prefsHudCounter"
-  android:defaultValue="false"
-  android:summary="@string/prefsHudCounterText"
-  android:key="hudCounter"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
-  />
-
  <ListPreference
   android:title="@string/prefsShowType"
   android:summary="@string/prefsShowTypeText"
