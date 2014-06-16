@@ -86,7 +86,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
                 public void onClick(DialogInterface dialog, int which) 
                 {  
                     dialog.dismiss();
-                    Intent myIntent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     ctx.startActivity(myIntent);
                 }  
             });  
