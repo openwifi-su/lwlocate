@@ -47,9 +47,10 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
    {
       if (request->bssids[i][0]+request->bssids[i][1]+request->bssids[i][2]+request->bssids[i][3]+request->bssids[i][4]+request->bssids[i][5]>0)
       {
-         snprintf(data,500,"%s%02X%02X%02X%02X%02X%02X\r\n",data,
-                                                                request->bssids[i][0],request->bssids[i][1],request->bssids[i][2],
-                                                                request->bssids[i][3],request->bssids[i][4],request->bssids[i][5]);
+         snprintf(data + strlen(data), 500 - strlen(data),
+	     "%02X%02X%02X%02X%02X%02X\r\n",
+             request->bssids[i][0],request->bssids[i][1],request->bssids[i][2],
+             request->bssids[i][3],request->bssids[i][4],request->bssids[i][5]);
       }
    }
    snprintf(head,500,
