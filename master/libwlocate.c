@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 #ifndef ENV_WINDOWS
  #include <arpa/inet.h>
 #else
@@ -38,6 +39,7 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
    char            data[500+1];
    char            responseOK=0;
 
+   setlocale(LC_ALL,"C");
    sock=tcp_connect_to("openwlanmap.org",80);
    if (sock<=0) return WLOC_SERVER_ERROR;
    tcp_set_blocking(sock,0); // set to non-blocking, we do not want to waid endless for a dead connection
@@ -103,7 +105,7 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
             {
                pos+=4;
                *lat=atof(pos);
-			   if (*lat!=0.0) dataFound|=0x0002;
+               if (*lat!=0.0) dataFound|=0x0002;
             }
             pos=strstr(data,"lon=");
             if (pos);

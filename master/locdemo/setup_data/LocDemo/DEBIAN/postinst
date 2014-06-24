@@ -8,4 +8,3 @@ ln -s /etc/init.d/wlocd /etc/rc3.d/K01wlocd
 ln -s /etc/init.d/wlocd /etc/rc2.d/S99wlocd
 ln -s /etc/init.d/wlocd /etc/rc2.d/K01wlocd
 ldconfig
-update-ca-certificates
