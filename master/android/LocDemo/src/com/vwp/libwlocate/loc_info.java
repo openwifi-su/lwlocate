@@ -10,7 +10,7 @@ public class loc_info
    public static final int LOC_METHOD_LIBWLOCATE=1;
    public static final int LOC_METHOD_GPS=2;
    
-   /** describes based on which method the last location was perfomed with */
+   /** describes based on which method the last location was performed with */
    public int lastLocMethod=LOC_METHOD_NONE;
    
    /** request data that is used for libwlocate-based location request, its member bssids is filled with valid BSSIDs also in case of GPS location */

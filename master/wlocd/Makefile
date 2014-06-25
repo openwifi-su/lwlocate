@@ -2,7 +2,7 @@ PROGRAM = wlocd
 
 INCLUDEDIRS = -I/usr/X11R6/include -I..
 
-LIBDIRS = -L/usr/X11R6/lib -L/usr/lib
+LIBDIRS = -L/usr/X11R6/lib -L/usr/lib -L..
 
 LIBS = -lwlocate
 
