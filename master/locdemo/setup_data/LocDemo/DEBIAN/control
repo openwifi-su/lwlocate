@@ -1,5 +1,5 @@
 Package: locdemo
-Version: 2.0
+Version: 2.0-2
 Section: internet
 Priority: optional
 Architecture: amd64
@@ -13,4 +13,3 @@ Conflicts:
 Replaces:
 Provides: LocDemo
 Description: A WLAN geolocation demonstration application that makes use of libwlocate and the data of project OpenWLANMap.
-
