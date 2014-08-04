@@ -472,7 +472,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                      lastFlags=scanData.getFlags();        
                   }
                   if ((scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0)
-                   myWLocate.wloc_request_position(WLocate.FLAG_NO_IP_LOCATION);
+                   myWLocate.wloc_request_position(WLocate.FLAG_NO_IP_LOCATION|WLocate.FLAG_UPDATE_AGPS);
                   else
                   {
                      myWLocate.wloc_request_position(WLocate.FLAG_NO_NET_ACCESS|WLocate.FLAG_NO_IP_LOCATION);

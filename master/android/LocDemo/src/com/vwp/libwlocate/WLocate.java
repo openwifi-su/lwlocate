@@ -59,6 +59,7 @@ public class WLocate implements Runnable
    public static final int FLAG_NO_NET_ACCESS =0x0001; /** Don't perform any network accesses to evaluate the position data, this option disables the WLAN_based position retrieval */
    public static final int FLAG_NO_GPS_ACCESS =0x0002; /** Don't use a GPS device to evaluate the position data, this option disables the WLAN_based position retrieval */
    public static final int FLAG_NO_IP_LOCATION=0x0004; /** Don't send a request to the server for IP-based location in case no WLANs are available */
+   public static final int FLAG_UPDATE_AGPS   =0x0008; /** Update AGPS data to get better/faster/mor accurate GPS fixes; this flag is useless when FLAG_NO_NET_ACCESS or FLAG_NO_GPS_ACCESS is set too */
    
    public static final int WLOC_OK=0;               /** Result code for position request, given position information are OK */
    public static final int WLOC_CONNECTION_ERROR=1; /** Result code for position request, a connection error occured, no position information are available */
@@ -76,7 +77,7 @@ public class WLocate implements Runnable
    private GPSStatusListener   statusListener;
    private WifiManager         wifi;
    private WifiReceiver        receiverWifi = new WifiReceiver();
-   private boolean             GPSAvailable=false,scanStarted=false;
+   private boolean             GPSAvailable=false,scanStarted=false,AGPSUpdated=false;
    private double              m_lat,m_lon;
    private float               m_radius=1.0f,m_speed=-1.0f,m_cog=-1.0f;
    private int                 scanFlags;
@@ -153,7 +154,15 @@ public class WLocate implements Runnable
       scanFlags=flags;
       scanStarted=true;
       if ((!wifi.isWifiEnabled()) && (!GPSAvailable))
-       wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,0.0f,(short)0);         
+       wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,0.0f,(short)0);
+      if (((scanFlags & FLAG_NO_NET_ACCESS)==0) && ((scanFlags & FLAG_NO_GPS_ACCESS)==0) && ((scanFlags & FLAG_UPDATE_AGPS)!=0) && (!AGPSUpdated))
+      {
+    	 location.sendExtraCommand(LocationManager.GPS_PROVIDER,"delete_aiding_data", null);
+    	 Bundle bundle = new Bundle();
+    	 location.sendExtraCommand("gps", "force_xtra_injection", bundle);
+    	 location.sendExtraCommand("gps", "force_time_injection", bundle);
+         AGPSUpdated=true;
+      }
       wifi.startScan();
    }
 
