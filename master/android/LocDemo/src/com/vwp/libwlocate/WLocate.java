@@ -153,8 +153,6 @@ public class WLocate implements Runnable
    {
       scanFlags=flags;
       scanStarted=true;
-      if ((!wifi.isWifiEnabled()) && (!GPSAvailable))
-       wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,0.0f,(short)0);
       if (((scanFlags & FLAG_NO_GPS_ACCESS)==0) && ((scanFlags & FLAG_UPDATE_AGPS)!=0) && (!AGPSUpdated))
       {
     	 location.sendExtraCommand(LocationManager.GPS_PROVIDER,"delete_aiding_data", null);
@@ -163,6 +161,8 @@ public class WLocate implements Runnable
     	 location.sendExtraCommand("gps", "force_time_injection", bundle);
          AGPSUpdated=true;
       }
+      if ((!wifi.isWifiEnabled()) && (!GPSAvailable))
+       wloc_return_position(WLOC_LOCATION_ERROR,0.0,0.0,0.0f,(short)0);
       wifi.startScan();
    }
 

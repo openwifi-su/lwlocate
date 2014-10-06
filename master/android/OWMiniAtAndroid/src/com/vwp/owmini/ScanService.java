@@ -113,8 +113,6 @@ public class ScanService extends Service implements Runnable
       startForeground(1703, notification);            
       
       scanData.service=this;
-      scanData.mView = new HUDView(this);
-      scanData.mView.setValue(scanData.incStoredValues());      
       WindowManager.LayoutParams params = new WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
@@ -122,7 +120,6 @@ public class ScanService extends Service implements Runnable
       params.gravity = Gravity.LEFT | Gravity.BOTTOM;
       params.setTitle("Load Average");
       WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-      wm.addView(scanData.mView, params);      
    }
 
    
@@ -134,11 +131,6 @@ public class ScanService extends Service implements Runnable
 	   
       if (myWLocate!=null) myWLocate.doPause();
       
-      if(scanData.mView != null)
-      {
-          ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(scanData.mView);
-          scanData.mView = null;
-      }	   
 	   try
 	   {
          if (wl!=null) wl.release();
@@ -405,8 +397,6 @@ public class ScanService extends Service implements Runnable
                   locationInfo=myWLocate.last_location_info();
                   if (lastLocMethod!=locationInfo.lastLocMethod)
                   {
-                     scanData.mView.setMode(locationInfo.lastLocMethod);
-                     scanData.mView.postInvalidate();
                      lastLocMethod=locationInfo.lastLocMethod;
                   }
                   if (posState==100) locationInfo.lastLocMethod=-1;
@@ -442,6 +432,7 @@ public class ScanService extends Service implements Runnable
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
+                               (result.SSID.startsWith("Audi")) ||       // some cars seem to have this AP on-board
                                (lowerSSID.contains("iphone")) ||         // mobile AP
                                (lowerSSID.contains("ipad")) ||           // mobile AP
                                (lowerSSID.contains("android")) ||        // mobile AP
@@ -464,8 +455,6 @@ public class ScanService extends Service implements Runnable
                            if ((posValid) || ((currEntry.flags & WMapEntry.FLAG_IS_NOMAP)==WMapEntry.FLAG_IS_NOMAP))
                            {
                               storedValues=scanData.incStoredValues();
-                              scanData.mView.setValue(storedValues);
-                              scanData.mView.postInvalidate();                                   
                               currEntry.listPos=storedValues;
                               scanData.wmapList.add(currEntry);
                            }

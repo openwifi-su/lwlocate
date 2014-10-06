@@ -22,7 +22,6 @@ public class ScanData
    private double            lat,lon;
            TextView          bigCntTextHud;
            String            ownBSSID;
-           HUDView           mView;
            Thread            watchThread=null;
            ScanService       service=null;
 

@@ -475,7 +475,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                    myWLocate.wloc_request_position(WLocate.FLAG_NO_IP_LOCATION|WLocate.FLAG_UPDATE_AGPS);
                   else
                   {
-                     myWLocate.wloc_request_position(WLocate.FLAG_NO_NET_ACCESS|WLocate.FLAG_NO_IP_LOCATION);
+                     myWLocate.wloc_request_position(WLocate.FLAG_NO_NET_ACCESS|WLocate.FLAG_NO_IP_LOCATION|WLocate.FLAG_UPDATE_AGPS);
    //                  stopGoogleLocation();
                   }
                }
@@ -583,6 +583,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            currEntry=new WMapEntry(bssid,result.SSID,lastLat,lastLon,storedValues);
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
+                               (result.SSID.startsWith("Audi")) ||       // some cars seem to have this AP on-board
                                (lowerSSID.contains("iphone")) ||         // mobile AP
                                (lowerSSID.contains("ipad")) ||           // mobile AP
                                (lowerSSID.contains("android")) ||        // mobile AP
