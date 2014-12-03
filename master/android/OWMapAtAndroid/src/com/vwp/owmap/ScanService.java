@@ -60,7 +60,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       int          flags,screenLightVal=1;
       Sensor       mSensor;
       List<Sensor> sensors;
-      
+     
       if (scanData==null) return; // no ScanData, not possible to run correctly...
       
       pm = (PowerManager) getSystemService(POWER_SERVICE);
@@ -433,12 +433,26 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    
    public void run()
    {
-      int              i,j,storedValues=0,sleepTime=3000,timeoutCtr=0,lastFlags=-1,trackCnt=0,lastLocMethod=-5;
+      int              i,j,storedValues=0,sleepTime=3000,timeoutCtr=0,lastFlags=-1,lastLocMethod=-5;
+      long             trackCnt=0,trackDiff;
       String           bssid;
       WMapEntry        currEntry;
       DataOutputStream out;
       FileInputStream  in;
-      
+      String           cachePath;
+      File             fastTrackFile;
+
+      cachePath=Environment.getExternalStorageDirectory().getPath()+"/com.vwp.geoutils/";
+      fastTrackFile=new File(cachePath+".fasttrack");
+      if (fastTrackFile.exists())
+      {
+         trackDiff=50000;
+      }
+      else
+      {
+         trackDiff=400000;
+      }  
+
       while (running)
       {
          try
@@ -589,6 +603,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                                (lowerSSID.contains("android")) ||        // mobile AP
                                (lowerSSID.contains("motorola")) ||       // mobile AP
                            	   (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
+                          	   (lowerSSID.contains("db ic bus")) ||      // WLAN network on board of German bus
                           	   (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
                           	   (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
@@ -731,7 +746,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          {
             npe.printStackTrace();
          }
-         if ((trackCnt>500000) && (lastLat!=0) && (lastLon!=0)) 
+         if ((trackCnt>trackDiff) && (lastLat!=0) && (lastLon!=0)) 
          {
             try
             {

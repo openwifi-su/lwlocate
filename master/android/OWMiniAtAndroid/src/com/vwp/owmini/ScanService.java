@@ -438,6 +438,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("android")) ||        // mobile AP
                                (lowerSSID.contains("motorola")) ||       // mobile AP
                                (lowerSSID.contains("deinbus.de")) ||     // WLAN network on board of German bus
+                          	   (lowerSSID.contains("db ic bus")) ||      // WLAN network on board of German bus
                                (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
