@@ -72,6 +72,13 @@
  <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
  <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
  
+ <string name="doexport">Export account data</string>
+ <string name="doimport">Import account data</string>
+ <string name="export_done">Account data successfully exported to SD-card, file OWMAP.export</string>
+ <string name="export_failed">Error: Could not access SD-card to write file OWMAP.export!</string>
+ <string name="import_done">Account data successfully imported</string>
+ <string name="import_failed">Error: Could not load OWMAP.export from SD-card!</string>
+ 
  <color name="black">#000000</color>
  <color name="white">#FFFFFF</color>
 

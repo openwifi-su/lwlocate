@@ -335,7 +335,7 @@ class UploadThread extends Thread
     	    ctx.deleteFile("wopendata");
     	    ScanService.scanData.setStoredValues(0);
     	    ScanService.scanData.setFreeHotspotWLANs(0);
-    	    ctx.storeConfig();
+    	    ctx.storeConfig(false);
     	    if (!silent)
     	    {
     	       if (remoteVersion>version)
@@ -464,7 +464,7 @@ class UploadThread extends Thread
 	ctx.deleteFile("wopendata");
 	         ScanService.scanData.setStoredValues(0);
 	         ScanService.scanData.setFreeHotspotWLANs(0);
-	         ctx.storeConfig();
+	         ctx.storeConfig(false);
 	         if (!silent)
 	         {
 	            if (remoteVersion>version)

@@ -183,6 +183,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       {
          
       }
+      storeConfig(false);
       System.exit(0);
 	}
 	
@@ -401,13 +402,22 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    }
    
    
-   void storeConfig()
+   boolean storeConfig(boolean export)
    {
       DataOutputStream out;
       
       try
       {
-         out=new DataOutputStream(openFileOutput("wscnprefs",Context.MODE_PRIVATE));
+         if (!export) out=new DataOutputStream(openFileOutput("wscnprefs",Context.MODE_PRIVATE));
+         else
+         {
+            File   exportFile;
+            String sdCard;
+
+            sdCard=Environment.getExternalStorageDirectory().getPath();
+            exportFile=new File(sdCard+"/OWMAP.export");
+            out=new DataOutputStream(new FileOutputStream(exportFile));
+         }
          out.writeByte(1); // version
          out.writeInt(ScanService.scanData.getFlags()); // operation flags;
          out.writeInt(ScanService.scanData.getStoredValues()); // number of currently stored values
@@ -427,7 +437,9 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       catch (IOException ioe)
       {
          ioe.printStackTrace();
+         return false;
       }      
+      return true;
    }   
       
    
@@ -486,10 +498,10 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                      lastFlags=scanData.getFlags();        
                   }
                   if ((scanData.getFlags() & OWMapAtAndroid.FLAG_NO_NET_ACCESS)==0)
-                   myWLocate.wloc_request_position(WLocate.FLAG_NO_IP_LOCATION|WLocate.FLAG_UPDATE_AGPS);
+                   myWLocate.wloc_request_position(WLocate.FLAG_UPDATE_AGPS|WLocate.FLAG_NO_IP_LOCATION);
                   else
                   {
-                     myWLocate.wloc_request_position(WLocate.FLAG_NO_NET_ACCESS|WLocate.FLAG_NO_IP_LOCATION|WLocate.FLAG_UPDATE_AGPS);
+                     myWLocate.wloc_request_position(WLocate.FLAG_NO_NET_ACCESS|WLocate.FLAG_NO_IP_LOCATION);
    //                  stopGoogleLocation();
                   }
                }

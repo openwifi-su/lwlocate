@@ -2,6 +2,7 @@ package com.vwp.owmap;
 
 import java.io.*;
 import java.net.*;
+import java.security.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
 
@@ -621,7 +622,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       if ((savedInstanceState==null) || (!savedInstanceState.getBoolean("init")))
       {   
          ScanService.scanData.init(this);
-         loadConfig();
+         loadConfig(false);
          startService(new Intent(this,ScanService.class));
       }
       if (ScanService.scanData.wifiManager==null) ScanService.scanData.init(this);
@@ -643,9 +644,19 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
    {
       if ((ScanService.scanData.ownBSSID==null) || (ScanService.scanData.ownBSSID.length()<12))
 	  {
-         WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
+    	 do
+    	 {
+            SecureRandom sr = new SecureRandom();
+            byte[] output = new byte[6];
+            sr.nextBytes(output);
+            ScanService.scanData.ownBSSID=String.format("%2X%2X%2X%2X%2X%2X",output[0],output[1],output[2],output[3],output[4],output[5]);
+            ScanService.scanData.ownBSSID=ScanService.scanData.ownBSSID.replace(" ","");
+    	 }
+    	 while (ScanService.scanData.ownBSSID.length()<12);
+    	  
+/*         WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
          if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase(Locale.US);
-         else ScanService.scanData.ownBSSID="00DEADBEEF00";
+         else ScanService.scanData.ownBSSID="00DEADBEEF00";*/
       }
       updateRank();      
    }
@@ -774,10 +785,14 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       if (scannerHandler.liveMapView.telemetryData==null)
        prefsMenuItem.setEnabled(false);
      
-      prefsMenuItem = pMenu.add(0, 9, Menu.NONE,R.string.help);
+      prefsMenuItem = pMenu.add(0, 9, Menu.NONE,R.string.doexport);
+     
+      prefsMenuItem = pMenu.add(0, 10, Menu.NONE,R.string.doimport);
+     
+      prefsMenuItem = pMenu.add(0, 11, Menu.NONE,R.string.help);
       prefsMenuItem.setIcon(android.R.drawable.ic_menu_help);
       
-      prefsMenuItem = pMenu.add(0, 10, Menu.NONE,R.string.credits);
+      prefsMenuItem = pMenu.add(0, 12, Menu.NONE,R.string.credits);
       prefsMenuItem.setIcon(android.R.drawable.ic_menu_info_details);
       
       return super.onCreateOptionsMenu(pMenu);  
@@ -844,20 +859,36 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
                                                             scannerHandler.liveMapView.telemetryData.accelZ);
                ScanService.scanData.telemetryData.corrOrient(scannerHandler.liveMapView.telemetryData.orientY,
                                                              scannerHandler.liveMapView.telemetryData.orientZ);
-               ScanService.scanData.service.storeConfig();
+               ScanService.scanData.service.storeConfig(false);
             }
             break;
          case 8:
              if ((scannerHandler.liveMapView!=null) && (scannerHandler.liveMapView.telemetryData!=null))
              {
                 ScanService.scanData.telemetryData.corrCoG(scannerHandler.liveMapView.telemetryData.CoG);
-                ScanService.scanData.service.storeConfig();
+                ScanService.scanData.service.storeConfig(false);
              }
              break;
          case 9:
-            simpleAlert(getResources().getText(R.string.help_txt).toString(),null,ALERT_OK);
-            break;
+         	if (ScanService.scanData.service.storeConfig(true))
+             Toast.makeText(ctx,R.string.export_done,Toast.LENGTH_LONG).show();
+           	else
+             Toast.makeText(ctx,R.string.export_failed,Toast.LENGTH_LONG).show();
+           	break;
          case 10:
+         	if (loadConfig(true))
+         	{
+               Toast.makeText(ctx,R.string.import_done,Toast.LENGTH_LONG).show();
+               ScanService.scanData.service.storeConfig(false);
+         	}
+           	else
+             Toast.makeText(ctx,R.string.import_failed,Toast.LENGTH_LONG).show();
+        	break;
+         case 11:
+            simpleAlert(getResources().getText(R.string.help_txt).toString(),null,ALERT_OK);
+            Toast.makeText(ctx,R.string.export_done,Toast.LENGTH_SHORT).show();
+            break;
+         case 12:
             simpleAlert("Credits go to: Marco Bisetto, XcinnaY, Tobias, Volker, Keith and Christian\n...for translations, help, ideas, testing and detailed feedback\nThe OpenStreetMap team for map data",null,ALERT_OK);
             break;
          default:
@@ -868,13 +899,23 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
    
    
    
-   private void loadConfig()
+   private boolean loadConfig(boolean doImport)
    {
       DataInputStream in;
+      boolean         ret=true;
       
       try
-      {
-         in=new DataInputStream(ctx.openFileInput("wscnprefs"));
+      {   	  
+         if (!doImport) in=new DataInputStream(ctx.openFileInput("wscnprefs"));
+         else
+         {
+            File   exportFile;
+            String sdCard;
+
+            sdCard=Environment.getExternalStorageDirectory().getPath();
+            exportFile=new File(sdCard+"/OWMAP.export");
+            in=new DataInputStream(new FileInputStream(exportFile));
+         }
          in.readByte(); // version
          ScanService.scanData.setFlags(in.readInt()); // operation flags;
          ScanService.scanData.setStoredValues(in.readInt()); // number of currently stored values
@@ -900,7 +941,20 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
       catch (IOException ioe)
       {
          ioe.printStackTrace();
+         ret=false;
       }      
+      if (doImport)
+      {
+         ScanService.scanData.setStoredValues(0); // number of currently stored values
+         ScanService.scanData.setFreeHotspotWLANs(0);
+         ScanService.scanData.telemetryData.corrAccelX=0.0F;
+         ScanService.scanData.telemetryData.corrAccelY=0.0F;
+         ScanService.scanData.telemetryData.corrAccelZ=0.0F;
+         ScanService.scanData.telemetryData.corrCoG=0.0F;
+         ScanService.scanData.telemetryData.corrOrientY=0.0F;
+         ScanService.scanData.telemetryData.corrOrientZ=0.0F;
+    	 return ret;
+      }
       try                           
       {                                                      
          in=new DataInputStream(openFileInput(OWMapAtAndroid.WSCAN_FILE));
@@ -913,6 +967,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
          ioe.printStackTrace();
       }      
       updateRank();
+      return ret;
    }
    
    
@@ -997,7 +1052,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
             if (scannerHandler.liveMapView!=null) ScanService.scanData.ctx.scannerHandler.sendEmptyMessage(ScannerHandler.MSG_UPD_LIVE_MAP);
             
             ScanService.scanData.lock.unlock();
-            if (configChanged) ScanService.scanData.service.storeConfig();
+            if (configChanged) ScanService.scanData.service.storeConfig(false);
        	   try
             {
        		   Thread.sleep(1100);
@@ -1068,7 +1123,7 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
          else ScanService.scanData.setFlags(0);
          SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());      
          showMap=SP.getBoolean("showMap",false);         
-         ScanService.scanData.service.storeConfig();
+         ScanService.scanData.service.storeConfig(false);
       }
    }   
 

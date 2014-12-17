@@ -72,4 +72,11 @@
  <string name="prefsStartupURLTitle">URL eingeben</string>
  <string name="prefsHTTPUpload">Daten über (unsicheres) HTTP hochladen</string>
  <string name="prefsHTTPUploadText">Nicht empfohlen: WLAN- und Positionsdaten unverschlüsselt übertragen</string>
+
+ <string name="doexport">Exportiere Account</string>
+ <string name="doimport">Importiere Account</string>
+ <string name="export_done">Accountdaten erfolgreich in Datei OWMAP.export auf der SD-Karte exportiert</string>
+ <string name="export_failed">Fehler: kann nicht auf SD-Karte zugreifen um Datei OWMAP.export zu erzeugen!</string>
+ <string name="import_done">Accountdaten erfolgreich importiert</string>
+ <string name="import_failed">Fehler: konnte Datei OWMAP.export nicht auf der SD-Karte finden!</string>
 </resources>

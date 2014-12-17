@@ -13,8 +13,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
-import com.vwp.owmini.WMapEntry;
-import com.vwp.owmini.OWMiniAtAndroid.*;
+import com.vwp.owmini.OWMiniAtAndroid.ScannerHandler;
 
 import android.app.*;
 import android.content.*;
@@ -119,7 +118,6 @@ public class ScanService extends Service implements Runnable
             PixelFormat.TRANSLUCENT);
       params.gravity = Gravity.LEFT | Gravity.BOTTOM;
       params.setTitle("Load Average");
-      WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
    }
 
    
@@ -149,6 +147,7 @@ public class ScanService extends Service implements Runnable
       {
          
       }
+      storeConfig(false);
       System.exit(0);
 	}
 	
@@ -286,24 +285,36 @@ public class ScanService extends Service implements Runnable
    }
    
    
-   void storeConfig()
+   boolean storeConfig(boolean export)
    {
       DataOutputStream out;
       
       try
       {
-         out=new DataOutputStream(openFileOutput("wscnprefs",Context.MODE_PRIVATE));
+         if (!export) out=new DataOutputStream(openFileOutput("wscnprefs",Context.MODE_PRIVATE));
+         else
+         {
+            File   exportFile;
+            String sdCard;
+
+            sdCard=Environment.getExternalStorageDirectory().getPath();
+            exportFile=new File(sdCard+"/OWMAP.export");
+            out=new DataOutputStream(new FileOutputStream(exportFile));
+         }
          out.writeByte(1); // version
          out.writeInt(ScanService.scanData.getFlags()); // operation flags;
          out.writeInt(ScanService.scanData.getStoredValues()); // number of currently stored values
          out.writeInt(ScanService.scanData.uploadedCount);
          out.writeInt(ScanService.scanData.uploadedRank);
+		 out.writeBytes(ScanService.scanData.ownBSSID);
          out.close();
       }
       catch (IOException ioe)
       {
          ioe.printStackTrace();
+         return false;
       }      
+      return true;
    }   
       
    
@@ -355,7 +366,7 @@ public class ScanService extends Service implements Runnable
                      lastFlags=scanData.getFlags();        
                   }
                   if ((scanData.getFlags() & OWMiniAtAndroid.FLAG_NO_NET_ACCESS)==0)
-                   myWLocate.wloc_request_position(WLocate.FLAG_NO_IP_LOCATION);
+                   myWLocate.wloc_request_position(WLocate.FLAG_UPDATE_AGPS|WLocate.FLAG_NO_IP_LOCATION);
                   else
                   {
                      myWLocate.wloc_request_position(WLocate.FLAG_NO_NET_ACCESS|WLocate.FLAG_NO_IP_LOCATION);
