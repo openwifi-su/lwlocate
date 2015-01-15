@@ -459,6 +459,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
+                               (lowerSSID.contains("mobile hotspot")) || // e.g. BlackBerry devices
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
                                (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
                                currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
@@ -628,7 +629,7 @@ public class ScanService extends Service implements Runnable
            
 	         try
 	         {
-	            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");    
+	            URL connectURL = new URL("http://www.virtualworlds.de/owmap/android/upload.php");    
 	            c= (HttpURLConnection) connectURL.openConnection();
 	            if (c==null) return;
 	            
@@ -698,7 +699,7 @@ public class ScanService extends Service implements Runnable
 	 	    	context.init(null, tmf.getTrustManagers(), null);
 	 	
 	 	    	// Tell the URLConnection to use a SocketFactory from our SSLContext
-	 	    	URL url = new URL("https://openwlanmap.org/android/upload.php");
+	 	    	URL url = new URL("https://virtualworlds.de/owmap/android/upload.php");
 	 	    	c =(HttpsURLConnection)url.openConnection();
 	            if (c==null) return;
 	 	    	c.setSSLSocketFactory(context.getSocketFactory());    	

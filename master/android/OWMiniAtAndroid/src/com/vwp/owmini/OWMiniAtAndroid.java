@@ -244,7 +244,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
         	outString=ScanService.scanData.getLat()+"\n"+ScanService.scanData.getLon()+"\n";
         	try
         	{
-        	   URL connectURL = new URL("http://www.openwlanmap.org/android/freifunk.php");    
+        	   URL connectURL = new URL("http://www.virtualworlds.de/owmap/android/freifunk.php");    
         	   c= (HttpURLConnection) connectURL.openConnection();
         	   if (c==null)
         	   {
@@ -706,7 +706,7 @@ public class OWMiniAtAndroid extends Activity implements OnClickListener, OnItem
             simpleAlert(getResources().getText(R.string.help_txt).toString(),null,ALERT_OK);
             break;
          case 9:
-            simpleAlert("Credits go to: Marco Bisetto, XcinnaY, Tobias, Volker, Keith and Christian\n...for translations, help, ideas, testing and detailed feedback\nThe OpenStreetMap team for map data",null,ALERT_OK);
+            simpleAlert("Credits go to: CokeFever, Marco Bisetto, XcinnaY, Tobias, Volker, Keith and Christian\n...for translations, help, ideas, testing and detailed feedback\nThe OpenStreetMap team for map data",null,ALERT_OK);
             break;
          default:
             break;
