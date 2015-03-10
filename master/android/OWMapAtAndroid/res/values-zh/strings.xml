@@ -50,6 +50,7 @@
  
  <string name="prefsAutoConnect">自動連線至 Freifunk WLANs</string>
  <string name="prefsAutoConnectText">注意! 這個選項有其危險性且應該被用於完全安全的設備!</string>
+ <string name="prefsOpenAutoConnect">Auto-Connect to open WLANs</string>
  <string name="prefsAutoStart">開機自動啟動</string>
  <string name="prefsAutoStartText">一但設備啟動及自動開啟這個程式</string>
  <string name="prefsAdaptiveScanning">自動調適掃描</string>

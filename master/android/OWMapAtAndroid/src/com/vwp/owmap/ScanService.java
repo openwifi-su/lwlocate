@@ -147,6 +147,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       dir.mkdir();
       
       connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+      storeConfig(false);
    }
 
    
@@ -431,7 +432,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
          out.writeFloat(ScanService.scanData.telemetryData.corrCoG);
          out.writeFloat(ScanService.scanData.telemetryData.corrOrientY);
          out.writeFloat(ScanService.scanData.telemetryData.corrOrientZ);
-		 out.writeBytes(ScanService.scanData.ownBSSID);
+		   out.writeBytes(ScanService.scanData.ownBSSID);
          out.close();
       }
       catch (IOException ioe)
@@ -441,8 +442,46 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       }      
       return true;
    }   
-      
-   
+
+
+   private void checkAutoConnect(loc_info locationInfo,NetworkInfo mWifi)
+   {
+      int i,j;
+
+      if ((SP.getBoolean("autoConnect",false)) || (SP.getBoolean("openAutoConnect",false)))
+      {
+         if (!mWifi.isConnected()) for (j=0; j<2; j++) // j=0 - freifunk, j=1 open WLAN
+         {
+            for (i=0; i<locationInfo.wifiScanResult.size(); i++)
+            {
+               ScanResult result;
+
+               result=locationInfo.wifiScanResult.get(i);
+               result.capabilities=result.capabilities.toUpperCase(Locale.US);
+               if (((SP.getBoolean("autoConnect",false)) && (isFreeHotspot(result)==WMapEntry.FLAG_IS_FREIFUNK) && (j==0)) ||
+                   ((SP.getBoolean("openAutoConnect",false)) && (isOpenWLAN(result)) && (j==1)))
+               {
+                  // auto-connect to this open network
+
+                  WifiConfiguration wifiConfig = new WifiConfiguration();
+                  wifiConfig.BSSID =result.BSSID;
+                  wifiConfig.priority = 1;
+                  wifiConfig.allowedKeyManagement.set(KeyMgmt.NONE);
+                  wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+                  wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+                  wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                  wifiConfig.status=WifiConfiguration.Status.ENABLED;
+
+                  int netId = scanData.wifiManager.addNetwork(wifiConfig);
+                  scanData.wifiManager.enableNetwork(netId, true);
+                  return;
+               }
+            }
+         }
+      }
+   }
+
+
    public void run()
    {
       int              i,j,storedValues=0,sleepTime=3000,timeoutCtr=0,lastFlags=-1,lastLocMethod=-5;
@@ -549,36 +588,9 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                   }
                   if (posState==100) locationInfo.lastLocMethod=-1;
                   OWMapAtAndroid.sendMessage(OWMapAtAndroid.ScannerHandler.MSG_UPD_LOC_STATE,(int)(lastRadius*1000),locationInfo.lastLocMethod,locationInfo);
-   
-                  if (SP.getBoolean("autoConnect",false))
-                  {
-                     if (!mWifi.isConnected()) 
-                     {
-                        for (i=0; i<locationInfo.wifiScanResult.size(); i++)
-                        {
-                           ScanResult result;
-                        
-                           result=locationInfo.wifiScanResult.get(i);
-                           result.capabilities=result.capabilities.toUpperCase(Locale.US);
-                           if ((isFreeHotspot(result) & WMapEntry.FLAG_IS_FREIFUNK)!=0)
-                           {
-                              // auto-connect to this open network
-                            
-                              WifiConfiguration wifiConfig = new WifiConfiguration(); 
-                              wifiConfig.BSSID =result.BSSID; 
-                              wifiConfig.priority = 1; 
-                              wifiConfig.allowedKeyManagement.set(KeyMgmt.NONE); 
-                              wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP); 
-                              wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN); 
-                              wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE); 
-                              wifiConfig.status=WifiConfiguration.Status.ENABLED; 
-      
-                              int netId = scanData.wifiManager.addNetwork(wifiConfig); 
-                              scanData.wifiManager.enableNetwork(netId, true);
-                           }
-                        }
-                     }
-                  }
+
+                  checkAutoConnect(locationInfo,mWifi);
+
                   if ((locationInfo.wifiScanResult!=null) && (locationInfo.wifiScanResult.size()>0))
                   {
                      boolean   foundExisting;
@@ -610,6 +622,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
                                (result.SSID.startsWith("Audi")) ||       // some cars seem to have this AP on-board
+                               (result.SSID.startsWith("Volkswagen")) ||       // some cars seem to have this AP on-board
                                (lowerSSID.contains("iphone")) ||         // mobile AP
                                (lowerSSID.contains("ipad")) ||           // mobile AP
                                (lowerSSID.contains("android")) ||        // mobile AP
@@ -626,6 +639,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("mobile hotspot")) || // e.g. BlackBerry devices
+                               (lowerSSID.contains("portable hotspot")) || // e.g. HTC devices
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
                                (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
                         	currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;

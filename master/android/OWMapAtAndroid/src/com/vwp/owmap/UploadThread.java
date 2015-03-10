@@ -24,7 +24,7 @@ class UploadThread extends Thread
    private Notification        notification;
    private NetworkInfo         mWifi;
 
-   private static final int    version=118;
+   private static final int    version=119;
    private static final String FILE_UPLOADSTORE="uploadstore";
  
 
@@ -73,7 +73,7 @@ class UploadThread extends Thread
       System.gc();
       tagName=SP.getString("tag","");
       teamid=SP.getString("team","");
-      if (SP.getBoolean("publish",false)) mainFlags=1;
+      if (SP.getBoolean("publish",true)) mainFlags=1;
       if (SP.getBoolean("pubmap",false)) mainFlags|=2;
 
       try

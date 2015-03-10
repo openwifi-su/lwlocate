@@ -50,6 +50,7 @@
  
  <string name="prefsAutoConnect">Auto-Connect zu Freifunk-WLANs</string>
  <string name="prefsAutoConnectText">WARNUNG! Diese Option ist gefährlich und sollte nur bei einem abgesicherten Gerät verwendet werden!</string>
+ <string name="prefsOpenAutoConnect">Auto-Connect zu offenen WLANs</string>
  <string name="prefsAutoStart">Automatisch nach dem Booten starten</string>
  <string name="prefsAutoStartText">Führt die App automatisch aus, sobald das Gerät gestartet wird</string>
  <string name="prefsAdaptiveScanning">Adaptives Scanning</string>

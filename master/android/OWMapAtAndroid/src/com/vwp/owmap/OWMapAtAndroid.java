@@ -643,16 +643,16 @@ public class OWMapAtAndroid extends Activity implements OnClickListener, OnItemC
    private void setupInitial()
    {
       if ((ScanService.scanData.ownBSSID==null) || (ScanService.scanData.ownBSSID.length()<12))
-	  {
-    	 do
-    	 {
+	   {
+    	   do
+    	   {
             SecureRandom sr = new SecureRandom();
             byte[] output = new byte[6];
             sr.nextBytes(output);
             ScanService.scanData.ownBSSID=String.format("%2X%2X%2X%2X%2X%2X",output[0],output[1],output[2],output[3],output[4],output[5]);
             ScanService.scanData.ownBSSID=ScanService.scanData.ownBSSID.replace(" ","");
-    	 }
-    	 while (ScanService.scanData.ownBSSID.length()<12);
+    	   }
+    	   while (ScanService.scanData.ownBSSID.length()<12);
     	  
 /*         WifiInfo wifiInfo = ScanService.scanData.wifiManager.getConnectionInfo();
          if ((wifiInfo!=null) && (wifiInfo.getMacAddress()!=null)) ScanService.scanData.ownBSSID=wifiInfo.getMacAddress().replace(":","").replace(".","").toUpperCase(Locale.US);

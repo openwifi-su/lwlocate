@@ -50,6 +50,7 @@
  
  <string name="prefsAutoConnect">Auto-Connect to Freifunk WLANs</string>
  <string name="prefsAutoConnectText">ATTENTION! This option is dangerous and should be used only with completely secured devices!</string>
+ <string name="prefsOpenAutoConnect">Auto-Connect to open WLANs</string>
  <string name="prefsAutoStart">Automatically start on boot-up</string>
  <string name="prefsAutoStartText">Start this app automatically as soon as the device was started</string>
  <string name="prefsAdaptiveScanning">Adaptive Scanning</string>

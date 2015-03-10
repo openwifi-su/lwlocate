@@ -11,6 +11,13 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   />
+<CheckBoxPreference android:title="@string/prefsOpenAutoConnect"
+ android:defaultValue="false"
+ android:summary="@string/prefsAutoConnectText"
+ android:key="openAutoConnect"
+ android:layout_width="fill_parent"
+ android:layout_height="fill_parent"
+ />
  <CheckBoxPreference android:title="@string/prefsAutoStart"
   android:defaultValue="true"
   android:summary="@string/prefsAutoStartText"
@@ -152,7 +159,7 @@
   android:layout_height="fill_parent"
   />
  <CheckBoxPreference android:title="@string/prefsPublish"
-  android:defaultValue="false"
+  android:defaultValue="true"
   android:summary="@string/prefsPublishText"
   android:key="publish"
   android:layout_width="fill_parent"
