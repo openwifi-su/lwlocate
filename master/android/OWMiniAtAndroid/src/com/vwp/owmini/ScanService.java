@@ -118,6 +118,7 @@ public class ScanService extends Service implements Runnable
             PixelFormat.TRANSLUCENT);
       params.gravity = Gravity.LEFT | Gravity.BOTTOM;
       params.setTitle("Load Average");
+      storeConfig(false);
    }
 
    
@@ -444,6 +445,7 @@ public class ScanService extends Service implements Runnable
                            lowerSSID=result.SSID.toLowerCase(Locale.US);
                            if ((lowerSSID.endsWith("_nomap")) ||         // Google unsubscibe option    
                                (result.SSID.startsWith("Audi")) ||       // some cars seem to have this AP on-board
+                               (result.SSID.startsWith("Volkswagen")) ||       // some cars seem to have this AP on-board
                                (lowerSSID.contains("iphone")) ||         // mobile AP
                                (lowerSSID.contains("ipad")) ||           // mobile AP
                                (lowerSSID.contains("android")) ||        // mobile AP
@@ -460,6 +462,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("mobile hotspot")) || // e.g. BlackBerry devices
+                               (lowerSSID.contains("portable hotspot")) || // e.g. HTC devices
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
                                (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
                                currEntry.flags|=WMapEntry.FLAG_IS_NOMAP;
