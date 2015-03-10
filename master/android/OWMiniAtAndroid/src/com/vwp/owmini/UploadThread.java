@@ -75,7 +75,7 @@ class UploadThread extends Thread
       System.gc();
       tagName=SP.getString("tag","");
       teamid=SP.getString("team","");
-      if (SP.getBoolean("publish",false)) mainFlags=1;
+      if (SP.getBoolean("publish",true)) mainFlags=1;
       if (SP.getBoolean("pubmap",false)) mainFlags|=2;
 
       try
