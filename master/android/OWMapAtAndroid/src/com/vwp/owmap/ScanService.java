@@ -385,7 +385,6 @@ public class ScanService extends Service implements Runnable, SensorEventListene
 	  if (isOpenWLAN(result))
 	  {
          if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
-         if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
          if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
          if (result.SSID.toLowerCase(Locale.US).contains("the cloud")) return WMapEntry.FLAG_IS_THECLOUD;
          return WMapEntry.FLAG_IS_OPEN;
@@ -448,33 +447,36 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    {
       int i,j;
 
-      if ((SP.getBoolean("autoConnect",false)) || (SP.getBoolean("openAutoConnect",false)))
+      if (!mWifi.isConnected())
       {
-         if (!mWifi.isConnected()) for (j=0; j<2; j++) // j=0 - freifunk, j=1 open WLAN
+         if ((SP.getBoolean("autoConnect",false)) || (SP.getBoolean("openAutoConnect",false)))
          {
-            for (i=0; i<locationInfo.wifiScanResult.size(); i++)
+            for (j=0; j<2; j++) // j=0 - freifunk, j=1 open WLAN
             {
-               ScanResult result;
-
-               result=locationInfo.wifiScanResult.get(i);
-               result.capabilities=result.capabilities.toUpperCase(Locale.US);
-               if (((SP.getBoolean("autoConnect",false)) && (isFreeHotspot(result)==WMapEntry.FLAG_IS_FREIFUNK) && (j==0)) ||
-                   ((SP.getBoolean("openAutoConnect",false)) && (isOpenWLAN(result)) && (j==1)))
+               for (i=0; i<locationInfo.wifiScanResult.size(); i++)
                {
-                  // auto-connect to this open network
+                  ScanResult result;
 
-                  WifiConfiguration wifiConfig = new WifiConfiguration();
-                  wifiConfig.BSSID =result.BSSID;
-                  wifiConfig.priority = 1;
-                  wifiConfig.allowedKeyManagement.set(KeyMgmt.NONE);
-                  wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                  wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                  wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                  wifiConfig.status=WifiConfiguration.Status.ENABLED;
+                  result=locationInfo.wifiScanResult.get(i);
+                  result.capabilities=result.capabilities.toUpperCase(Locale.US);
+                  if (((SP.getBoolean("autoConnect",false)) && (isFreeHotspot(result)==WMapEntry.FLAG_IS_FREIFUNK) && (j==0)) ||
+                      ((SP.getBoolean("openAutoConnect",false)) && (isOpenWLAN(result)) && (j==1)))
+                  {
+                     // auto-connect to this open network
 
-                  int netId = scanData.wifiManager.addNetwork(wifiConfig);
-                  scanData.wifiManager.enableNetwork(netId, true);
-                  return;
+                     WifiConfiguration wifiConfig = new WifiConfiguration();
+                     wifiConfig.BSSID = result.BSSID;
+                     wifiConfig.priority = 1;
+                     wifiConfig.allowedKeyManagement.set(KeyMgmt.NONE);
+                     wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+                     wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+                     wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                     wifiConfig.status = WifiConfiguration.Status.ENABLED;
+
+                     int netId = scanData.wifiManager.addNetwork(wifiConfig);
+                     scanData.wifiManager.enableNetwork(netId, true);
+                     return;
+                  }
                }
             }
          }
