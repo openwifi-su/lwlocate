@@ -79,5 +79,13 @@
   <item>10</item> 
   <item>20</item> 
   <item>50</item> 
- </string-array>    
+ </string-array>
+ <string-array name="prefsUsePrjEntries">
+  <item>openwifi.su</item>
+  <item>openwlanmap.org</item>
+ </string-array>
+ <string-array name="prefsUsePrjValues">
+  <item>1</item>
+  <item>2</item>
+ </string-array>
 </resources>

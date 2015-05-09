@@ -87,7 +87,9 @@
  <string name="prefsNoGPSExitText">L\'applicazione termina dopo un po\' di tempo senza segnale GPS</string>
  <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
  <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
- 
+ <string name="prefsUsePrj">Project to be supported</string>
+ <string name="prefsUsePrjText">Choose the project which has to be supported by your data-uploads</string>
+
  <string name="doexport">Export account data</string>
  <string name="doimport">Import account data</string>
  <string name="export_done">Account data successfully exported to SD-card, file OWMAP.export</string>

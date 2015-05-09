@@ -282,7 +282,7 @@ class UploadThread extends Thread
     	 }
     	 try
          {
-    	    URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");
+    	    URL connectURL = new URL(ScanService.getProjectURL(false)+"android/upload.php");
             c= (HttpURLConnection) connectURL.openConnection();
     	    if (c==null) return false;
     	    c.setDoOutput(true); // enable POST
@@ -407,7 +407,7 @@ class UploadThread extends Thread
 	    	context.init(null, tmf.getTrustManagers(), null);
 	
 	    	// Tell the URLConnection to use a SocketFactory from our SSLContext
-	    	URL url = new URL("https://openwlanmap.org/android/upload.php");
+	    	URL url = new URL(ScanService.getProjectURL(true)+"android/upload.php");
 	    	c =(HttpsURLConnection)url.openConnection();
             if (c==null) return false;
 	    	c.setSSLSocketFactory(context.getSocketFactory());    	
