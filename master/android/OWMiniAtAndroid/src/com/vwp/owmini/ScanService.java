@@ -599,6 +599,22 @@ public class ScanService extends Service implements Runnable
       onDestroy(); // remove all resources (in case the thread was stopped due to some other reason
    }
 
+
+   static String getProjectURL(boolean secure)
+   {
+      SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
+      if (SP.getInt("usePrj",1)==1) // openwifi.su
+      {
+         if (!secure) return "http://www.openwifi.su/";
+         return "https://openwifi.su/";
+      }
+      else // openwlanmap.org
+      {
+         if (!secure) return "http://www.openwlanmap.org/";
+         return "https://openwlanmap.org/";
+      }
+   }
+
    
    private boolean loadURL(String initURL)
    {
@@ -632,7 +648,7 @@ public class ScanService extends Service implements Runnable
            
 	         try
 	         {
-	            URL connectURL = new URL("http://www.openwlanmap.org/android/upload.php");
+	            URL connectURL = new URL(getProjectURL(false)+"android/upload.php");
 	            c= (HttpURLConnection) connectURL.openConnection();
 	            if (c==null) return;
 	            
@@ -702,7 +718,7 @@ public class ScanService extends Service implements Runnable
 	 	    	context.init(null, tmf.getTrustManagers(), null);
 	 	
 	 	    	// Tell the URLConnection to use a SocketFactory from our SSLContext
-	 	    	URL url = new URL("https://openwlanmap.org/android/upload.php");
+	 	    	URL url = new URL(getProjectURL(true)+"android/upload.php");
 	 	    	c =(HttpsURLConnection)url.openConnection();
 	            if (c==null) return;
 	 	    	c.setSSLSocketFactory(context.getSocketFactory());    	

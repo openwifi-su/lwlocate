@@ -86,6 +86,8 @@
  <string name="prefsNoGPSExitText">沒有 GPS 訊號一段時間之後離開程式</string>
  <string name="prefsHTTPUpload">由 HTTP (不安全)上傳資料</string>
  <string name="prefsHTTPUploadText">不建議: 以未加密的方式上傳 WLAN 及位置資料</string>
+ <string name="prefsUsePrj">Project to be supported</string>
+ <string name="prefsUsePrjText">Choose the project which has to be supported by your data-uploads</string>
  
  <string name="doexport">匯出帳戶資料</string>
  <string name="doimport">匯入帳戶資料</string>
