@@ -31,19 +31,19 @@ import org.apache.http.client.methods.*;
 
 public class ScanService extends Service implements Runnable
 {
-   static  boolean               running=true;
-   private MyWLocate             myWLocate=null;
-   private boolean               posValid;
-   private int                   posState=0;
-   private double                lastLat=0.0,lastLon=0.0,lastRadius;
-   private Thread                scanThread;
-   private PowerManager.WakeLock wl=null;
-   private PowerManager          pm;
-   private NotificationManager   mManager;
-   private SharedPreferences     SP;
-   static  ScanData              scanData=new ScanData();
-   private UploadThread          m_uploadThread;
-   private Notification          notification;
+   static  boolean                  running=true;
+   private MyWLocate                myWLocate=null;
+   private boolean                  posValid;
+   private int                      posState=0;
+   private double                   lastLat=0.0,lastLon=0.0,lastRadius;
+   private Thread                   scanThread;
+   private PowerManager.WakeLock    wl=null;
+   private PowerManager             pm;
+   private NotificationManager      mManager;
+   private static SharedPreferences SP;
+   static  ScanData                 scanData=new ScanData();
+   private UploadThread             m_uploadThread;
+   private Notification             notification;
 
 	@Override
 	public IBinder onBind(Intent arg) 
