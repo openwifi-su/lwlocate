@@ -72,6 +72,8 @@
  <string name="prefsStartupURLTitle">Enter URL</string>
  <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
  <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
+ <string name="prefsUsePrj">Project to be supported</string>
+ <string name="prefsUsePrjText">Choose the project which has to be supported by your data-uploads</string>
  
  <string name="doexport">Export account data</string>
  <string name="doimport">Import account data</string>

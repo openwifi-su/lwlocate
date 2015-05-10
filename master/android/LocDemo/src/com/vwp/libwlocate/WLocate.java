@@ -86,6 +86,24 @@ public class WLocate implements Runnable
    private loc_info            locationInfo=new loc_info();
    private Thread              netThread=null;
    private WLocate             me;
+   private String              locatorURL;
+
+
+   /**
+    * Constructor for WLocate class, this constructor has to be overwritten by inheriting class
+    * @param ctx current context, hand over Activity object here
+    * @param url domain name / URL (with appended slash!) where getpos.php for position retrieval can be found
+    */
+   public WLocate(Context ctx,String url)
+   throws IllegalArgumentException
+   {
+      locatorURL=url;
+      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+      this.ctx=ctx;
+      startGPSLocation();
+      me=this;
+      doResume();
+   }
 
 
    /**
@@ -94,12 +112,8 @@ public class WLocate implements Runnable
     */
    public WLocate(Context ctx)
    throws IllegalArgumentException
-   {      
-      wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-      this.ctx=ctx;
-      startGPSLocation();  
-      me=this;
-      doResume();
+   {
+      this(ctx,"http://openwlanmap.org/");
    }
 
    
@@ -188,7 +202,7 @@ public class WLocate implements Runnable
 	          
       try
       {
-  	     URL connectURL = new URL("http://openwlanmap.org/getpos.php");
+  	     URL connectURL = new URL(locatorURL+"getpos.php");
          c= (HttpURLConnection) connectURL.openConnection();
   	     if (c==null) return WLOC_CONNECTION_ERROR;
   	     c.setDoOutput(true); // enable POST
@@ -251,60 +265,7 @@ public class WLocate implements Runnable
   	        ioe.printStackTrace();
   	     }
       }
-	  return WLOC_OK; 
-	   
-	   
-/*      Socket wlocSocket;
-      DataInputStream  din;
-      DataOutputStream dout;
-      int              i;
-      wloc_res         result=new wloc_res();
-      
-      try
-      {
-         wlocSocket=new Socket("api.openwlanmap.org",10443);
-         dout=new DataOutputStream(wlocSocket.getOutputStream());
-         dout.write(locationInfo.requestData.version);
-         dout.write(locationInfo.requestData.length);
-         for (i=0; i<wloc_req.WLOC_MAX_NETWORKS; i++)
-          dout.write(locationInfo.requestData.bssids[i],0,6);
-         for (i=0; i<wloc_req.WLOC_MAX_NETWORKS; i++)
-          dout.writeByte(locationInfo.requestData.signal[i]);
-         dout.writeInt(locationInfo.requestData.cgiIP);
-         dout.flush();
-
-         din=new DataInputStream(wlocSocket.getInputStream());
-         result.version=din.readByte();
-         result.length=din.readByte();
-         result.result=din.readByte();
-         result.iresult=din.readByte();
-         result.quality=din.readByte();
-         if (result.quality<0) result.quality+=255;
-         if (result.quality>100) result.quality=100;
-         result.cres6=din.readByte();
-         result.cres7=din.readByte();
-         result.cres7=din.readByte();
-         result.lat=din.readInt();
-         result.lon=din.readInt();
-         result.ccode=din.readShort();
-         result.wres34=din.readShort();
-         result.wres56=din.readShort();
-         result.wres78=din.readShort();
-         if (result.result!=WLOC_RESULT_OK)
-         {
-            wlocSocket.close();
-            return WLOC_LOCATION_ERROR;
-         }
-         position.lat=result.lat/10000000.0;
-         position.lon=result.lon/10000000.0;
-         position.quality=result.quality;
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-         return WLOC_CONNECTION_ERROR;
-      }
-      return WLOC_OK;*/
+	  return WLOC_OK;
    }
 
    

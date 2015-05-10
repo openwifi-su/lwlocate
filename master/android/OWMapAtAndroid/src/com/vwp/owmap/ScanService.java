@@ -283,7 +283,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       
       public MyWLocate(Context ctx)
       {
-         super(ctx);
+         super(ctx,getProjectURL(false)); // todo: add support for secure conections in libwlocate
       }
       
       protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
