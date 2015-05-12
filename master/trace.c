@@ -1,6 +1,6 @@
 /**
  * test for libwlocate - WLAN-based location service
- * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
+ * Copyright (C) 2010-2015 Oxygenic/VWP virtual_worlds(at)gmx.de
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ int main(int argc,char *argv[])
    }
    else if ((argc>1) && (strncmp(argv[1],"-t",2)==0)) // test WLAN geolocation instead of writing the WLAN data into a trace file
    {
-      ret=wloc_get_location(&lat,&lon,&quality,&ccode); // call the library function to get the position...
+      ret=wloc_get_location_from("openwifi.su",&lat,&lon,&quality,&ccode); // call the library function to get the position...
       //...check the return value afterwards...
       if (ret==WLOC_CONNECTION_ERROR) printf("Error: could not communicate with server!\n");
       else if (ret==WLOC_LOCATION_ERROR) printf("Error: could not calculate your location, the given WLAN networks are unknown!\n");
@@ -89,7 +89,7 @@ int main(int argc,char *argv[])
          if (wloc_get_country_from_code(ccode,country)==WLOC_OK) printf("Country: %d - %s\n",ccode,country);
          else printf("Country: unknown\n");
       }
-      else printf("Error: failed due to an unknown error!\n");
+      else printf("Error: failed due to an unknown error %d!\n",ret);
    }
    else
    {
