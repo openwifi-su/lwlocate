@@ -227,96 +227,19 @@ class UploadThread extends Thread {
         return uploading;
     }
 
-    private HttpURLConnection getWebConnection() {
-        SharedPreferences SP;
-        boolean uploadSuccess = true;
-
-        if ((silent) && (mWifi != null)) {
-            if (!mWifi.isConnected()) return null;
-        }
-        // Create URL object
-        SP = PreferenceManager.getDefaultSharedPreferences(ctx.getBaseContext());
-
-        String url_string = ScanService.getProjectURL( !(SP.getBoolean("httpUpload", false))) + "android/upload.php";
-
-        URL connectURL = null;
-        try {
-            connectURL = new URL(url_string);
-        } catch (MalformedURLException e) {
-            return null;
-        }
-
-        if (localModuleDebug) {
-            Log.i(debugTag, url_string);
-        }
-        // End create Url object , next see setting and create http/https connection
-
-        if (SP.getBoolean("httpUpload", false)) {
-            try {
-                HttpURLConnection c = null;
-
-                c = (HttpURLConnection) connectURL.openConnection();
-                return c;
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        // HTTPS connection
-        HttpsURLConnection c = null;
-        int cert_id = R.raw.root;
-        if (SP.getInt("usePrj", 1) == 1) // openwifi.su
-        {
-            cert_id = R.raw.openwifi;
-        }
-
-        try {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = new BufferedInputStream(ctx.getResources().openRawResource(cert_id));
-            Certificate ca;
-            ca = cf.generateCertificate(caInput);
-            //caInput.close();
-
-
-            // Create a KeyStore containing our trusted CAs
-            String keyStoreType = KeyStore.getDefaultType();
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-            keyStore.load(null, null);
-            keyStore.setCertificateEntry("ca", ca);
-
-            // Create a TrustManager that trusts the CAs in our KeyStore
-            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-            tmf.init(keyStore);
-
-            // Create an SSLContext that uses our TrustManager
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
-            c = (HttpsURLConnection) connectURL.openConnection();
-            if (c == null) return c;
-            c.setSSLSocketFactory(context.getSocketFactory());
-
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return c;
-    }
 
     private boolean uploadData(String outString, boolean silent) {
         SharedPreferences SP;
         boolean uploadSuccess = true;
         int newAPs = 0, updAPs = 0, delAPs = 0, newPoints = 0;
 
-        SP = PreferenceManager.getDefaultSharedPreferences(ctx.getBaseContext());
+       if ((silent) && (mWifi != null)) {
+          if (!mWifi.isConnected()) return false;
+       }
+
+       SP = PreferenceManager.getDefaultSharedPreferences(ctx.getBaseContext());
         HttpURLConnection c = null;
-        c  = this.getWebConnection();
+        c  = ctx.getWebConnection();
 
         BufferedOutputStream os = null;
         DataInputStream is = null;
