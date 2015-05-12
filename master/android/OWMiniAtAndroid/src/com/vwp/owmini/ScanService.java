@@ -455,6 +455,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
+                               (lowerSSID.contains("megabus")) ||        // WLAN network on board of bus line
                                (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
                                (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
                                (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
@@ -462,6 +463,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("mobile hotspot")) || // e.g. BlackBerry devices
+                               (lowerSSID.contains("mobilewifi")) || // e.g. some Vodafone devices
                                (lowerSSID.contains("portable hotspot")) || // e.g. HTC devices
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
                                (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
