@@ -30,9 +30,10 @@
 #include "connect.h"
 #include "wlan.h"
 #include "assert.h"
+#include "errno.h"
 
 
-WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode)
+WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode)
 {
    int             sock=0,ret,i;
    char            head[500+1];
@@ -40,9 +41,13 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
    char            responseOK=0;
 
    setlocale(LC_ALL,"C");
-   sock=tcp_connect_to("openwlanmap.org",80);
-   if (sock<=0) return WLOC_SERVER_ERROR;
-   tcp_set_blocking(sock,0); // set to non-blocking, we do not want to waid endless for a dead connection
+   sock=tcp_connect_to(domain,80);
+   if (sock<=0)
+   {
+      printf("Connect error %d\n",errno);
+      return WLOC_SERVER_ERROR;
+   }
+   tcp_set_blocking(sock,0); // set to non-blocking, we do not want to wait endless for a dead connection
   
    data[0]=0;
    for (i=0; i<WLOC_MAX_NETWORKS; i++)
@@ -56,8 +61,8 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
       }
    }
    snprintf(head,500,
-            "POST /getpos.php HTTP/1.0\r\nHost: openwlanmap.org\r\nContent-type: application/x-www-form-urlencoded, *.*\r\nContent-length: %d\r\n\r\n",
-            strlen(data));
+            "POST /getpos.php HTTP/1.0\r\nHost: %s\r\nContent-type: application/x-www-form-urlencoded, *.*\r\nContent-length: %d\r\n\r\n",
+            domain,strlen(data));
    ret=tcp_send(sock,head,strlen(head),5000);
    ret+=tcp_send(sock,data,strlen(data),5000);
    if (ret<(int)(strlen(head)+strlen(data)))
@@ -83,6 +88,7 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
             {
                if (!strstr(data,"200 OK"))
                {
+                  printf("Error: %s\n",data);
                   tcp_closesocket(sock);
                   return WLOC_SERVER_ERROR;
                }
@@ -132,9 +138,15 @@ WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,c
 }
 
 
-
 /** please refer to libwlocate.h for a description of this function! */
 WLOC_EXT_API int wloc_get_location(double *lat,double *lon,char *quality,short *ccode)
+{
+   return wloc_get_location_from("openwlanmap.org",lat,lon,quality,ccode);
+}
+
+
+/** please refer to libwlocate.h for a description of this function! */
+WLOC_EXT_API int wloc_get_location_from(const char *domain,double *lat,double *lon,char *quality,short *ccode)
 {
 #ifdef ENV_LINUX
    int sock,i,j;
@@ -176,7 +188,7 @@ WLOC_EXT_API int wloc_get_location(double *lat,double *lon,char *quality,short *
 //   for (i=0; i<WLOC_MAX_NETWORKS; i++)
 //    printf("BSSID: %02X:%02X:%02X:%02X:%02X:%02X Signal: %d\n",request.bssids[i][0] & 0xFF,request.bssids[i][1] & 0xFF,request.bssids[i][2] & 0xFF,
 //                                                               request.bssids[i][3] & 0xFF,request.bssids[i][4] & 0xFF,request.bssids[i][5] & 0xFF,request.signal[i]);
-   return get_position(&request,lat,lon,quality,ccode);
+   return get_position(domain,&request,lat,lon,quality,ccode);
 }
 
 

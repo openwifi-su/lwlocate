@@ -110,6 +110,25 @@ extern "C"
    *             WLOC_xxx is returned and the position and quality values given back are
    *             undefined and don't have to be used
    */
+   WLOC_EXT_API int wloc_get_location_from(const char *domain,double *lat,double *lon,char *quality,short *ccode);
+   
+  /**
+   * This function retrieves the current geographic position of a system using a selectable
+   * source for retrieval of position. The returned position values can be used directly
+   * within maps like OpenStreetMap or Google Earth
+   * @param[in]  domain the domain name of the project to get the position from (e.g.
+                 "openwifi.su")
+   * @param[out] lat the latitude of the geographic position
+   * @param[out] lon the longitude of the geographic position
+   * @param[out] quality the percentual quality of the returned position, the given result
+   *             is as more exact as closer the quality value is to 100%, as smaller this
+   *             value is as bigger is the possible maximum deviation between returned
+   *             and the real position
+   * @return only in case the returned value is equal WLOC_OK the values given back via the
+   *             functions parameters can be used; in case an error occurred an error code
+   *             WLOC_xxx is returned and the position and quality values given back are
+   *             undefined and don't have to be used
+   */
    WLOC_EXT_API int wloc_get_location(double *lat,double *lon,char *quality,short *ccode);
    
    /**
@@ -150,7 +169,7 @@ extern "C"
     */
    WLOC_EXT_API char* wloc_get_countryname_from_code(short ccode);
 
-   WLOC_EXT_API int get_position(struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode);
+   WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode);
 #ifdef __cplusplus
 }
 #endif

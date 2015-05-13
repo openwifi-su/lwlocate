@@ -12,7 +12,7 @@
     <string name="prefsTelemetry">Данные телеметрии</string>
     <string name="prefsTeam">идентификатор комманды</string>
     <string name="prefsTag">Метка для доски почета</string>
-    <string name="prefsShowType"></string>
+    <string name="prefsShowType">Display method of networks</string>
     <string name="exit">Выход</string>
     <string name="credits">Создатели</string>
     <string name="bssid">ID</string>
@@ -72,4 +72,26 @@
     <string name="prefsAdaptiveScanningText">Получать больше результатов при меньши используемых ресурсах когда передвигаесь медленно (пешком)  и только с небольшим увеличением нагрузки, когда двигаетсь быстро (автомобили)</string>
     <string name="prefsAutoConnectText">Внимание!Эту опция опасна и её следует использовать только на полностью защищенных устройствах </string>
     <string name="prefsPublishText">Делать ваши данные доступными для скачивания с openwlanmap.org</string>
+    <string name="prefsAutoStartText">Start this app automatically as soon as the device was started</string>
+    <string name="prefsAutoUpload">Выгружать через WIFI автоматическии</string>
+    <string name="prefsAutoUploadText">Выгружать собранные точки автоматически через wifi (надо перезапустить приложение)</string>
+    <string name="prefsBigCounter">Показывать большой счетчик точек в приложение</string>
+    <string name="prefsBigCounterText">The current number of scanned WLAN networks is shown on upper left corner of App using huge, easy to read numbers</string>
+    <string name="prefsHTTPUploadText">Нет рекомендуется: выгружать данные точек и местоположения без шифрования</string>
+    <string name="prefsHudCounter">Всегда показывать поверх окон счетчик точек</string>
+    <string name="prefsHudCounterText">Количество найденных точек всегда в показывается в верхнем левом углу</string>
+    <string name="prefsMapTypeText">Тип карты и стиль</string>
+    <string name="track_info">You have enabled (theft)tracking of your device. This requires network access to submit your position from time to time. To find the current position you have to enter these tracking numbers at the projects website</string>
+    <string name="prefsUsePrjText">Выбрать проект который вы поддерживаете вашими выгрузками</string>
+    <string name="prefsUsePrj">Проект для поддержки</string>
+    <string name="prefsTrackText">Отслеживать местоположение устро</string>
+    <string name="prefsTextSizeText">Size of the font that is used to show text - larger ones are easier to read but need more space</string>
+    <string name="prefsTelemetryText">Specifies usage of telemetry data (consisting of acceleration, speed, position, pitch, orientation)</string>
+    <string name="prefsTeamText">Enter the identifier of the team here where you want to become a member</string>
+    <string name="prefsTagText">Tag your entry in official highscore list with this non-unique text</string>
+    <string name="prefsShowTypeText">Configures which information about scanned network are shown</string>
+    <string name="prefsShowMapText">Display method of networks</string>
+    <string name="prefsShowMap">Show live-map instead of coordinates</string>
+    <string name="prefsScreenLightText">Specifies the screens behaviour when the device would go to stand-by mode (requires restarting the App)</string>
+    <string name="prefsScreenLight">Screen brightness / stand-by</string>
 </resources>

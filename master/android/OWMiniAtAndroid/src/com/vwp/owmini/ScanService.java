@@ -40,7 +40,7 @@ public class ScanService extends Service implements Runnable
    private PowerManager.WakeLock    wl=null;
    private PowerManager             pm;
    private NotificationManager      mManager;
-   private static SharedPreferences SP;
+   private SharedPreferences        SP;
    static  ScanData                 scanData=new ScanData();
    private UploadThread             m_uploadThread;
    private Notification             notification;
@@ -268,7 +268,6 @@ public class ScanService extends Service implements Runnable
 	  if (isOpenWLAN(result))
 	  {
          if (result.SSID.toLowerCase(Locale.US).contains("freifunk")) return WMapEntry.FLAG_IS_FREIFUNK;
-         if (result.SSID.toLowerCase(Locale.US).compareTo("mesh")==0) return WMapEntry.FLAG_IS_FREIFUNK;
          if (result.SSID.toLowerCase(Locale.US).compareTo("free-hotspot.com")==0) return WMapEntry.FLAG_IS_FREEHOTSPOT;
          if (result.SSID.toLowerCase(Locale.US).contains("the cloud")) return WMapEntry.FLAG_IS_THECLOUD;
          return WMapEntry.FLAG_IS_OPEN;
@@ -455,6 +454,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("fernbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("flixbus")) ||        // WLAN network on board of German bus
                                (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
+                               (lowerSSID.contains("megabus")) ||        // WLAN network on board of bus line
                                (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
                                (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
                                (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
@@ -462,6 +462,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("admin@ms ")) ||      // WLAN network on Hurtigruten ships
                                (lowerSSID.contains("mobile hotspot")) || // e.g. BlackBerry devices
+                               (lowerSSID.contains("mobilewifi")) || // e.g. some Vodafone devices
                                (lowerSSID.contains("portable hotspot")) || // e.g. HTC devices
                                (lowerSSID.contains("telekom_ice")) ||    // WLAN network on DB trains
                                (lowerSSID.contains("nsb_interakti")))    // WLAN network in NSB trains
@@ -600,7 +601,7 @@ public class ScanService extends Service implements Runnable
    }
 
 
-   static String getProjectURL(boolean secure)
+   String getProjectURL(boolean secure)
    {
       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
       if (SP.getInt("usePrj",1)==1) // openwifi.su
@@ -613,6 +614,86 @@ public class ScanService extends Service implements Runnable
          if (!secure) return "http://www.openwlanmap.org/";
          return "https://openwlanmap.org/";
       }
+   }
+
+
+   HttpURLConnection getWebConnection() {
+      SharedPreferences SP;
+      boolean uploadSuccess = true;
+
+      // Create URL object
+      SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
+
+      String url_string = getProjectURL( !(SP.getBoolean("httpUpload", false))) + "android/upload.php";
+
+      URL connectURL = null;
+      try {
+         connectURL = new URL(url_string);
+      } catch (MalformedURLException e) {
+         return null;
+      }
+
+/*      if (localModuleDebug) {
+         Log.i(debugTag, url_string);
+      }*/
+      // End create Url object , next see setting and create http/https connection
+
+      if (SP.getBoolean("httpUpload", false)) {
+         try {
+            HttpURLConnection c = null;
+
+            c = (HttpURLConnection) connectURL.openConnection();
+            return c;
+         } catch (Exception e) {
+            return null;
+         }
+      }
+      // HTTPS connection
+      HttpsURLConnection c = null;
+      int cert_id = R.raw.root;
+      if (SP.getInt("usePrj", 1) == 1) // openwifi.su
+      {
+         cert_id = R.raw.openwifi;
+      }
+
+      try {
+         CertificateFactory cf = CertificateFactory.getInstance("X.509");
+         InputStream caInput = new BufferedInputStream(scanData.ctx.getResources().openRawResource(cert_id));
+         Certificate ca;
+         ca = cf.generateCertificate(caInput);
+         //caInput.close();
+
+
+         // Create a KeyStore containing our trusted CAs
+         String keyStoreType = KeyStore.getDefaultType();
+         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+         keyStore.load(null, null);
+         keyStore.setCertificateEntry("ca", ca);
+
+         // Create a TrustManager that trusts the CAs in our KeyStore
+         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+         TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+         tmf.init(keyStore);
+
+         // Create an SSLContext that uses our TrustManager
+         SSLContext context = SSLContext.getInstance("TLS");
+         context.init(null, tmf.getTrustManagers(), null);
+         c = (HttpsURLConnection) connectURL.openConnection();
+         if (c == null) return c;
+         c.setSSLSocketFactory(context.getSocketFactory());
+
+      } catch (CertificateException e) {
+         e.printStackTrace();
+      } catch (KeyManagementException e) {
+         e.printStackTrace();
+      } catch (NoSuchAlgorithmException e) {
+         e.printStackTrace();
+      } catch (KeyStoreException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+      return c;
    }
 
    
@@ -637,20 +718,15 @@ public class ScanService extends Service implements Runnable
    {
        String                        outString;
        DataOutputStream              os=null;
+         HttpURLConnection c = null;
         
        outString=scanData.ownBSSID;
        outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
 
-       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-       if (SP.getBoolean("httpUpload",false))
-       {         
-           HttpURLConnection             c=null;
-           
 	         try
 	         {
-	            URL connectURL = new URL(getProjectURL(false)+"android/upload.php");
-	            c= (HttpURLConnection) connectURL.openConnection();
-	            if (c==null) return;
+            c = getWebConnection();
+            if (c == null) return null;
 	            
 	            c.setDoOutput(true); // enable POST
 	            c.setRequestMethod("POST");
@@ -663,104 +739,22 @@ public class ScanService extends Service implements Runnable
 	            os.close();
 	            outString=null;
 	            os=null;
-	         }
-	         catch (IOException ioe)
+         } catch (IOException ioe)
 	         {
-	         }
-	         finally
+         } finally
 	         {
 	            try 
 	            {
 	               if (os != null) os.close();
 	               if (c != null) c.disconnect();
-	            }
-	            catch (IOException ioe)
+            } catch (IOException ioe)
 	            {
 	               ioe.printStackTrace();
 	            } 
 	         }
-       }
-       else
-       {
-           HttpsURLConnection             c=null;
-           
-	         try
-	         {
-	 	    	// as described at http://developer.android.com/training/articles/security-ssl.html
-	 	    	// Load CAs from an InputStream
-	 	    	// (could be from a resource or ByteArrayInputStream or ...)
-	 	    	CertificateFactory cf = CertificateFactory.getInstance("X.509");
-	 	    	// From https://www.washington.edu/itconnect/security/ca/load-der.crt
-	 	    	InputStream caInput = new BufferedInputStream(scanData.ctx.getResources().openRawResource(R.raw.root));
-	 	    	Certificate ca;
-	 	    	try 
-	 	    	{
-	 	    	   ca = cf.generateCertificate(caInput);
-	 	    	} 
-	 	    	finally 
-	 	    	{
-	 	    	   caInput.close();
-	 	    	}
-	 	
-	 	    	// Create a KeyStore containing our trusted CAs
-	 	    	String keyStoreType = KeyStore.getDefaultType();
-	 	    	KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-	 	    	keyStore.load(null, null);
-	 	    	keyStore.setCertificateEntry("ca", ca);
-	 	
-	 	    	// Create a TrustManager that trusts the CAs in our KeyStore
-	 	    	String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-	 	    	TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-	 	    	tmf.init(keyStore);
-	 	
-	 	    	// Create an SSLContext that uses our TrustManager
-	 	    	SSLContext context = SSLContext.getInstance("TLS");
-	 	    	context.init(null, tmf.getTrustManagers(), null);
-	 	
-	 	    	// Tell the URLConnection to use a SocketFactory from our SSLContext
-	 	    	URL url = new URL(getProjectURL(true)+"android/upload.php");
-	 	    	c =(HttpsURLConnection)url.openConnection();
-	            if (c==null) return;
-	 	    	c.setSSLSocketFactory(context.getSocketFactory());    	
-	      	            
-	            c.setDoOutput(true); // enable POST
-	            c.setRequestMethod("POST");
-	            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
-	            c.addRequestProperty("Content-Length",""+outString.length());
-	            os = new DataOutputStream(c.getOutputStream());
-	            os.write(outString.getBytes());
-	            os.flush();
-	            c.getResponseCode();
-	            os.close();
-	            outString=null;
-	            os=null;
-	         }
-	         catch (Exception e)
-	         {
-	         }
-	         finally
-	         {
-	            try 
-	            {
-	               if (os != null) os.close();
-	               if (c != null) c.disconnect();
-	            }
-	            catch (IOException ioe)
-	            {
-	               ioe.printStackTrace();
-	            } 
-	         }        	 
-       }
-   }
-   
-/*   private class UploadPositionTask extends AsyncTask<Void,Void,Void>
-   {
-      protected Void doInBackground(Void... params) 
-      {
-    	 uploadPosition();
          return null;
-      }
-   }*/      
+       }
+	 	    	}
 
    
 }
