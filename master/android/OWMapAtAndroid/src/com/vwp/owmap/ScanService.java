@@ -283,7 +283,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
       
       public MyWLocate(Context ctx)
       {
-         super(ctx,getProjectURL(false)); // todo: add support for secure conections in libwlocate
+         super(ctx);
       }
       
       protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
@@ -793,18 +793,23 @@ public class ScanService extends Service implements Runnable, SensorEventListene
    }
 
 
-   static String getProjectURL(boolean secure)
+   public static String getProjectURL(boolean secure)
    {
       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-      if (SP.getInt("usePrj",1)==1) // openwifi.su
-      {
+      try {
+         if (SP.getString("usePrj", "1") == "1") // openwifi.su
+         {
+            if (!secure) return "http://www.openwifi.su/";
+            return "https://openwifi.su/";
+         } else // openwlanmap.org
+         {
+            if (!secure) return "http://www.openwlanmap.org/";
+            return "https://openwlanmap.org/";
+         }
+      } finally {
+         //return by default 
          if (!secure) return "http://www.openwifi.su/";
          return "https://openwifi.su/";
-      }
-      else // openwlanmap.org
-      {
-         if (!secure) return "http://www.openwlanmap.org/";
-         return "https://openwlanmap.org/";
       }
    }
 
