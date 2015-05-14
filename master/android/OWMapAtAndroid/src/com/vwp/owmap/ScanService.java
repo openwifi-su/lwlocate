@@ -679,7 +679,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
     static String getProjectURL(boolean secure) {
         SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
         try {
-            if (SP.getString("usePrj", "1") == "1") // openwifi.su
+            if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
             {
                 if (!secure) return "http://www.openwifi.su/";
                 return "https://openwifi.su/";
