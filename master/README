@@ -45,20 +45,23 @@ Makefile.QNX       - file for building a QNX test and trace application using
 libwlocate.dsp/    - project file for building the shared DLL libwlocate.dll for Windows
 libwlocate.vcxproj   using Microsoft Visual Studio
 
-The library provides one major function that performs the full location job:
+The library provides two major function that perform the full location job:
 
-int wloc_get_location()
+int wloc_get_location() and int wloc_get_location_from()
 
-This function scans the currently available WLAN networks, sends the resulting
-information to the server of OpenWLANMap at openwlanmap.org and returns the evaulated
-position. Additional information about the quality of the result is given, it uses a
+These functions scan the currently available WLAN networks, send the resulting
+information to the server of a open WLAN map project and return the evaulated
+position. Here the first function always uses openwlanmap.org for position retrieval,
+the second one offers an additional parameter where an alternative project can be
+specified with.
+Additional information about the quality of the result is given, it uses a
 range of 0..100 where 100 is the maximum possible quality and accuracy of the result.
 Here 100% means the location can't be evaluated more exact, it does not mean
 necessarily that the returned position does not differ by more than a fixed deviation.
 So this value is only some kind of probability that tells you if the position is really
 near to the given geographic coordinates. The smaller this value is, the bigger the
 deviation can be.
-The value returned by the function informs about the success of the operation, only
+The value returned by the functions informs about the success of the operation, only
 in case WLOC_OK is given, the operation was successful and the returned position data
 are valid and can be used.
 In all other cases the return value informs about the kind of error that occured
