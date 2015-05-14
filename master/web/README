@@ -9,10 +9,9 @@ It contains following files and data:
   it can be reached via http(s)://domain.tld/getpos.php
 
 - android/upload.php - interface to the Android-app, this script
-  is accessed when scanned data are uploaded; configure your
-  database username and password on top of this file!
+  is accessed when scanned data are uploaded
   
-- inc/condig.php - this file contains some basic definitions;
+- inc/config.php - this file contains some basic definitions;
   configure your database username and password as well as the
   domain name of the project on top of this file!
 

@@ -1,6 +1,7 @@
 <?
 
 include_once "geoutils.php";
+include_once "../inc/config.php";
 
 $userid=0;
 $usertag="";
@@ -8,8 +9,8 @@ $teamid="";
 $userflags=0;
 $mapCreated=0;
 
-$link = mysql_connect("127.0.0.1","dbusername","dbpassword"); // <---- set username and password here
-if (!mysql_select_db("wmap",$link)) echo mysql_error();
+$link = mysql_connect(DB_HOST,DB_USER,DB_PASSWORD); // <---- set username and password here
+if (!mysql_select_db(DB_NAME,$link)) echo mysql_error();
 
 $minLat=1000;  $minLon=1000;
 $maxLat=-1000; $maxLon=-1000;
