@@ -2,14 +2,13 @@ package com.vwp.owmini;
 
 import java.io.*;
 import java.net.*;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.util.*;
+import java.security.*;
+import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.text.*;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.*;
 
 import com.vwp.libwlocate.*;
 import com.vwp.libwlocate.map.GeoUtils;
@@ -604,7 +603,7 @@ public class ScanService extends Service implements Runnable
    String getProjectURL(boolean secure)
    {
       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-      if (SP.getInt("usePrj",1)==1) // openwifi.su
+      if (SP.getString("usePrj","1").equalsIgnoreCase("1")) // openwifi.su
       {
          if (!secure) return "http://www.openwifi.su/";
          return "https://openwifi.su/";
@@ -726,7 +725,7 @@ public class ScanService extends Service implements Runnable
 	         try
 	         {
             c = getWebConnection();
-            if (c == null) return null;
+            if (c == null) return;
 	            
 	            c.setDoOutput(true); // enable POST
 	            c.setRequestMethod("POST");
@@ -752,7 +751,7 @@ public class ScanService extends Service implements Runnable
 	               ioe.printStackTrace();
 	            } 
 	         }
-         return null;
+         return;
        }
 	 	    	}
 
