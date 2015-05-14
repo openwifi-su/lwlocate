@@ -729,7 +729,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
         // HTTPS connection
         HttpsURLConnection c = null;
         int cert_id = R.raw.root;
-        if (SP.getInt("usePrj", 1) == 1) // openwifi.su
+        if (SP.getString("usePrj", "1") == "1") // openwifi.su
         {
             cert_id = R.raw.openwifi;
         }
