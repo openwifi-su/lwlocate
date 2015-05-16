@@ -330,7 +330,7 @@ public class ScanService extends Service implements Runnable
       String initURL=SP.getString("startupURL","");
       if (initURL.length()>8)
       {
-    	 initURLLoaded=loadURL(initURL);
+         initURLLoaded=loadURL(initURL);
          trackDiff=50000;
       }
       else
@@ -650,7 +650,7 @@ public class ScanService extends Service implements Runnable
       // HTTPS connection
       HttpsURLConnection c = null;
       int cert_id = R.raw.root;
-      if (SP.getInt("usePrj", 1) == 1) // openwifi.su
+      if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
       {
          cert_id = R.raw.openwifi;
       }
@@ -717,12 +717,12 @@ public class ScanService extends Service implements Runnable
    {
        String                        outString;
        DataOutputStream              os=null;
-         HttpURLConnection c = null;
+       HttpURLConnection c = null;
         
        outString=scanData.ownBSSID;
        outString=outString+"\nL\tX\t"+lastLat+"\t"+lastLon+"\n";
 
-	         try
+       try
 	         {
             c = getWebConnection();
             if (c == null) return;
@@ -753,7 +753,7 @@ public class ScanService extends Service implements Runnable
 	         }
          return;
        }
-	 	    	}
+
 
    
 }
