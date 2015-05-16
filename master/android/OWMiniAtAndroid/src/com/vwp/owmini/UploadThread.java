@@ -266,15 +266,12 @@ class UploadThread extends Thread {
 	         rc = c.getResponseCode();
             if (rc != HttpURLConnection.HTTP_OK) {
 	            if (!silent)
-                    OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getString(R.string.http_error) + " " + rc);
+                    OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getString(R.string.http_error) + " " + rc);
 	            return false;
 	         }         
 	         is = new DataInputStream(c.getInputStream());         
             try {
 	            inString=is.readLine();
-                if (localModuleDebug) {
-                    Log.i(debugTag, inString);
-                }
 	            remoteVersion=Integer.parseInt(inString);
 	            inString=is.readLine();
 	            scanData.uploadedCount=Integer.parseInt(inString);
@@ -306,7 +303,7 @@ class UploadThread extends Thread {
 	         }
         } catch (IOException ioe) {
 	         if (!silent)
-	          OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,ctx.getResources().getText(R.string.upload_problem)+"\r\n"+e.getLocalizedMessage());
+	          OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT,0,0,ctx.getResources().getText(R.string.upload_problem)+"\r\n"+ioe.getLocalizedMessage());
 	         uploadSuccess=false;
         } finally {
             try {
