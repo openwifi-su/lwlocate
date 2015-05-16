@@ -50,7 +50,6 @@
  
  <string name="prefsAutoConnect">Auto-Connect to Freifunk WLANs</string>
  <string name="prefsAutoConnectText">ATTENTION! This option is dangerous and should be used only with completely secured devices!</string>
- <string name="prefsOpenAutoConnect">Auto-Connect to open WLANs</string>
  <string name="prefsAutoStart">Automatically start on boot-up</string>
  <string name="prefsAutoStartText">Start this app automatically as soon as the device was started</string>
  <string name="prefsAdaptiveScanning">Adaptive Scanning</string>
@@ -61,12 +60,8 @@
  <string name="prefsBigCounterText">The current number of scanned WLAN networks is shown on upper left corner of App using huge, easy to read numbers</string>
  <string name="prefsHudCounter">Show always on-top WLAN counters</string>
  <string name="prefsHudCounterText">The current number of scanned and open WLAN networks is always shown on upper left corner</string>
- <string name="prefsShowMap">Show live-map instead of coordinates</string>
- <string name="prefsShowMapText">Instead of the coordinates a map is shown where the detected WLANs are shown into; this function works only with activated network access</string>
  <string name="prefsShowType">Display method of networks</string>
  <string name="prefsShowTypeText">Configures which information about scanned network are shown</string>
- <string name="prefsMapType">Used map type</string>
- <string name="prefsMapTypeText">Map data source and style</string>
  <string name="prefsScreenLight">Screen brightness / stand-by</string>
  <string name="prefsScreenLightText">Specifies the screens behaviour when the device would go to stand-by mode (requires restarting the App)</string>
  <string name="prefsTelemetry">Telemetry Data</string>
@@ -83,8 +78,6 @@
  <string name="prefsTrackText">Track position of this device online</string>
  <string name="prefsAutoUpload">Upload via WLAN automatically</string>
  <string name="prefsAutoUploadText">Upload collected APs automatically via WLAN-connection (requires restart of app)</string>
- <string name="prefsNoGPSExit">Exit Application when there is no GPS fix</string>
- <string name="prefsNoGPSExitText">Exit the application after some time without GPS</string>
  <string name="prefsHTTPUpload">Upload data via (insecure) HTTP</string>
  <string name="prefsHTTPUploadText">Not recommended: upload WLAN and position data unencrypted</string>
  <string name="prefsUsePrj">Project to be supported</string>
