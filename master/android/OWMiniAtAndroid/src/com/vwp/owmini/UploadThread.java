@@ -24,7 +24,7 @@ class UploadThread extends Thread {
    private Notification        notification;
    private NetworkInfo         mWifi;
 
-   private static final int    version=120;
+   private static final int    version=122;
    private static final String FILE_UPLOADSTORE="uploadstore";
  
     UploadThread(ScanData scanData, ScanService ctx, SharedPreferences SP, boolean silent, Notification notification, NetworkInfo mWifi) {
