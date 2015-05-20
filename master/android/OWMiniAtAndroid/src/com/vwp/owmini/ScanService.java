@@ -582,7 +582,7 @@ public class ScanService extends Service implements Runnable
          {
             npe.printStackTrace();
          }
-         if (trackCnt<System.currentTimeMillis()+trackDiff)
+         if (trackCnt<System.currentTimeMillis())
          {
          	if (!initURLLoaded) initURLLoaded=loadURL(initURL);
             if ((lastLat!=0) && (lastLon!=0)) 
@@ -592,7 +592,7 @@ public class ScanService extends Service implements Runnable
                   uploadPosition();
 //               new UploadPositionTask().execute(null,null,null); // does not work with Android 2.1
                }
-               trackCnt=System.currentTimeMillis();
+               trackCnt=System.currentTimeMillis()+trackDiff;
             }
          }
       }
