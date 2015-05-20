@@ -25,7 +25,7 @@ class UploadThread extends Thread {
    private NetworkInfo         mWifi;
 
    private static final int    version=122;
-   private static final String FILE_UPLOADSTORE="uploadstore";
+   private static final String FILE_UPLOADSTORE="uploadstore2";
  
     UploadThread(ScanData scanData, ScanService ctx, SharedPreferences SP, boolean silent, Notification notification, NetworkInfo mWifi) {
       notification.icon=R.drawable.upload;
@@ -52,7 +52,7 @@ class UploadThread extends Thread {
    
     public void run() {
       DataInputStream               in,openIn;
-      String                        bssid,outString;
+      String                        bssid,outString="";
       double                        lat,lon; 
       HashMap<String,WMapSlimEntry> uploadMap;
       HashMap<String,String>        openMap;
@@ -75,7 +75,18 @@ class UploadThread extends Thread {
         try {
          in=new DataInputStream(ctx.openFileInput(FILE_UPLOADSTORE));
          in.readByte(); // version
-         outString=in.readUTF();
+         try
+         {
+            do
+            {
+               outString += in.readChar();
+            }
+            while (true);
+         }
+         catch (EOFException eof)
+         {
+         }
+
          in.close();
             if (!uploadData(outString, silent)) {
             if (!silent)
@@ -214,7 +225,7 @@ class UploadThread extends Thread {
             try {
             out=new DataOutputStream(ctx.openFileOutput(FILE_UPLOADSTORE,Context.MODE_PRIVATE));
             out.writeByte(1); // version
-            out.writeUTF(outString);
+            out.writeChars(outString);
             out.close();
             ctx.deleteFile(OWMiniAtAndroid.WSCAN_FILE);
          }
