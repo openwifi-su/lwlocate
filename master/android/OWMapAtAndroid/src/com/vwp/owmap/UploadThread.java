@@ -4,7 +4,6 @@ import android.content.*;
 import android.net.*;
 import android.preference.PreferenceManager;
 import android.app.*;
-import android.util.Log;
 
 import java.io.*;
 import java.net.*;
@@ -27,8 +26,6 @@ class UploadThread extends Thread {
 
     private static final int version = 121;
     private static final String FILE_UPLOADSTORE = "uploadstore";
-    private final Boolean localModuleDebug = true; // Show Debug message in this module
-    private final String debugTag = "UploadThread";
 
     UploadThread(ScanData scanData, ScanService ctx, SharedPreferences SP, boolean silent, Notification notification, NetworkInfo mWifi) {
         notification.icon = R.drawable.upload;
@@ -270,9 +267,6 @@ class UploadThread extends Thread {
             is = new DataInputStream(c.getInputStream());
             try {
                 inString = is.readLine();
-                if (localModuleDebug) {
-                    Log.i(debugTag, inString);
-                }
                 remoteVersion = Integer.parseInt(inString);
                 inString = is.readLine();
                 scanData.uploadedCount = Integer.parseInt(inString);
