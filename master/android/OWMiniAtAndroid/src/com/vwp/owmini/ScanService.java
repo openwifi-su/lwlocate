@@ -455,7 +455,7 @@ public class ScanService extends Service implements Runnable
                                (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
                                (lowerSSID.contains("megabus")) ||        // WLAN network on board of bus line
                                (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
-                               (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+                               (lowerSSID.contains("eurolines")) ||      // WLAN network on board of German bus
                                (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
                                (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
                                (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
