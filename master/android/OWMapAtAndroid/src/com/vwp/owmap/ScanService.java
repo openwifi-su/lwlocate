@@ -545,7 +545,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                                             (lowerSSID.contains("postbus")) ||        // WLAN network on board of bus line
                                             (lowerSSID.contains("megabus")) ||        // WLAN network on board of bus line
                                             (lowerSSID.contains("ecolines")) ||       // WLAN network on board of German bus
-                                            (lowerSSID.contains("eurolines_wifi")) || // WLAN network on board of German bus
+                                            (lowerSSID.contains("eurolines")) ||      // WLAN network on board of German bus
                                             (lowerSSID.contains("contiki-wifi")) ||   // WLAN network on board of bus
                                             (lowerSSID.contains("muenchenlinie")) ||   // WLAN network on board of bus
                                             (lowerSSID.contains("guest@ms ")) ||      // WLAN network on Hurtigruten ships
@@ -678,19 +678,14 @@ public class ScanService extends Service implements Runnable, SensorEventListene
 
     static String getProjectURL(boolean secure) {
         SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-        try {
-            if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
-            {
-                if (!secure) return "http://www.openwifi.su/";
-                return "https://openwifi.su/";
-            } else // openwlanmap.org
-            {
-                if (!secure) return "http://www.openwlanmap.org/";
-                return "https://openwlanmap.org/";
-            }
-        } finally {
+        if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
+        {
             if (!secure) return "http://www.openwifi.su/";
             return "https://openwifi.su/";
+        } else // openwlanmap.org
+        {
+            if (!secure) return "http://www.openwlanmap.org/";
+            return "https://openwlanmap.org/";
         }
     }
 
@@ -729,7 +724,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
         // HTTPS connection
         HttpsURLConnection c = null;
         int cert_id = R.raw.root;
-        if (SP.getString("usePrj", "1") == "1") // openwifi.su
+        if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
         {
             cert_id = R.raw.openwifi;
         }
