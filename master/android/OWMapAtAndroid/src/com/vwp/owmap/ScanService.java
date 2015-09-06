@@ -678,7 +678,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
 
     static String getProjectURL(boolean secure) {
         SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-        if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
+        if (!SP.getString("usePrj", "3").equalsIgnoreCase("4")) // openwifi.su
         {
             if (!secure) return "http://www.openwifi.su/";
             return "https://openwifi.su/";
@@ -724,7 +724,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
         // HTTPS connection
         HttpsURLConnection c = null;
         int cert_id = R.raw.root;
-        if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
+        if (!SP.getString("usePrj", "3").equalsIgnoreCase("4")) // openwifi.su
         {
             cert_id = R.raw.openwifi;
         }

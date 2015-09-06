@@ -24,8 +24,7 @@ class UploadThread extends Thread {
     private Notification notification;
     private NetworkInfo mWifi;
 
-    private static final int version = 122;
-    private static final String FILE_UPLOADSTORE = "uploadstore2";
+    private static final int version = 124;
 
     UploadThread(ScanData scanData, ScanService ctx, SharedPreferences SP, boolean silent, Notification notification, NetworkInfo mWifi) {
         notification.icon = R.drawable.upload;
@@ -72,34 +71,6 @@ class UploadThread extends Thread {
         teamid = SP.getString("team", "");
         if (SP.getBoolean("publish", true)) mainFlags = 1;
         if (SP.getBoolean("pubmap", false)) mainFlags |= 2;
-
-        try {
-            in = new DataInputStream(ctx.openFileInput(FILE_UPLOADSTORE));
-            in.readByte(); // version
-         try
-         {
-            do
-            {
-               outString += in.readChar();
-            }
-            while (true);
-         }
-         catch (EOFException eof)
-         {
-         }
-
-            in.close();
-            if (!uploadData(outString, silent)) {
-                if (!silent)
-                    OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getText(R.string.upload_problem));
-                resetNotification();
-                return;
-            }
-            ctx.deleteFile(FILE_UPLOADSTORE);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
 
         try {
             in = new DataInputStream(ctx.openFileInput(OWMapAtAndroid.WSCAN_FILE));
@@ -214,19 +185,6 @@ class UploadThread extends Thread {
 
             txt = ctx.getResources().getText(R.string.app_name) + ": " + ctx.getResources().getText(R.string.uploading_data);
             OWMapAtAndroid.sendMessage(ScannerHandler.MSG_TOAST, 0, 0, txt);
-        }
-        if (!uploadData(outString, silent)) {
-            DataOutputStream out;
-
-            try {
-                out = new DataOutputStream(ctx.openFileOutput(FILE_UPLOADSTORE, Context.MODE_PRIVATE));
-                out.writeByte(1); // version
-            out.writeChars(outString);
-                out.close();
-                ctx.deleteFile(OWMapAtAndroid.WSCAN_FILE);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
         }
         resetNotification();
     }
