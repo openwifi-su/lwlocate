@@ -186,6 +186,7 @@ class UploadThread extends Thread {
             txt = ctx.getResources().getText(R.string.app_name) + ": " + ctx.getResources().getText(R.string.uploading_data);
             OWMapAtAndroid.sendMessage(ScannerHandler.MSG_TOAST, 0, 0, txt);
         }
+        uploadData(outString,silent);
         resetNotification();
     }
 
