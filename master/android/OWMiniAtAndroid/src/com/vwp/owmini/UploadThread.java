@@ -72,10 +72,10 @@ class UploadThread extends Thread {
       if (SP.getBoolean("pubmap",false)) mainFlags|=2;
 
         try {
-            in = new DataInputStream(ctx.openFileInput(OWMapAtAndroid.WSCAN_FILE));
+            in = new DataInputStream(ctx.openFileInput(OWMiniAtAndroid.WSCAN_FILE));
             if (in.available() < 28 * 240) {
                 if (!silent)
-                    OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getText(R.string.nothing_to_upload));
+                    OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getText(R.string.nothing_to_upload));
          in.close();
             resetNotification();
             return;
@@ -83,12 +83,12 @@ class UploadThread extends Thread {
         } catch (IOException ioe) {
          ioe.printStackTrace();
             if (!silent)
-                OWMapAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getText(R.string.nothing_to_upload));
+                OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_SIMPLE_ALERT, 0, 0, ctx.getResources().getText(R.string.nothing_to_upload));
             resetNotification();
             return;
          }
         try {
-            openIn = new DataInputStream(ctx.openFileInput(OWMapAtAndroid.WFREI_FILE));
+            openIn = new DataInputStream(ctx.openFileInput(OWMiniAtAndroid.WFREI_FILE));
         } catch (IOException ioe) {
          openIn=null;
       }
@@ -101,7 +101,7 @@ class UploadThread extends Thread {
             String txt;
             
             txt=ctx.getResources().getText(R.string.app_name)+": "+ctx.getResources().getText(R.string.preparing_data);
-                OWMapAtAndroid.sendMessage(ScannerHandler.MSG_TOAST, 0, 0, txt);
+                OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_TOAST, 0, 0, txt);
          }      
             while (in.available() >= 28) {
             in.read(data,0,12);
@@ -183,7 +183,7 @@ class UploadThread extends Thread {
          String txt;
          
          txt=ctx.getResources().getText(R.string.app_name)+": "+ctx.getResources().getText(R.string.uploading_data);
-            OWMapAtAndroid.sendMessage(ScannerHandler.MSG_TOAST, 0, 0, txt);
+            OWMiniAtAndroid.sendMessage(ScannerHandler.MSG_TOAST, 0, 0, txt);
       }
         uploadData(outString,silent);
       resetNotification();
@@ -285,10 +285,8 @@ class UploadThread extends Thread {
                             ctx.getResources().getText(R.string.stat_updAPs).toString()+": "+updAPs+"\n"+
                             ctx.getResources().getText(R.string.stat_delAPs).toString()+": "+delAPs+"\n"+
                             ctx.getResources().getText(R.string.stat_newPoints).toString()+": "+newPoints);
-            ctx.deleteFile(OWMapAtAndroid.MAP_FILE);
-            TotalMap.coordList.clear();
-            ctx.deleteFile(OWMapAtAndroid.MAP_DATA_FILE);
-            ctx.deleteFile(OWMapAtAndroid.MAP_MAX_FILE);
+            ctx.deleteFile(OWMiniAtAndroid.MAP_DATA_FILE);
+            ctx.deleteFile(OWMiniAtAndroid.MAP_MAX_FILE);
       }
       return uploadSuccess;
    }
