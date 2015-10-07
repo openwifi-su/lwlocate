@@ -47,9 +47,11 @@
  <string-array name="prefsUsePrjEntries">
   <item>openwifi.su</item>
   <item>openwlanmap.org</item>
+  <item>virtualworlds.de (non-public)</item>
  </string-array>
  <string-array name="prefsUsePrjValues">
-  <item>1</item>
-  <item>2</item>
+  <item>3</item>
+  <item>4</item>
+  <item>5</item>
  </string-array>
 </resources>

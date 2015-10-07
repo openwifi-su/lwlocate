@@ -8,7 +8,7 @@
   android:title="@string/prefsUsePrj"
   android:summary="@string/prefsUsePrjText"
   android:key="usePrj"
-  android:defaultValue="1"
+  android:defaultValue="3"
   android:entries="@array/prefsUsePrjEntries"
   android:entryValues="@array/prefsUsePrjValues"
   android:layout_width="fill_parent"

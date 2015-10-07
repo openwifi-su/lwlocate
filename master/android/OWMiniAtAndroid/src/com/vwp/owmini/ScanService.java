@@ -166,7 +166,7 @@ public class ScanService extends Service implements Runnable
 
       public MyWLocate(Context ctx)
       {
-         super(ctx,getProjectURL(false)); // todo: add support for secure conections in libwlocate
+            super(ctx, getProjectURL(false,true)); // todo: add support for secure connections in libwlocate
       }
       
       protected void wloc_return_position(int ret,double lat,double lon,float radius,short ccode)
@@ -600,14 +600,23 @@ public class ScanService extends Service implements Runnable
    }
 
 
-   String getProjectURL(boolean secure)
+    static String getProjectURL(boolean secure,boolean wlocInit)
    {
+       String value;
+
       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-      if (SP.getString("usePrj","1").equalsIgnoreCase("1")) // openwifi.su
+       value=SP.getString("usePrj", "3");
+       if (value.equalsIgnoreCase("3")) // openwifi.su
       {
          if (!secure) return "http://www.openwifi.su/";
          return "https://openwifi.su/";
       }
+        else if (value.equalsIgnoreCase("5"))
+        {
+           if (wlocInit) return "http://www.openwifi.su/"; // this project does not provide WLAN localisation, so use a working default
+           if (!secure) return "http://tracker.virtualworlds.de/";
+           return "https://tracker.virtualworlds.de/";
+        }
       else // openwlanmap.org
       {
          if (!secure) return "http://www.openwlanmap.org/";
@@ -623,7 +632,7 @@ public class ScanService extends Service implements Runnable
       // Create URL object
       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
 
-      String url_string = getProjectURL( !(SP.getBoolean("httpUpload", false))) + "android/upload.php";
+        String url_string = getProjectURL(!(SP.getBoolean("httpUpload", false)),false) + "android/upload.php";
 
       URL connectURL = null;
       try {
@@ -650,7 +659,7 @@ public class ScanService extends Service implements Runnable
       // HTTPS connection
       HttpsURLConnection c = null;
       int cert_id = R.raw.root;
-      if (SP.getString("usePrj", "1").equalsIgnoreCase("1")) // openwifi.su
+        if (SP.getString("usePrj", "3").equalsIgnoreCase("3")) // openwifi.su
       {
          cert_id = R.raw.openwifi;
       }
@@ -727,6 +736,10 @@ public class ScanService extends Service implements Runnable
             c = getWebConnection();
             if (c == null) return;
 	            
+                if (Build.VERSION.SDK != null && Build.VERSION.SDK_INT > 13)
+                {
+                   c.setRequestProperty("Connection", "close");
+                }
 	            c.setDoOutput(true); // enable POST
 	            c.setRequestMethod("POST");
 	            c.addRequestProperty("Content-Type","application/x-www-form-urlencoded, *.*");
