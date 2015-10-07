@@ -238,8 +238,9 @@ public class ScanService extends Service implements Runnable, SensorEventListene
 
     class MyWLocate extends WLocate {
 
-        public MyWLocate(Context ctx) {
-            super(ctx, getProjectURL(false)); // todo: add support for secure conections in libwlocate
+        public MyWLocate(Context ctx)
+        {
+            super(ctx, getProjectURL(false,true)); // todo: add support for secure connections in libwlocate
         }
 
         protected void wloc_return_position(int ret, double lat, double lon, float radius, short ccode) {
@@ -676,13 +677,24 @@ public class ScanService extends Service implements Runnable, SensorEventListene
     }
 
 
-    static String getProjectURL(boolean secure) {
-        SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
-        if (!SP.getString("usePrj", "3").equalsIgnoreCase("4")) // openwifi.su
+    static String getProjectURL(boolean secure,boolean wlocInit)
+    {
+       String value;
+
+       SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
+       value=SP.getString("usePrj", "3");
+       if (value.equalsIgnoreCase("3")) // openwifi.su
         {
             if (!secure) return "http://www.openwifi.su/";
             return "https://openwifi.su/";
-        } else // openwlanmap.org
+        }
+        else if (value.equalsIgnoreCase("5"))
+        {
+           if (wlocInit) return "http://www.openwifi.su/"; // this project does not provide WLAN localisation, so use a working default
+           if (!secure) return "http://tracker.virtualworlds.de/";
+           return "https://tracker.virtualworlds.de/";
+        }
+        else // openwlanmap.org
         {
             if (!secure) return "http://www.openwlanmap.org/";
             return "https://openwlanmap.org/";
@@ -697,7 +709,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
         // Create URL object
         SP = PreferenceManager.getDefaultSharedPreferences(scanData.ctx.getBaseContext());
 
-        String url_string = getProjectURL(!(SP.getBoolean("httpUpload", false))) + "android/upload.php";
+        String url_string = getProjectURL(!(SP.getBoolean("httpUpload", false)),false) + "android/upload.php";
 
         URL connectURL = null;
         try {
@@ -724,7 +736,7 @@ public class ScanService extends Service implements Runnable, SensorEventListene
         // HTTPS connection
         HttpsURLConnection c = null;
         int cert_id = R.raw.root;
-        if (!SP.getString("usePrj", "3").equalsIgnoreCase("4")) // openwifi.su
+        if (SP.getString("usePrj", "3").equalsIgnoreCase("3")) // openwifi.su
         {
             cert_id = R.raw.openwifi;
         }
@@ -783,6 +795,10 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                 c = getWebConnection();
                 if (c == null) return null;
 
+                if (Build.VERSION.SDK != null && Build.VERSION.SDK_INT > 13)
+                {
+                   c.setRequestProperty("Connection", "close");
+                }
                 c.setDoOutput(true); // enable POST
                 c.setRequestMethod("POST");
                 c.addRequestProperty("Content-Type", "application/x-www-form-urlencoded, *.*");
@@ -794,7 +810,10 @@ public class ScanService extends Service implements Runnable, SensorEventListene
                 os.close();
                 outString = null;
                 os = null;
-            } catch (IOException ioe) {
+            }
+            catch (IOException ioe)
+            {
+               ioe.printStackTrace();
             } finally {
                 try {
                     if (os != null) os.close();
