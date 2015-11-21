@@ -1,9 +1,0 @@
-To build this app libwlocate is required. Either use it as library (.jar to be added to
-the project) or set a symlink from
-libwlocate/master/android/LocDemo/src/com/vwp/libwlocate/ into
-libwlocate/master/android/OWMiniAtAndroid/src/com/vwp/ (so that there is a directory
-"libwlocate" in folder "src/com/vwp/" afterwards.
-
-Before submitting changes in this App please implement the same in OpenWLANMap@Android
-app.
-
