@@ -1,7 +1,7 @@
 /**
  * libwlocate - WLAN-based location service
  * Copyright (C) 2010-2014 Oxygenic/VWP virtual_worlds(at)gmx.de
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -41,21 +41,21 @@ WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,
    char            responseOK=0;
 
    setlocale(LC_ALL,"C");
-   sock=tcp_connect_to(domain,80);
+   sock=tcp_connect_to(domain);
    if (sock<=0)
    {
       printf("Connect error %d\n",errno);
       return WLOC_SERVER_ERROR;
    }
    tcp_set_blocking(sock,0); // set to non-blocking, we do not want to wait endless for a dead connection
-  
+
    data[0]=0;
    for (i=0; i<WLOC_MAX_NETWORKS; i++)
    {
       if (request->bssids[i][0]+request->bssids[i][1]+request->bssids[i][2]+request->bssids[i][3]+request->bssids[i][4]+request->bssids[i][5]>0)
       {
          snprintf(data + strlen(data), 500 - strlen(data),
-	     "%02X%02X%02X%02X%02X%02X\r\n",
+             "%02X%02X%02X%02X%02X%02X\r\n",
              request->bssids[i][0],request->bssids[i][1],request->bssids[i][2],
              request->bssids[i][3],request->bssids[i][4],request->bssids[i][5]);
       }
@@ -70,7 +70,7 @@ WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,
       tcp_closesocket(sock);
       return WLOC_CONNECTION_ERROR;
    }
-   
+
    data[0]=0;
    for (;;)
    {
@@ -124,15 +124,15 @@ WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,
          }
       }
    }
-   
+
    tcp_closesocket(sock);
-   
+
    // this should never happen, the server should send quality values in range 0..99 only
 //   assert((*quality>=0) && (*quality<=99));
    if (*quality<0) *quality=0;
    else if (*quality>99) *quality=99;
    // end of this should never happen
-   
+
    *ccode=-1;
    return WLOC_OK;
 }
@@ -159,7 +159,7 @@ WLOC_EXT_API int wloc_get_location_from(const char *domain,double *lat,double *l
    // for Linux we have some special handling because only root has full access to the WLAN-hardware:
    // there a wlocd-daemon may run with root privileges, so we try to connect to it and receive the
    // BSSID data from there. Only in case this fails the way via iwtools is used 
-   sock=tcp_connect_to("127.0.0.1",10444);
+   sock=tcp_connect_to("127.0.0.1");
    if (sock>0)
    {
    	ret=tcp_recv(sock,(char*)&request,sizeof(struct wloc_req),NULL,7500);
@@ -175,7 +175,7 @@ WLOC_EXT_API int wloc_get_location_from(const char *domain,double *lat,double *l
    	}
    }
 #else
-   ret=0;   
+   ret=0;
 #endif
    if (ret==0)
    {
