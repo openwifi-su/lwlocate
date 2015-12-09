@@ -1,7 +1,7 @@
 /**
  * libwlocate - WLAN-based location service
  * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,6 +22,8 @@
 
 #ifdef ENV_WINDOWS
  #include <winsock2.h>
+ #include <WS2tcpip.h>
+ #pragma comment (lib, "ws2_32.lib")
  #define MSG_NOSIGNAL 0
 #else
  #include <sys/socket.h>
@@ -57,7 +59,6 @@ static int util_thread_sleep(int msecs)
 #endif
    return msecs;
 }
- 
 
 
 /**
@@ -70,7 +71,7 @@ Receive data from a socket connection
 @param[in] timeout when this time is exceeded the function returns also if not all data could
            be read; this parameter is valid only in case the socket is non-blocking
 */
-int tcp_recv(int sock,char *data, int len,const char *termStr,long timeout) 
+int tcp_recv(int sock,char *data, int len,const char *termStr,long timeout)
 {
    long /*size_t*/   rc;
    long     ctr=0,readLen=0;
@@ -81,7 +82,7 @@ int tcp_recv(int sock,char *data, int len,const char *termStr,long timeout)
    // data from source client side
    while (readLen<len)
    {
-      rc = recv(sock,data+readLen,1/*len-readLen*/,MSG_NOSIGNAL);   
+      rc = recv(sock,data+readLen,1/*len-readLen*/,MSG_NOSIGNAL);
       if (rc>0)
       {
          readLen+=rc;
@@ -189,58 +190,45 @@ void tcp_closesocket (int sock)
 /**
 Tries to establish a client connection to a (remote) server socket
 @param[in] address address of the remote server in style a.b.c.d or www.domain.tld
-@param[in] port number to connect with
-@return the socket identifier of the established connection or a value <=0 in case of an
-        error
+@return the socket identifier of the established connection or a value <=0 in case of an error
 */
-int tcp_connect_to(const char *address,unsigned short connect_port)
-{
-   struct sockaddr_in a;
-   struct hostent *host;
-   int             s;
-   unsigned long   nl;
+int tcp_connect_to(const char *address) {
+  struct addrinfo hints, *servinfo, *p;
+  int s;
+  int r;
 
-   s = socket (AF_INET, SOCK_STREAM, 0);
-   if (s<0)
-   {
-#ifndef ENV_WINDOWSCE
-      perror("Can't create socket");
-#endif
-      return -1;
-   }
+  memset(&hints, 0, sizeof hints);
+  hints.ai_family = AF_UNSPEC; // Allow IPv4 or IPv6
+  hints.ai_socktype = SOCK_STREAM; // Set TCP protocol
 
-   memset (&a, 0, sizeof (a));
-   a.sin_port = htons (connect_port);
-   a.sin_family = AF_INET;
-   a.sin_addr.s_addr =inet_addr(address);
-   if (a.sin_addr.s_addr==INADDR_NONE)
-   {
-      host = gethostbyname (address); // deprecated by posix standard?
-      if (host)
-      {
-         memcpy (&nl, host->h_addr, sizeof(unsigned long));
-         a.sin_addr.s_addr = nl;
-      }
-      else
-      {
-#ifndef ENV_WINDOWSCE
-         perror("Getting hostname");
-#endif
-         tcp_closesocket(s);
-         return -1;
-      }
-   }
-   if (connect (s, (struct sockaddr *) &a, sizeof (a)) < 0)
-   {
-#ifndef ENV_WINDOWSCE
-      perror("No connection");
-#endif
-      tcp_closesocket (s);
-      return -1;
-   }
-   return s;
+  if ((r = getaddrinfo(address, "http", &hints, &servinfo)) != 0) {
+    perror("getaddrinfo: wrong URL %s\n" + strlen(gai_strerror(r)));
+    return -1;
+  }
+
+  // connect to the first addr that we can.
+  for(p = servinfo; p != NULL; p = p->ai_next) {
+    if ((s = socket(p->ai_family, p->ai_socktype,p->ai_protocol)) == -1) {
+      perror("socket");
+      continue;
+    }
+
+    if (connect(s, p->ai_addr, p->ai_addrlen) == -1) {
+      close(s);
+      perror("connect");
+      continue;
+    }
+    break; // if we get here, connection must have established
+  }
+
+  if (p == NULL) {
+    // if there above for does not got an connection
+    perror("failed to connect\n");
+    return -1;
+  }
+  freeaddrinfo(servinfo); // all done with this structure
+  return s;
 }
-
 
 
 /**
@@ -263,4 +251,3 @@ void tcp_set_blocking(int sock,char block)
    ioctlsocket(sock,FIONBIO,(unsigned long*)&flags);
 #endif
 }
-
