@@ -1,7 +1,7 @@
 /**
  * libwlocate - WLAN-based location service
  * Copyright (C) 2010 Oxygenic/VWP virtual_worlds(at)gmx.de
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,7 @@
 extern int  tcp_recv(int sock,char *data, int len,const char *termStr,long timeout);
 extern int  tcp_send(int sock, const char *msg,int len,int msecs);
 extern void tcp_closesocket (int sock);
-extern int  tcp_connect_to(const char *address,unsigned short connect_port);
+extern int  tcp_connect_to(const char *address);
 extern void tcp_set_blocking(int sock,char block);
 
 #endif
