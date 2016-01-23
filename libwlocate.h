@@ -144,7 +144,7 @@ extern "C"
     *             parameter can be used, elsewhere the structures contents are undefined
     */
    WLOC_EXT_API int wloc_get_wlan_data(struct wloc_req *request);
-   
+#ifndef SLIM
    /**
     * Using this function the numeric country code that is returned by the wloc_get_location
     * function can be decoded to a two-character identifier.
@@ -168,7 +168,7 @@ extern "C"
     *            success    
     */
    WLOC_EXT_API char* wloc_get_countryname_from_code(short ccode);
-
+#endif
    WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,double *lat,double *lon,char *quality,short *ccode);
 #ifdef __cplusplus
 }
