@@ -191,7 +191,7 @@ WLOC_EXT_API int wloc_get_location_from(const char *domain,double *lat,double *l
    return get_position(domain,&request,lat,lon,quality,ccode);
 }
 
-
+#ifndef SLIM
 
 /** please refer to libwlocate.h for a description of this function! */
 WLOC_EXT_API int wloc_get_country_from_code(short ccode,char *country)
@@ -637,4 +637,4 @@ WLOC_EXT_API char* wloc_get_countryname_from_code(short ccode)
    if ((ccode<1) || (ccode>=MAX_COUNTRY_NUM)) return NULL;
    return countrynames[ccode-1];
 }
-
+#endif
