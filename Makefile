@@ -7,13 +7,18 @@ endif
 
 DEBUGFLAG =
 ifeq ($(DEBUG),true)
-	DEBUGFLAG = -DDBUG
+	DEBUGFLAG = -DDEBUG
+endif
+
+SLIMFLAG =
+ifeq ($(SLIM),true)
+	SLIMFLAG = -DSLIM
 endif
 
 CC = gcc
 LINKFLAGS = -L/usr/lib -L/usr/local/lib/
 HEADERFLAGS = -I.
-CFLAGS = -Wall $(VERBOUSFLAGS) $(DEBUGFLAG)
+CFLAGS = -Wall $(VERBOUSFLAGS) $(DEBUGFLAG) $(SLIMFLAG)
 LDFLAGS = -L. -lwlocate -lm
 
 SOURCES=trace.c
@@ -22,7 +27,7 @@ EXECUTABLE = lwtrace
 
 all:
 ifeq ($(TARGET),ENV_LINUX)
-	$(CC) -c -DENV_LINUX $(SOURCES)
+	$(CC) -c $(CFLAGS) -DENV_LINUX  $(SOURCES)
 	$(CC) $(CFLAGS) -DENV_LINUX $(LINKFLAGS) $(HEADERFLAGS) -o $(EXECUTABLE) $(OBJECTS) $(LDFLAGS)
 	$(STRIP) $(EXECUTABLE)
 else
@@ -47,4 +52,5 @@ help:
 	@echo "VERBOUS=true		For more compiling output"
 	@echo "DEBUG=true		For developer debuging output"
 	@echo "clean			To remove compiled files"
-	@echo "Install			Install the compiled file"
+	@echo "install			Install the compiled file"
+	@echo "uninstall		Remove installed executabel"
