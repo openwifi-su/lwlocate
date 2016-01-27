@@ -38,6 +38,7 @@ systems and building environments:
 2. Run git clone:
 
 	`git clone https://github.com/openwifi-su/lwlocate.git`
+
 	`cd lwlocate/`
 
 3. Run make:
@@ -49,13 +50,15 @@ For Windows cross compiling you will get libwlocate.dll and lwtrace.exe.
 
 ## Building wiht QNX and Windows
 
-Makelib.QNX        - file for building the shared library libwlocate.so for QNX using
-                     standard "make"; here scanning of WLAN networks is currently not
-                     implemented, the compiled library will not work at the moment!
-Makefile.QNX       - file for building a QNX test and trace application using
-                     libwlocate.so and standard make
-libwlocate.dsp/    - project file for building the shared DLL libwlocate.dll for Windows
-libwlocate.vcxproj   using Microsoft Visual Studio
+Makelib.QNX
+
+- file for building the shared library libwlocate.so for QNX using standard "make"; here scanning of WLAN networks is currently not implemented, the compiled library will not work at the moment!
+
+Makefile.QNX
+
+- file for building a QNX test and trace application using libwlocate.so and standard make libwlocate.dsp/
+
+- project file for building the shared DLL libwlocate.dll for Windows libwlocate.vcxproj using Microsoft Visual Studio
 
 # libwlocate
 
