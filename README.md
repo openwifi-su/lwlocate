@@ -33,16 +33,16 @@ systems and building environments:
 
 1. Install dependencies (mingw-w64-gcc is only needed for Windows cross compiling):
 
-	yaourt -S wireless_tools mingw-w64-gcc binutils gcc make git
+	`yaourt -S wireless_tools mingw-w64-gcc binutils gcc make git`
 
 2. Run git clone:
 
-	git clone https://github.com/openwifi-su/lwlocate.git
-	cd lwlocate/
+	`git clone https://github.com/openwifi-su/lwlocate.git`
+	`cd lwlocate/`
 
 3. Run make:
 
-	make help
+	`make help`
 
 After building you will get the shared library libwlocate.so and a test and trace application lwtrace for Linux. The resulting position trace file when you run lwtrace can be loaded by LocDemo for later position evaluation.
 For Windows cross compiling you will get libwlocate.dll and lwtrace.exe.
