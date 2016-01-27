@@ -93,6 +93,9 @@ WLOC_EXT_API int get_position(const char *domain,const struct wloc_req *request,
                   return WLOC_SERVER_ERROR;
                }
                responseOK=1;
+#ifdef DEBUG
+	       printf(data);
+#endif
             }
             if (strstr(data,"result=0"))
             {
