@@ -89,6 +89,9 @@ int main(int argc,char *argv[])
          printf("Your location: %f (lat) %f (lon)\nQuality: %d %%\n",lat,lon,quality);
 #ifndef SLIM
          country[2]=0;
+#ifdef DEBUG
+	printf("ccode: %d country: %c WLOC_OK: %d\n",ccode,country,WLOC_OK);
+#endif
          if (wloc_get_country_from_code(ccode,country)==WLOC_OK) printf("Country: %d - %s\n",ccode,country);
          else printf("Country: unknown\n");
 #endif
