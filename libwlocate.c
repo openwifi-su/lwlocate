@@ -151,13 +151,44 @@ WLOC_EXT_API int wloc_get_location(double *lat,double *lon,char *quality,short *
 /** please refer to libwlocate.h for a description of this function! */
 WLOC_EXT_API int wloc_get_location_from(const char *domain,double *lat,double *lon,char *quality,short *ccode)
 {
+#ifdef ENV_LINUX
+   int sock,i,j;
+#endif
    struct wloc_req request;
+   int             ret=0;
 
+#ifdef ENV_LINUX
+   // for Linux we have some special handling because only root has full access to the WLAN-hardware:
+   // there a wlocd-daemon may run with root privileges, so we try to connect to it and receive the
+   // BSSID data from there. Only in case this fails the way via iwtools is used
+   sock=tcp_connect_to("127.0.0.1");
+   if (sock>0) {
+     ret=tcp_recv(sock,(char*)&request,sizeof(struct wloc_req),NULL,7500);
+     tcp_closesocket(sock);
+     if (ret==sizeof(struct wloc_req)) {
+       ret=0;
+       for (i=0; i<WLOC_MAX_NETWORKS; i++) {
+         if (request.bssids[i][0]+request.bssids[i][1]+request.bssids[i][2]+
+             request.bssids[i][3]+request.bssids[i][4]+request.bssids[i][5]>0) ret++;
+       }
+     }
+   }
    memset((char*)&request,0,sizeof(struct wloc_req));
    if (wloc_get_wlan_data(&request)<2) {
 	wloc_get_wlan_data(&request); // try two times in case the device was currently used or could not find all networks
 	// in case of no success request localisation without WLAN data
    }
+#endif
+   if (ret==0) {
+     if (wloc_get_wlan_data(&request)<2) {
+       wloc_get_wlan_data(&request); // try two times in case the device was currently used or could not find all networks
+       // in case of no success request localisation without WLAN data
+     }
+   }
+//   for (i=0; i<WLOC_MAX_NETWORKS; i++)
+//    printf("BSSID: %02X:%02X:%02X:%02X:%02X:%02X Signal: %d\n",request.bssids[i][0] & 0xFF,request.bssids[i][1] & 0xFF,request.bssids[i][2] & 0xFF,
+//                                                               request.bssids[i][3] & 0xFF,request.bssids[i][4] & 0xFF,request.bssids[i][5] & 0xFF,request.signal[i]);
+
    return get_position(domain,&request,lat,lon,quality,ccode);
 }
 
